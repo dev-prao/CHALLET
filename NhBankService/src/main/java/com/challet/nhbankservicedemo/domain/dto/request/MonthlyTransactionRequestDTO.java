@@ -11,4 +11,8 @@ public record MonthlyTransactionRequestDTO(
 
     @Schema(description = "달")
     int month
-){}
+){
+    public static MonthlyTransactionRequestDTO fromDTO(int year, int month) {
+        return MonthlyTransactionRequestDTO.builder().year(year).month(month).build();
+    }
+}
