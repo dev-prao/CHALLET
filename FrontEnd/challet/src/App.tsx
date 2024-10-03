@@ -38,7 +38,7 @@ import SharedTransactionEdit from './components/Challenge/SharedTransactionEdit'
 import ImageUpload from './pages/TestPage/ImageUpload';
 import WebSocketTest from './pages/TestPage/WebSocketTest';
 import CalendarSpendingPage from './pages/AnalysisPage/CalendarSpendingPage';
-import CalendarSpendingPage2 from './pages/AnalysisPage/CalendarSpendingPage2';
+import CalendarSpendingPage2 from './pages/AnalysisPage/CalendarSpending';
 import './assets/App.css';
 
 function App() {
