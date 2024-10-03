@@ -121,7 +121,7 @@ public class ShBankController {
         return null;
     }
 
-    @PostMapping("/transactions-monthly")
+    @GetMapping("/transactions-monthly")
     @Operation(summary = "한달 결제내역", description = "year, month를 통해 거래 내역 검색")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "검색 성공"),
@@ -129,8 +129,9 @@ public class ShBankController {
     })
     public ResponseEntity<MonthlyTransactionHistoryListDTO> getMonthlyTransactionHistory(
         @RequestHeader(value = "Authorization", required = false) String tokenHeader,
-        @RequestBody MonthlyTransactionRequestDTO requestDTO
-    ) {
+        @RequestParam int year, @RequestParam int month) {
+
+        MonthlyTransactionRequestDTO requestDTO = MonthlyTransactionRequestDTO.fromDTO(year, month);
         MonthlyTransactionHistoryListDTO monthlyTransactionHistory = shBankService.getMonthlyTransactionHistory(
             tokenHeader, requestDTO);
         return ResponseEntity.status(HttpStatus.OK).body(monthlyTransactionHistory);
