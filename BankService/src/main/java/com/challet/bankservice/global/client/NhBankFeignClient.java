@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "nh-bank")
 public interface NhBankFeignClient {
@@ -28,10 +29,10 @@ public interface NhBankFeignClient {
     @PostMapping("/api/nh-bank/account-transfers")
     BankTransferRequestDTO getTransferAccount(BankTransferResponseDTO responseDTO);
 
-    @PostMapping("/api/nh-bank/transactions-monthly")
+    @GetMapping("/api/nh-bank/transactions-monthly")
     MonthlyTransactionHistoryListDTO getMonthlyTransactionHistory(
         @RequestHeader(value = "Authorization", required = false) String tokenHeader,
-        @RequestBody MonthlyTransactionRequestDTO requestDTO);
+        @RequestParam int year, @RequestParam int month);
 
     @PostMapping("/api/nh-bank/transaction-category")
     Map<Category, Long> getTransactionGroupCategory(

@@ -10,9 +10,11 @@ import com.challet.bankservice.domain.entity.Category;
 import java.util.Map;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "kb-bank")
 public interface KbBankFeignClient {
@@ -28,10 +30,10 @@ public interface KbBankFeignClient {
     @PostMapping("/api/kb-bank/account-transfers")
     BankTransferRequestDTO getTransferAccount(BankTransferResponseDTO responseDTO);
 
-    @PostMapping("/api/kb-bank/transactions-monthly")
+    @GetMapping("/api/kb-bank/transactions-monthly")
     MonthlyTransactionHistoryListDTO getMonthlyTransactionHistory(
         @RequestHeader(value = "Authorization", required = false) String tokenHeader,
-        @RequestBody MonthlyTransactionRequestDTO requestDTO);
+        @RequestParam int year, @RequestParam int month);
 
     @PostMapping("/api/kb-bank/transaction-category")
     Map<Category, Long> getTransactionGroupCategory(

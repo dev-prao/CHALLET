@@ -15,9 +15,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -36,14 +39,15 @@ public class TransactionAnalysisController {
     })
     public ResponseEntity<MonthlyTransactionHistoryListDTO> getMonthlyTransactionHistory(
         @RequestHeader(value = "Authorization", required = false) String tokenHeader,
-        @RequestBody MonthlyTransactionRequestDTO requestDTO
-    ) {
+        @RequestParam int year, @RequestParam int month) {
+
+        MonthlyTransactionRequestDTO requestDTO = MonthlyTransactionRequestDTO.fromDTO(year, month);
         MonthlyTransactionHistoryListDTO monthlyTransactionHistory = transactionAnalysisService.getMonthlyTransactionHistory(
             tokenHeader, requestDTO);
         return ResponseEntity.status(HttpStatus.OK).body(monthlyTransactionHistory);
     }
 
-    @GetMapping("/transaction-category")
+    @PostMapping("/transaction-category")
     @Operation(summary = "성별,나이 분석 조회", description = "성별,나이,이번달 데이터를 통해 모든 사용자 계좌 전월 조회")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "분석 성공"),

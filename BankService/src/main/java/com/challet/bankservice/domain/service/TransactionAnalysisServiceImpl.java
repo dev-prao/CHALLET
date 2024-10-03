@@ -44,13 +44,13 @@ public class TransactionAnalysisServiceImpl implements TransactionAnalysisServic
             phoneNumber, requestDTO);
 
         MonthlyTransactionHistoryListDTO kbMonthlyTransaction = kbBankFeignClient.getMonthlyTransactionHistory(
-            tokenHeader, requestDTO);
+            tokenHeader, requestDTO.year(), requestDTO.month());
 
         MonthlyTransactionHistoryListDTO nhMonthlyTransaction = nhBankFeignClient.getMonthlyTransactionHistory(
-            tokenHeader, requestDTO);
+            tokenHeader, requestDTO.year(), requestDTO.month());
 
         MonthlyTransactionHistoryListDTO shMonthlyTransaction = shBankFeignClient.getMonthlyTransactionHistory(
-            tokenHeader, requestDTO);
+            tokenHeader, requestDTO.year(), requestDTO.month());
 
         List<MonthlyTransactionHistoryDTO> allTransactions = new ArrayList<>();
         allTransactions.addAll(chMonthlyTransaction.monthlyTransactions());
