@@ -3,10 +3,12 @@ package com.challet.kbbankservice.domain.service;
 import com.challet.kbbankservice.domain.dto.request.AccountTransferRequestDTO;
 import com.challet.kbbankservice.domain.dto.request.BankToAnalysisMessageRequestDTO;
 import com.challet.kbbankservice.domain.dto.request.MonthlyTransactionRequestDTO;
+import com.challet.kbbankservice.domain.dto.request.PaymentRequestDTO;
 import com.challet.kbbankservice.domain.dto.request.SearchTransactionRequestDTO;
 import com.challet.kbbankservice.domain.dto.response.AccountInfoResponseListDTO;
 import com.challet.kbbankservice.domain.dto.response.BankTransferResponseDTO;
 import com.challet.kbbankservice.domain.dto.response.MonthlyTransactionHistoryListDTO;
+import com.challet.kbbankservice.domain.dto.response.PaymentResponseDTO;
 import com.challet.kbbankservice.domain.dto.response.SearchedTransactionResponseDTO;
 import com.challet.kbbankservice.domain.dto.response.TransactionDetailResponseDTO;
 import com.challet.kbbankservice.domain.dto.response.TransactionResponseDTO;
@@ -17,10 +19,12 @@ import com.challet.kbbankservice.domain.entity.KbBank;
 import com.challet.kbbankservice.domain.entity.KbBankTransaction;
 import com.challet.kbbankservice.domain.entity.SearchedTransaction;
 import com.challet.kbbankservice.domain.repository.KbBankRepository;
+import com.challet.kbbankservice.domain.repository.KbBankTransactionRepository;
 import com.challet.kbbankservice.global.exception.CustomException;
 import com.challet.kbbankservice.global.exception.ExceptionResponse;
 import com.challet.kbbankservice.global.util.JwtUtil;
 import com.querydsl.core.NonUniqueResultException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +42,7 @@ public class KbBankServiceImpl implements KbBankService {
     private final KbBankRepository kbBankRepository;
     private final SearchedTransactionRepository searchedTransactionRepository;
     private final JwtUtil jwtUtil;
+    private final KbBankTransactionRepository kbBankTransactionRepository;
 
     @Override
     public AccountInfoResponseListDTO getAccountsByPhoneNumber(String tokenHeader) {
@@ -108,22 +113,69 @@ public class KbBankServiceImpl implements KbBankService {
     }
 
     @Override
-    public SearchedTransactionResponseDTO searchTransaction(SearchTransactionRequestDTO searchTransactionRequestDTO) {
-        Pageable pageable = PageRequest.of(searchTransactionRequestDTO.page(), searchTransactionRequestDTO.size());
-        Page<SearchedTransaction> searchedTransactions = getResult(searchTransactionRequestDTO, pageable);
+    public SearchedTransactionResponseDTO searchTransaction(
+        SearchTransactionRequestDTO searchTransactionRequestDTO) {
+        Pageable pageable = PageRequest.of(searchTransactionRequestDTO.page(),
+            searchTransactionRequestDTO.size());
+        Page<SearchedTransaction> searchedTransactions = getResult(searchTransactionRequestDTO,
+            pageable);
 
         boolean isLastPage = searchedTransactions.isLast();
 
-        return SearchedTransactionResponseDTO.fromSearchedTransaction(searchedTransactions.getContent(), isLastPage);
+        return SearchedTransactionResponseDTO.fromSearchedTransaction(
+            searchedTransactions.getContent(), isLastPage);
     }
 
-    private Page<SearchedTransaction> getResult(SearchTransactionRequestDTO searchTransactionRequestDTO, Pageable pageable) {
-        if(searchTransactionRequestDTO.deposit() != null) {
-            return searchedTransactionRepository.findByAccountIdAndDepositContaining(searchTransactionRequestDTO.accountId(),
+    private Page<SearchedTransaction> getResult(
+        SearchTransactionRequestDTO searchTransactionRequestDTO, Pageable pageable) {
+        if (searchTransactionRequestDTO.deposit() != null) {
+            return searchedTransactionRepository.findByAccountIdAndDepositContaining(
+                searchTransactionRequestDTO.accountId(),
                 searchTransactionRequestDTO.deposit(), pageable);
         }
-        return searchedTransactionRepository.findByAccountId(searchTransactionRequestDTO.accountId(), pageable);
+        return searchedTransactionRepository.findByAccountId(
+            searchTransactionRequestDTO.accountId(), pageable);
     }
 
+    @Transactional
+    @Override
+    public PaymentResponseDTO qrPayment(Long accountId, PaymentRequestDTO paymentRequestDTO) {
+
+        KbBank kbBank = kbBankRepository.findById(accountId)
+            .orElseThrow(() -> new ExceptionResponse(CustomException.ACCOUNT_NOT_FOUND_EXCEPTION));
+        long transactionBalance = calculateTransactionBalance(kbBank,
+            paymentRequestDTO.transactionAmount());
+
+        KbBankTransaction paymentTransaction = createTransaction(kbBank, paymentRequestDTO,
+            transactionBalance);
+
+        kbBank.addTransaction(paymentTransaction);
+
+        kbBankTransactionRepository.save(paymentTransaction);
+
+
+        searchedTransactionRepository.save(SearchedTransaction.fromAccountIdAndKbBankTransaction(accountId, paymentTransaction));
+
+        return PaymentResponseDTO.fromPaymentResponseDTO(paymentTransaction);
+    }
+
+    private long calculateTransactionBalance(KbBank kbBank, long transactionAmount) {
+        long transactionBalance = kbBank.getAccountBalance() - transactionAmount;
+        if (transactionBalance < 0) {
+            throw new ExceptionResponse(CustomException.NOT_ENOUGH_FUNDS_EXCEPTION);
+        }
+        return transactionBalance;
+    }
+
+    private KbBankTransaction createTransaction(KbBank kbBank,
+        PaymentRequestDTO paymentRequestDTO, long transactionBalance) {
+        return KbBankTransaction.builder()
+            .transactionAmount(-1 * paymentRequestDTO.transactionAmount())
+            .transactionDatetime(LocalDateTime.now())
+            .deposit(paymentRequestDTO.deposit())
+            .withdrawal(kbBank.getAccountNumber())
+            .transactionBalance(transactionBalance)
+            .build();
+    }
 
 }

@@ -2,6 +2,8 @@ package com.challet.kbbankservice.domain.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
@@ -24,7 +26,7 @@ public record SearchedTransaction(
 
     @Field(type = FieldType.Date, format = DateFormat.date_time, pattern = "uuuu-MM-dd'T'HH:mm:ss")
     @Schema(description = "거래 날짜 시간")
-    LocalDateTime transactionDate,
+    Date transactionDate,
 
     @Field(type = FieldType.Text)
     @Schema(description = "입금처")
@@ -43,10 +45,14 @@ public record SearchedTransaction(
         return SearchedTransaction.builder()
             .transactionId(String.valueOf(transaction.getId()))
             .accountId(accountId)
-            .transactionDate(transaction.getTransactionDatetime())
+            .transactionDate(convertToDate(transaction.getTransactionDatetime()))
             .deposit(transaction.getDeposit())
             .transactionBalance(transaction.getTransactionBalance())
             .transactionAmount(transaction.getTransactionAmount())
             .build();
+    }
+
+    public static Date convertToDate(LocalDateTime localDateTime) {
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 }

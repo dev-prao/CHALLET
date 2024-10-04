@@ -3,10 +3,12 @@ package com.challet.kbbankservice.domain.controller;
 import com.challet.kbbankservice.domain.dto.request.AccountTransferRequestDTO;
 import com.challet.kbbankservice.domain.dto.request.BankToAnalysisMessageRequestDTO;
 import com.challet.kbbankservice.domain.dto.request.MonthlyTransactionRequestDTO;
+import com.challet.kbbankservice.domain.dto.request.PaymentRequestDTO;
 import com.challet.kbbankservice.domain.dto.request.SearchTransactionRequestDTO;
 import com.challet.kbbankservice.domain.dto.response.AccountInfoResponseListDTO;
 import com.challet.kbbankservice.domain.dto.response.BankTransferResponseDTO;
 import com.challet.kbbankservice.domain.dto.response.MonthlyTransactionHistoryListDTO;
+import com.challet.kbbankservice.domain.dto.response.PaymentResponseDTO;
 import com.challet.kbbankservice.domain.dto.response.SearchedTransactionResponseDTO;
 import com.challet.kbbankservice.domain.dto.response.TransactionDetailResponseDTO;
 import com.challet.kbbankservice.domain.dto.response.TransactionResponseListDTO;
@@ -166,5 +168,19 @@ public class KbBankController {
         Map<Category, Long> transactionByGroupCategory = kbBankService.getTransactionByGroupCategory(
             requestDTO);
         return ResponseEntity.status(HttpStatus.OK).body(transactionByGroupCategory);
+    }
+
+    @PostMapping("/payments")
+    @Operation(summary = "결제 서비스", description = "결제 금액, 결제 장소 데이터를 이용한 결제")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "결제 성공"),
+        @ApiResponse(responseCode = "400", description = "결제 실패", content = @Content(schema = @Schema(implementation = Exception.class))),
+    })
+    public ResponseEntity<PaymentResponseDTO> processPayment(
+        @RequestHeader("AccountId") Long accountId
+        , @RequestBody PaymentRequestDTO paymentRequestDTO) {
+        PaymentResponseDTO paymentResponseDTO = kbBankService.qrPayment(accountId,
+            paymentRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentResponseDTO);
     }
 }

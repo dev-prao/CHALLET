@@ -57,6 +57,8 @@ spring:
       ddl-auto: update
       dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
+  elasticsearch:
+    uris: "challet.world:9200"
 
 springdoc:
   api-docs:
