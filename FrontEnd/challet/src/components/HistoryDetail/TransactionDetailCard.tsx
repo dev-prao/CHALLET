@@ -11,7 +11,6 @@ type TransactionDetailCardProps = {
 const TransactionDetailCard = ({
   transactionDetail,
 }: TransactionDetailCardProps) => {
-  // 날짜와 시간을 포맷팅하는 함수
   const formatDate = (datetime: string) => {
     const date = new Date(datetime);
     const year = date.getFullYear();

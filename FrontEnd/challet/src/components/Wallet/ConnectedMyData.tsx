@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import useAccountStore from '../../store/useAccountStore';
-import shLogo from '../../assets/mydata/sh-logo.png';
-import kbLogo from '../../assets/mydata/kb-logo.png';
-import nhLogo from '../../assets/mydata/nh-logo.png';
+import shLogo from '../../assets/mydata/sh-logo.svg';
+import kbLogo from '../../assets/mydata/kb-logo.svg';
+import nhLogo from '../../assets/mydata/nh-logo.svg';
 
 type Account = {
   id: number | string;
@@ -71,13 +71,14 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
     }
   };
 
-  // 송금 버튼 클릭 시 계좌 정보를 함께 navigate로 전달
-  // const handleTransferClick = (account: Account) => {
+  // // 송금 버튼 클릭 시 계좌 정보와 함께 은행 정보도 navigate로 전달
+  // const handleTransferClick = (bankKey: BankKey, account: Account) => {
   //   navigate('/transfer', {
   //     state: {
   //       accountNumber: account.accountNumber,
   //       accountBalance: account.accountBalance,
   //       accountId: account.id,
+  //       bankShortName: bankDetails[bankKey].shortName, // 은행 이름 추가
   //     },
   //   });
   // };
@@ -88,7 +89,7 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
       {bankData.accounts.map((account) => (
         <div
           key={account.id}
-          className='p-4 bg-white w-full flex justify-between items-center cursor-pointer '
+          className='p-4 pl-0 bg-white w-full flex justify-between items-center cursor-pointer '
           // className='p-4 bg-white w-full flex justify-between items-center cursor-pointer rounded-lg shadow-md mb-4'
           onClick={() => handleAccountClick(bankKey, account)}
         >
@@ -96,7 +97,7 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
             <img
               src={bankDetails[bankKey].logo}
               alt={`${bankDetails[bankKey].shortName} 로고`}
-              className={`${bankKey === 'nh' ? 'w-6 h-8 ml-1 mr-5' : 'w-8 h-8 mr-4'}`}
+              className='w-10 h-10 mr-4'
             />
           </div>
           <div className='flex flex-col text-left'>
@@ -112,7 +113,7 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
               className='border border-gray-300 rounded-lg px-3 py-1 text-sm text-[#6C6C6C] bg-white'
               onClick={(e) => {
                 e.stopPropagation();
-                handleTransferClick(account);
+                handleTransferClick(bankKey, account); 
               }}
             >
               송금
@@ -126,7 +127,7 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
   return (
     <div className='connected-mydata-section' style={{ width: '97%' }}>
       <div className='border-t border-gray-200'>
-        <h2 className='text-base font-medium mt-4 mb-4 text-left '>
+        <h2 className='text-base font-medium mt-4 ml-1 mb-4 text-left '>
           마이데이터 연동 계좌
         </h2>
       </div>

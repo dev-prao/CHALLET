@@ -7,6 +7,23 @@ import ConnectedMyData from '../../components/Wallet/ConnectedMyData';
 import axiosInstance from '../../api/axiosInstance';
 import { AxiosError } from 'axios';
 
+interface Account {
+  id: number;
+  accountNumber: string;
+  accountBalance: number;
+}
+
+interface BankInfo {
+  accountCount: number;
+  accounts: Account[];
+}
+
+interface WalletData {
+  kbBanks: BankInfo | null;
+  nhBanks: BankInfo | null;
+  shBanks: BankInfo | null;
+}
+
 const WalletPage = () => {
   const [walletData, setWalletData] = useState(null);
   const [error, setError] = useState<string | null>(null);
@@ -32,14 +49,21 @@ const WalletPage = () => {
     fetchData();
   }, []);
 
+  const isAllBanksNull = (data: WalletData) => {
+    // 모든 은행 데이터가 null인지 확인
+    return (
+      data.kbBanks === null && data.nhBanks === null && data.shBanks === null
+    );
+  };
+
   const renderMyDataSection = () => {
-    if (walletData) {
-      // 데이터가 있을 때 ConnectedMyData를 렌더링
+    if (walletData && !isAllBanksNull(walletData)) {
+      // 데이터가 있고, 모든 은행이 null이 아닌 경우 ConnectedMyData 렌더링
       return <ConnectedMyData data={walletData} />;
     }
 
-    if (error) {
-      // 에러가 있을 때 MyDataConnectButton을 렌더링
+    if (error || (walletData && isAllBanksNull(walletData))) {
+      // 에러가 있거나 모든 은행 데이터가 null일 때 MyDataConnectButton 렌더링
       return <MyDataConnectButton />;
     }
 
@@ -47,7 +71,7 @@ const WalletPage = () => {
   };
 
   return (
-    <div className='min-h-screen bg-white flex flex-col items-center p-6 mt-12'>
+    <div className='min-h-screen bg-white flex flex-col items-center p-6 mt-6'>
       <div className='w-full flex flex-col items-center mb-8'>
         <div className='w-full flex justify-start'>
           <img

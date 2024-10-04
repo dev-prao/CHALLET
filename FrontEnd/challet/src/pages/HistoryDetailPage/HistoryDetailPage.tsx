@@ -63,6 +63,7 @@ const HistoryDetailPage = () => {
       {/* 거래 내역 정보 */}
       <TransactionInfo
         deposit={transactionDetail.deposit}
+        withdrawal={transactionDetail.withdrawal} // withdrawal 값 전달
         transactionAmount={transactionDetail.transactionAmount}
       />
       {/* 상세 정보 카드 */}

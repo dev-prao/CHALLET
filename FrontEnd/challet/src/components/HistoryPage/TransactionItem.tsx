@@ -19,7 +19,7 @@ const TransactionItem = ({ transaction, onClick }: TransactionItemProps) => {
   return (
     <div
       className='px-4 py-4 cursor-pointer'
-      onClick={() => onClick(transaction.id)} // 클릭 시 상세 페이지로 이동
+      onClick={() => onClick(transaction.id)}
     >
       <div className='flex items-center'>
         <p className='text-sm font-medium text-gray-800 mr-1'>{date}</p>
@@ -33,7 +33,7 @@ const TransactionItem = ({ transaction, onClick }: TransactionItemProps) => {
         <div className='text-right'>
           <p
             className={`text-base font-medium ${
-              transaction.transactionAmount < 0
+              transaction.transactionAmount > 0
                 ? 'text-[#373A3F]'
                 : 'text-[#00CCCC]'
             }`}

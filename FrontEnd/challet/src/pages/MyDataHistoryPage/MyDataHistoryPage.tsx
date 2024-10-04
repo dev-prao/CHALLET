@@ -7,6 +7,7 @@ interface Transaction {
   id: number;
   transactionDate: string;
   deposit: string;
+  withdrawal: string;
   transactionBalance: number;
   transactionAmount: number;
 }
@@ -116,6 +117,8 @@ function MyDataHistoryPage() {
             const date = `${dateObject.getMonth() + 1}.${dateObject.getDate()}`;
             const time = dateObject.toTimeString().slice(0, 5);
 
+            const isDeposit = transaction.transactionAmount > 0;
+
             return (
               <div
                 key={transaction.id}
@@ -130,13 +133,23 @@ function MyDataHistoryPage() {
                   <p className='text-sm font-medium text-[#6C6C6C]'>{time}</p>
                 </div>
                 <div className='flex justify-between items-start mt-4'>
+                  {/* 거래 종류에 따라 deposit 또는 withdrawal을 표시 */}
                   <p className='text-base font-medium text-[#373A3F]'>
-                    {transaction.deposit}
+                    {isDeposit ? transaction.deposit : transaction.withdrawal}
                   </p>
                   <div className='text-right'>
-                    <p className='text-base font-medium text-[#373A3F]'>
-                      -{transaction.transactionAmount.toLocaleString()}원
+                    <p
+                      className={`text-base font-medium ${
+                        transaction.transactionAmount < 0
+                          ? 'text-[#00CCCC]'
+                          : 'text-[#373A3F]'
+                      }`}
+                    >
+                      {transaction.transactionAmount < 0
+                        ? `${transaction.transactionAmount.toLocaleString()}원`
+                        : `+${transaction.transactionAmount.toLocaleString()}원`}
                     </p>
+
                     <p className='text-sm font-medium text-[#6C6C6C]'>
                       잔액 {transaction.transactionBalance.toLocaleString()}원
                     </p>

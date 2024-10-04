@@ -15,19 +15,30 @@ function MyDataDetailPage() {
   const location = useLocation();
   const [transactionDetails, setTransactionDetails] =
     useState<TransactionDetails | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (location.state?.transactionDetails) {
       setTransactionDetails(location.state.transactionDetails);
+      setLoading(false);
     } else {
       console.error('거래 상세 내역이 없습니다.');
+      setLoading(false);
     }
   }, [location.state]);
+
+  if (loading) {
+    return (
+      <div className='flex justify-center items-center h-screen'>
+        <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00CCCC]'></div>
+      </div>
+    );
+  }
 
   if (!transactionDetails) {
     return (
       <div className='flex justify-center items-center h-screen'>
-        <p className='text-lg'>로딩 중...</p>
+        <p className='text-lg'>거래 내역이 없습니다.</p>
       </div>
     );
   }
@@ -49,9 +60,13 @@ function MyDataDetailPage() {
 
       <div className='p-22 mt-16 text-left'>
         <div className='p-4 text-left ml-2 mb-12'>
-          <p className='text-sm text-[#6C6C6C]'>{transactionDetails.deposit}</p>
+          <p className='text-lg font-semibold text-[#00CCCC]'>
+            {transactionDetails.transactionAmount > 0
+              ? transactionDetails.withdrawal
+              : transactionDetails.deposit}
+          </p>
           <h2 className='text-3xl font-semibold text-[#373A3F]'>
-            {Math.abs(transactionDetails.transactionAmount).toLocaleString()}원
+            {transactionDetails.transactionAmount.toLocaleString()}원
           </h2>
         </div>
 

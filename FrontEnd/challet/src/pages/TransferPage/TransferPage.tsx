@@ -3,17 +3,23 @@ import { useState } from 'react';
 import { TopBar } from '../../components/topbar/topbar';
 import AxiosInstance from '../../api/axiosInstance';
 
+// 은행 로고 파일 임포트
+import chLogo from '../../assets/mydata/ch-logo.svg';
+import kbLogo from '../../assets/mydata/kb-logo.svg';
+import nhLogo from '../../assets/mydata/nh-logo.svg';
+import shLogo from '../../assets/mydata/sh-logo.svg';
+
 interface FormState {
   bank: string;
   accountNumber: string;
   amount: string;
 }
 
-const bankCodes: Record<string, string> = {
-  챌렛뱅크: '8082',
-  국민은행: '8083',
-  농협은행: '8084',
-  신한은행: '8085',
+const bankCodes: Record<string, { code: string; logo: string }> = {
+  챌렛뱅크: { code: '8082', logo: chLogo },
+  국민은행: { code: '8083', logo: kbLogo },
+  농협은행: { code: '8084', logo: nhLogo },
+  신한은행: { code: '8085', logo: shLogo },
 };
 
 function TransferPage() {
@@ -69,7 +75,7 @@ function TransferPage() {
   const handleSubmit = async () => {
     setLoading(true); // 로딩 시작
     try {
-      const bankCode = bankCodes[form.bank];
+      const bankCode = bankCodes[form.bank]?.code;
       const transactionAmount = parseInt(
         form.amount.replace(/[^0-9]/g, ''),
         10
@@ -220,13 +226,21 @@ function TransferPage() {
       )}
 
       {/* 모달 - 송금 확인 화면 */}
-      {isModalOpen && (
+      {isModalOpen && form.bank && (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-end z-50'>
           <div className='bg-white rounded-t-3xl w-full pb-20 relative min-h-[50%]'>
             <div className='p-6'>
-              <p className='text-xl font-medium text-center text-[#373A3F]'>
-                <span className='text-[#00CCCC]'>{form.accountNumber}</span>으로
-              </p>
+              <div className='flex justify-center items-center mt-16 mb-4'>
+                <img
+                  src={bankCodes[form.bank]?.logo}
+                  alt={`${form.bank} 로고`}
+                  className='w-16 h-16 mr-2'
+                />
+                <p className='text-xl font-medium text-center text-[#373A3F]'>
+                  <span className='text-[#00CCCC]'>{form.accountNumber}</span>
+                  으로
+                </p>
+              </div>
               <p className='text-xl font-medium text-center text-[#373A3F]'>
                 <span className='text-[#00CCCC]'>{form.amount}</span>원을
                 보낼까요?
@@ -237,7 +251,7 @@ function TransferPage() {
               onClick={handleSubmit}
               className='w-full py-5 bg-[#00CCCC] text-white text-lg font-medium fixed bottom-0 left-0 right-0'
             >
-              {loading ? '로딩중...' : '송금하기'}
+              {loading ? '송금 중' : '송금하기'}
             </button>
           </div>
         </div>

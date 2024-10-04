@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import { TopBar } from '../../components/topbar/topbar';
-import shLogo from '../../assets/mydata/sh-logo.png';
-import kbLogo from '../../assets/mydata/kb-logo.png';
-import nhLogo from '../../assets/mydata/nh-logo.png';
+import shLogo from '../../assets/mydata/sh-logo.svg';
+import kbLogo from '../../assets/mydata/kb-logo.svg';
+import nhLogo from '../../assets/mydata/nh-logo.svg';
+import nshLogo from '../../assets/mydata/nsh-logo.svg';
+import nkbLogo from '../../assets/mydata/nkb-logo.svg';
+import nnhLogo from '../../assets/mydata/nnh-logo.svg';
 
 type AgreementType = {
   serviceAgreement: boolean;
@@ -26,10 +29,31 @@ type BankResponse = {
   shBanks: null | { accountCount: number; accounts: Account[] };
 };
 
+// 'key'와 대응하는 타입 정의
+type BankKey = keyof BankResponse;
+
 const bankDetails = [
-  { key: 'sh', name: '신한은행', code: '8085', logo: shLogo },
-  { key: 'kb', name: '국민은행', code: '8083', logo: kbLogo },
-  { key: 'nh', name: '농협은행', code: '8084', logo: nhLogo },
+  {
+    key: 'sh',
+    name: '신한은행',
+    code: '8085',
+    logo: shLogo,
+    noAccountLogo: nshLogo,
+  },
+  {
+    key: 'kb',
+    name: '국민은행',
+    code: '8083',
+    logo: kbLogo,
+    noAccountLogo: nkbLogo,
+  },
+  {
+    key: 'nh',
+    name: '농협은행',
+    code: '8084',
+    logo: nhLogo,
+    noAccountLogo: nnhLogo,
+  },
 ];
 
 const MyDataSelectPage = () => {
@@ -51,6 +75,7 @@ const MyDataSelectPage = () => {
   const [connectedAccounts, setConnectedAccounts] = useState<
     { account: Account; bankKey: string }[]
   >([]);
+  const [bankResponse, setBankResponse] = useState<BankResponse | null>(null); // API 응답 데이터 저장
   const [connectionComplete, setConnectionComplete] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -101,8 +126,8 @@ const MyDataSelectPage = () => {
       console.log('Server Response:', response.data);
 
       const allAccounts = processBankData(response.data);
-
       setConnectedAccounts(allAccounts);
+      setBankResponse(response.data); // API 응답 저장
       setConnectionComplete(true);
     } catch (error) {
       console.error('Failed to connect to banks:', error);
@@ -159,9 +184,10 @@ const MyDataSelectPage = () => {
   };
 
   // 은행 키와 연결된 로고를 반환
-  const getBankLogo = (bankKey: string) => {
+
+  const getBankLogo = (bankKey: string, hasAccounts: boolean) => {
     const bank = bankDetails.find((detail) => detail.key === bankKey);
-    return bank ? bank.logo : undefined;
+    return bank ? (hasAccounts ? bank.logo : bank.noAccountLogo) : undefined;
   };
 
   if (loading) {
@@ -191,42 +217,60 @@ const MyDataSelectPage = () => {
         </p>
 
         {/* 연결된 계좌 정보 표시 */}
+        {connectionComplete && bankResponse ? (
+          <div className='space-y-4 mb-40'>
+            {connectedAccounts.length > 0
+              ? connectedAccounts.map(({ account, bankKey }, index) => (
+                  <div
+                    key={`${account.accountNumber}-${index}`}
+                    className='flex items-center p-4 shadow-md bg-white rounded-lg'
+                  >
+                    <div className='flex items-center'>
+                      <img
+                        src={getBankLogo(bankKey, true)} // 계좌가 있는 경우 로고
+                        alt='은행 로고'
+                        className='w-10 h-10 mr-4'
+                      />
+                    </div>
+                    <div>
+                      <p className='text-sm text-[#6C6C6C]'>
+                        {bankDetails
+                          .find((bank) => bank.key === bankKey)
+                          ?.name.slice(0, 2)}{' '}
+                        {account.accountNumber}
+                      </p>
 
-        {connectionComplete ? (
-          <div className='space-y-4 mb-40 '>
-            {connectedAccounts.length > 0 ? (
-              connectedAccounts.map(({ account, bankKey }, index) => (
-                <div
-                  key={`${account.accountNumber}-${index}`} // accountNumber와 index를 조합하여 고유한 키 생성
-                  className='flex items-center p-4 shadow-md bg-white rounded-lg'
-                >
-                  <div className='flex items-center'>
-                    {/* 은행 키에 맞는 로고를 표시 */}
-                    <img
-                      src={getBankLogo(bankKey)}
-                      alt='은행 로고'
-                      className={`${
-                        bankKey === 'nh' ? 'w-6 h-8  mr-6' : 'w-8 h-8  mr-4' // nh 로고에만 다른 크기
-                      }`}
-                    />
+                      <p className='text-lg font-semibold text-[#373A3F]'>
+                        {account.accountBalance.toLocaleString()}원
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className='text-sm text-[#6C6C6C]'>
-                      {bankDetails
-                        .find((bank) => bank.key === bankKey)
-                        ?.name.slice(0, 2)}{' '}
-                      {account.accountNumber}
-                    </p>
-
-                    <p className='text-lg font-semibold text-[#373A3F]'>
-                      {account.accountBalance.toLocaleString()}원
-                    </p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className='text-sm text-[#6C6C6C]'>연결된 계좌가 없습니다.</p>
-            )}
+                ))
+              : bankDetails
+                  // null이 아닌 은행 필터링
+                  .filter(
+                    ({ key }) => bankResponse[`${key}Banks` as BankKey] !== null
+                  )
+                  .map(({ key, name, noAccountLogo }) => (
+                    <div
+                      key={key}
+                      className='flex items-center p-4 shadow-md bg-white rounded-lg'
+                    >
+                      <div className='flex items-center'>
+                        <img
+                          src={noAccountLogo} // 계좌가 없는 경우 로고
+                          alt={`${name} 로고`}
+                          className='w-9 h-9 mr-4'
+                        />
+                      </div>
+                      <div>
+                        <p className='text-sm text-[#6C6C6C]'>{name}</p>
+                        <p className='text-legular font-medium text-[#373A3F]'>
+                          연결할 계좌가 없습니다.
+                        </p>
+                      </div>
+                    </div>
+                  ))}
           </div>
         ) : (
           <div className='mt-8 space-y-4'>
@@ -237,14 +281,10 @@ const MyDataSelectPage = () => {
                 onClick={() => handleBankSelect(key)}
               >
                 <div className='flex items-center'>
-                  <img
-                    src={logo}
-                    alt={name}
-                    className={`${
-                      key === 'nh' ? 'w-6 h-8 mr-3 ml-1' : 'w-8 h-8 mr-2'
-                    }`}
-                  />
-                  <span className='text-[#585962] font-medium'>{name}</span>
+                  <img src={logo} alt={name} className='w-10 h-10 mr-3' />
+                  <span className='text-[#585962] font-medium text-base'>
+                    {name}
+                  </span>
                 </div>
                 <span
                   className={`w-7 h-7 flex justify-center items-center ${
@@ -288,7 +328,7 @@ const MyDataSelectPage = () => {
                   오픈뱅킹 이용동의
                 </h2>
                 <button
-                  onClick={() => navigate('/wallet')} // 페이지 이동
+                  onClick={() => navigate('/wallet')}
                   className='absolute right-6 top-6 text-[#373A3F] text-xl font-medium bg-white'
                 >
                   ×
