@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import AxiosInstance from '../../api/axiosInstance';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 
 interface Transaction {
   id: number;
@@ -7,6 +9,8 @@ interface Transaction {
   transactionAmount: number;
   category: string;
   description: string;
+  deposit: string;
+  withdrawal: string;
 }
 
 const CalendarSpendingPage = () => {
@@ -152,9 +156,17 @@ const CalendarSpendingPage = () => {
               </div>
               {dailyTotal !== 0 && (
                 <span
-                  className={`text-xs mt-1 ${dailyTotal > 0 ? 'text-blue-500' : 'text-red-500'}`}
+                  className={`text-xs mt-1 overflow-hidden whitespace-nowrap ${dailyTotal > 0 ? 'text-blue-500' : 'text-red-500'}`}
+                  style={{
+                    maxWidth: '80px',
+                    textOverflow: 'ellipsis',
+                    display: 'inline-block',
+                  }} // 필요한 maxWidth 설정
+                  title={Math.abs(dailyTotal).toLocaleString()} // 전체 금액을 확인하기 위한 title 속성
                 >
-                  {Math.abs(dailyTotal).toLocaleString()}
+                  {Math.abs(dailyTotal) >= 10000000 // 10,000,000 이상일 때
+                    ? `${(Math.abs(dailyTotal) / 1000).toLocaleString()}k`
+                    : Math.abs(dailyTotal).toLocaleString()}
                 </span>
               )}
             </div>
@@ -163,9 +175,36 @@ const CalendarSpendingPage = () => {
       </div>
     );
   };
+  // 카테고리별 색상을 반환하는 함수
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'SHOPPING':
+        return '#4CAF50'; // 쇼핑 카테고리 색상 (예: 초록색)
+      case 'TRANSPORT':
+        return '#FFEB3B'; // 교통 카테고리 색상 (예: 노란색)
+      case 'FOOD':
+        return '#FF5722'; // 음식 카테고리 색상 (예: 주황색)
+      default:
+        return '#E0E0E0'; // 기본 색상 (회색)
+    }
+  };
+
+  // 카테고리별 아이콘을 반환하는 함수
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'SHOPPING':
+        return '🛍️'; // 쇼핑 아이콘
+      case 'TRANSPORT':
+        return '🚕'; // 교통 아이콘
+      case 'FOOD':
+        return '🍔'; // 음식 아이콘
+      default:
+        return '💼'; // 기본 아이콘
+    }
+  };
 
   return (
-    <div className='max-w-md mx-auto p-4'>
+    <div className='max-w-md mx-auto pt-4'>
       {isLoading && <div className='text-center'></div>}
       {error && <div className='text-center text-red-500'>{error}</div>}
       {!isLoading && !error && (
@@ -174,7 +213,7 @@ const CalendarSpendingPage = () => {
             <div className='flex justify-between items-center mb-4'>
               <button
                 onClick={handlePrevMonth}
-                className='px-2 py-1 bg-gray-200 rounded'
+                className='px-2 py-1 rounded'
                 disabled={
                   currentDate.getFullYear() === maxYear - 3 &&
                   currentDate.getMonth() === 0
@@ -182,18 +221,27 @@ const CalendarSpendingPage = () => {
               >
                 &lt;
               </button>
-              <button
-                className='text-xl font-bold flex items-center'
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              >
-                {`${currentDate.getFullYear().toString().slice(2)}년 ${
-                  currentDate.getMonth() + 1
-                }월`}{' '}
-                <span className='ml-2'>&#x25BC;</span>
-              </button>
+              {/* 중앙에 배치된 달 선택 드롭다운 버튼 */}
+              <div className='absolute left-1/2 transform -translate-x-1/2'>
+                <button
+                  className='text-xl font-bold flex items-center justify-center bg-white w-[120px] h-[28px]'
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                  {/* 월을 두 자리로 고정 (한 자리 월 앞에 0 추가) */}
+                  {`${currentDate.getFullYear().toString().slice(2)}년 ${(
+                    currentDate.getMonth() + 1
+                  )
+                    .toString()
+                    .padStart(2, '0')}월`}
+                  <span className='ml-2'>
+                    <FontAwesomeIcon icon={faCaretDown} />
+                  </span>
+                </button>
+              </div>
+
               <button
                 onClick={handleNextMonth}
-                className='px-2 py-1 bg-gray-200 rounded'
+                className='px-1 py-1 rounded'
                 disabled={
                   currentDate.getFullYear() === maxYear &&
                   currentDate.getMonth() + 1 >= maxMonth
@@ -205,16 +253,18 @@ const CalendarSpendingPage = () => {
 
             {/* 월 선택 드롭다운 */}
             {isDropdownOpen && (
-              <div className='absolute top-full left-0 right-0 bg-white border rounded shadow-lg mt-1 max-h-48 overflow-y-scroll z-10'>
+              <div className='absolute top-full left-1/2 transform -translate-x-1/2 bg-white border rounded shadow-lg mt-1 max-h-48 overflow-y-scroll z-10 w-28'>
                 {years.map((year) => (
                   <div key={`year-${year}`}>
-                    <div className='font-bold p-2 bg-gray-100'>{year}년</div>
+                    <div className='font-bold p-2 bg-gray-100 text-center'>
+                      {year}년
+                    </div>
                     <div>
                       {getAvailableMonths(year).map((month) => (
                         <button
                           key={`month-${year}-${month}`}
                           onClick={() => handleMonthClick(year, month)}
-                          className={`block p-2 hover:bg-gray-200 w-full text-left ${
+                          className={`block p-2 hover:bg-gray-200 w-full text-right ${
                             year === currentDate.getFullYear() &&
                             month === currentDate.getMonth() + 1
                               ? 'font-bold'
@@ -233,6 +283,7 @@ const CalendarSpendingPage = () => {
 
           {/* 캘린더 출력 */}
           {renderCalendar()}
+
           {/* 거래 내역 출력 */}
           <div className='mt-4'>
             {transactions
@@ -251,34 +302,41 @@ const CalendarSpendingPage = () => {
                   }
                   className='flex items-center justify-between py-2 border-b'
                 >
-                  <div className='flex items-center'>
+                  {/* 왼쪽 카테고리 썸네일 (원형) */}
+                  <div className='flex items-center space-x-2'>
                     <div
-                      className={`p-2 rounded-full mr-2 ${
-                        transaction.transactionAmount > 0
-                          ? 'bg-blue-100'
-                          : 'bg-red-100'
-                      }`}
+                      className='w-10 h-10 rounded-full flex items-center justify-center mr-3'
+                      style={{
+                        backgroundColor: getCategoryColor(transaction.category),
+                      }}
                     >
-                      {transaction.transactionAmount > 0 ? '+' : '-'}
+                      {/* 카테고리별로 아이콘을 설정 */}
+                      {getCategoryIcon(transaction.category)}
                     </div>
+
+                    {/* 가운데 가격과 입출금처 정보 */}
                     <div>
-                      <div>
-                        {new Date(transaction.transactionDate).toLocaleString()}
+                      <div className='text-lg font-bold text-left'>
+                        {Math.abs(
+                          transaction.transactionAmount
+                        ).toLocaleString()}{' '}
+                        원
                       </div>
                       <div className='text-sm text-gray-500'>
-                        {transaction.category}
+                        {transaction.deposit} | {transaction.withdrawal}
                       </div>
                     </div>
                   </div>
-                  <div
-                    className={`${
-                      transaction.transactionAmount > 0
-                        ? 'text-blue-500'
-                        : 'text-red-500'
-                    }`}
-                  >
-                    {Math.abs(transaction.transactionAmount).toLocaleString()}{' '}
-                    원
+
+                  {/* 오른쪽 시간 (시:분) 출력 */}
+                  <div className='text-sm text-gray-500'>
+                    {new Date(transaction.transactionDate).toLocaleTimeString(
+                      'ko-KR',
+                      {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      }
+                    )}
                   </div>
                 </div>
               ))}

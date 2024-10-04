@@ -135,10 +135,8 @@ const LoginPage = () => {
           {(!isPhoneNumberComplete || !isExistingMember) && (
             <div className='mb-4'>
               <div className='text-left mb-6'>
-                <p className='text-xl font-bold text-gray-800'>
-                  Please enter your
-                </p>
-                <p className='text-xl text-gray-800'>phone number</p>
+                <p className='text-xl font-bold text-gray-800'>휴대폰 번호를</p>
+                <p className='text-xl text-gray-800'>입력해주세요</p>
               </div>
 
               <div className='w-full border-b-2 border-teal-500 focus-within:border-teal-600'>

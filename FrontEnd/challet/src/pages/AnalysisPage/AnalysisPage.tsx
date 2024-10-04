@@ -32,7 +32,7 @@ const AnalysisPage = () => {
       {/* 탭에 따른 콘텐츠 표시 */}
       <div className='w-full flex justify-center items-center'>
         {activeTab === '내 소비' && (
-          <div className='w-full'>
+          <div className='w-full' style={{ paddingBottom: '52px' }}>
             <CalendarSpendingPage />
           </div>
         )}
