@@ -17,13 +17,12 @@ public record PaymentHttpMessageResponseDTO(
     @Schema(description = "결제 장소")
     String deposit,
 
-    @Schema(description = "결제 카테고리", allowableValues = {"DELIVERY", "TRANSPORT", "COFFEE",
-        "SHOPPING"})
+    @Schema(description = "결제 카테고리")
     String category
 ) {
 
     public static PaymentHttpMessageResponseDTO ofPaymentMessage(String phoneNumber,
-        PaymentRequestDTO paymentInfo) {
+        PaymentResponseDTO paymentInfo) {
         return PaymentHttpMessageResponseDTO.builder()
             .phoneNumber(phoneNumber)
             .transactionAmount(paymentInfo.transactionAmount())

@@ -75,14 +75,14 @@ public class TransactionAnalysisServiceImpl implements TransactionAnalysisServic
         BankToAnalysisMessageRequestDTO message = BankToAnalysisMessageRequestDTO.ofRequestMessage(
             userInfo, requestDTO);
 
-        Map<Category, Long> totalCategoryAmount = getMyDataBankCatagoryPayment(requestDTO, userInfo,
+        Map<Category, Long> totalCategoryAmount = getMyDataBankCategoryPayment(requestDTO, userInfo,
             message);
         List<CategoryPercentageResponseDTO> categoryList = calculatePercent(totalCategoryAmount);
 
         return CategoryPercentageResponseListDTO.fromCategoryList(categoryList);
     }
 
-    private Map<Category, Long> getMyDataBankCatagoryPayment(
+    private Map<Category, Long> getMyDataBankCategoryPayment(
         MonthlyTransactionRequestDTO requestDTO,
         UserInfoMessageRequestDTO userInfo, BankToAnalysisMessageRequestDTO message) {
         Map<Category, Long> chBankCategory = challetBankRepository.getTransactionByGroupCategory(

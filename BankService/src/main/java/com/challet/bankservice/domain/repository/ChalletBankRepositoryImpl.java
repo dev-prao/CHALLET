@@ -11,6 +11,8 @@ import com.challet.bankservice.domain.dto.response.TransactionDetailResponseDTO;
 import com.challet.bankservice.domain.dto.response.TransactionResponseDTO;
 import com.challet.bankservice.domain.entity.Category;
 import com.challet.bankservice.domain.entity.ChalletBank;
+import com.challet.bankservice.domain.entity.QCategoryMapping;
+import com.challet.bankservice.domain.entity.QCategoryT;
 import com.challet.bankservice.domain.entity.QChalletBank;
 import com.challet.bankservice.domain.entity.QChalletBankTransaction;
 import com.querydsl.core.types.Projections;
@@ -192,6 +194,29 @@ public class ChalletBankRepositoryImpl implements ChalletBankRepositoryCustom {
             addCategoryList(results, categorySums);
         }
         return categorySums;
+    }
+
+    @Override
+    public String getCategoryName(Long accountId, String deposit) {
+        QCategoryMapping categoryMapping = QCategoryMapping.categoryMapping;
+        QCategoryT categoryT = QCategoryT.categoryT;
+
+        String categoryName = query.select(categoryT.categoryName)
+            .from(categoryMapping)
+            .join(categoryMapping.categoryT, categoryT)
+            .where(categoryMapping.challetBank.id.eq(accountId)
+                .and(categoryMapping.depositName.eq(deposit)))
+            .fetchFirst();
+
+        if (categoryName == null) {
+            categoryName = query.select(categoryT.categoryName)
+                .from(categoryMapping)
+                .join(categoryMapping.categoryT, categoryT)
+                .where(categoryMapping.challetBank.id.eq(accountId)
+                    .and(categoryMapping.depositName.contains(deposit)))
+                .fetchFirst();
+        }
+        return categoryName != null ? categoryName : "ETC";
     }
 
     private List<String> subList(int start, List<String> phoneNumbers) {

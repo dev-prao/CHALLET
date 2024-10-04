@@ -59,7 +59,7 @@ public class ChalletBankTransaction {
 
     public static ChalletBankTransaction createAccountTransferHistory(ChalletBank fromBank,
         String toBankName, AccountTransferRequestDTO requestTransactionDTO,
-        long transactionBalance, boolean isWithdrawal) {
+        long transactionBalance, boolean isWithdrawal, String deposit) {
 
         return ChalletBankTransaction.builder()
             .transactionAmount(isWithdrawal ? -1 * requestTransactionDTO.transactionAmount()
@@ -69,6 +69,11 @@ public class ChalletBankTransaction {
                 : requestTransactionDTO.depositAccountNumber()) // 입금처
             .withdrawal(isWithdrawal ? fromBank.getAccountNumber() : fromBank.getName()) // 출금처
             .transactionBalance(transactionBalance)
+            .category(Category.valueOf(deposit))
             .build();
+    }
+
+    public void updateCategory(String category) {
+        this.category = Category.valueOf(category);
     }
 }

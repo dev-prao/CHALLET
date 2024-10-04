@@ -23,6 +23,8 @@ class ChalletBankServiceImplTest {
 
     @Autowired
     private ChalletBankService challetBankService;
+    @Autowired
+    private ChalletBankServiceImpl challetBankServiceImpl;
 
     @Autowired
     private ChalletBankRepository challetBankRepository;
@@ -35,10 +37,11 @@ class ChalletBankServiceImplTest {
         testAccount = ChalletBank.builder()
             .accountBalance(100L)
             .phoneNumber("01012345678")
-            .accountNumber("9999999999998")
+            .accountNumber("999999999999872")
             .build();
 
-        challetBankRepository.save(testAccount);
+        ChalletBank test = challetBankRepository.save(testAccount);
+        challetBankServiceImpl.createDefaultCategoriesAndMappingsForAccount(test);
     }
 
     @AfterEach
@@ -60,8 +63,7 @@ class ChalletBankServiceImplTest {
             .builder()
             .transactionAmount(1L)
             .accountNumber("01012345678")
-            .deposit("test1")
-            .category("DELIVERY")
+            .deposit("할리스")
             .build();
 
         int threadCount = 100;
@@ -99,7 +101,6 @@ class ChalletBankServiceImplTest {
             .transactionAmount(1000L)
             .accountNumber("01012345678")
             .deposit("test1")
-            .category("DELIVERY")
             .build();
 
 

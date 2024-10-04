@@ -4,6 +4,7 @@ import com.challet.bankservice.domain.dto.request.AccountTransferRequestDTO;
 import com.challet.bankservice.domain.dto.request.BankSelectionDTO;
 import com.challet.bankservice.domain.dto.request.BankSelectionRequestDTO;
 import com.challet.bankservice.domain.dto.request.BankTransferRequestDTO;
+import com.challet.bankservice.domain.dto.request.ConfirmPaymentRequestDTO;
 import com.challet.bankservice.domain.dto.request.PaymentRequestDTO;
 import com.challet.bankservice.domain.dto.request.SearchTransactionRequestDTO;
 import com.challet.bankservice.domain.dto.response.AccountInfoResponseListDTO;
@@ -17,9 +18,13 @@ import com.challet.bankservice.domain.dto.response.TransactionDetailResponseDTO;
 import com.challet.bankservice.domain.dto.response.TransactionResponseDTO;
 import com.challet.bankservice.domain.dto.response.TransactionResponseListDTO;
 import com.challet.bankservice.domain.entity.Category;
+import com.challet.bankservice.domain.entity.CategoryMapping;
+import com.challet.bankservice.domain.entity.CategoryT;
 import com.challet.bankservice.domain.entity.ChalletBank;
 import com.challet.bankservice.domain.entity.ChalletBankTransaction;
 import com.challet.bankservice.domain.entity.SearchedTransaction;
+import com.challet.bankservice.domain.repository.CategoryMappingRepository;
+import com.challet.bankservice.domain.repository.CategoryRepository;
 import com.challet.bankservice.domain.repository.ChalletBankRepository;
 import com.challet.bankservice.domain.repository.ChalletBankTransactionRepository;
 import com.challet.bankservice.domain.repository.SearchedTransactionRepository;
@@ -32,7 +37,11 @@ import com.challet.bankservice.global.exception.ExceptionResponse;
 import com.challet.bankservice.global.util.JwtUtil;
 import com.querydsl.core.NonUniqueResultException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +61,8 @@ public class ChalletBankServiceImpl implements ChalletBankService {
 
     private final ChalletBankRepository challetBankRepository;
     private final ChalletBankTransactionRepository challetBankTransactionRepository;
+    private final CategoryRepository categoryRepository;
+    private final CategoryMappingRepository categoryMappingRepository;
     private final SearchedTransactionRepository searchedTransactionRepository;
     private final Environment env;
     private final JwtUtil jwtUtil;
@@ -65,13 +76,48 @@ public class ChalletBankServiceImpl implements ChalletBankService {
         for (int retry = 0; retry < 6; retry++) {
             String accountNum = createAccountNum();
             try {
-                saveAccount(phoneNumber, accountNum);
+                ChalletBank challetBank = saveAccount(phoneNumber, accountNum);
+                createDefaultCategoriesAndMappingsForAccount(challetBank);
                 return;
             } catch (DataIntegrityViolationException e) {
                 log.warn("중복된 계좌 번호 발견, 다시 생성합니다. 중복 계좌 번호: " + accountNum);
             }
         }
         throw new ExceptionResponse(CustomException.NOT_CREATE_USER_ACCOUNT_EXCEPTION);
+    }
+
+    // 계좌별 기본 카테고리 및 매핑 생성
+    public void createDefaultCategoriesAndMappingsForAccount(ChalletBank challetBank) {
+        Map<String, List<String>> categoryMappingData = new HashMap<>();
+        categoryMappingData.put("DELIVERY", Arrays.asList("쿠팡이츠", "배달", "요기요"));
+        categoryMappingData.put("TRANSPORT", Arrays.asList("택시", "킥보드", "우버", "SRT", "코레일", "버스"));
+        categoryMappingData.put("COFFEE",
+            Arrays.asList("스타벅스", "할리스", "파스쿠치", "투썸", "이디야", "커피", "카페"));
+        categoryMappingData.put("SHOPPING", Arrays.asList("무신사", "네이버쇼핑"));
+        categoryMappingData.put("ETC", Collections.emptyList());
+
+        for (Map.Entry<String, List<String>> entry : categoryMappingData.entrySet()) {
+            String categoryName = entry.getKey();
+            List<String> paymentNames = entry.getValue();
+
+            // 카테고리 생성
+            CategoryT category = CategoryT.builder()
+                .categoryName(categoryName)
+                .challetBank(challetBank)
+                .build();
+
+            categoryRepository.save(category);
+
+            // 결제명과 카테고리 매핑 생성
+            for (String paymentName : paymentNames) {
+                CategoryMapping categoryMapping = CategoryMapping.builder()
+                    .depositName(paymentName)
+                    .challetBank(challetBank)
+                    .categoryT(category)
+                    .build();
+                categoryMappingRepository.save(categoryMapping);
+            }
+        }
     }
 
     @Override
@@ -112,9 +158,9 @@ public class ChalletBankServiceImpl implements ChalletBankService {
     }
 
     @Transactional
-    protected void saveAccount(String phoneNumber, String accountNum) {
+    protected ChalletBank saveAccount(String phoneNumber, String accountNum) {
         ChalletBank account = ChalletBank.createAccount(phoneNumber, accountNum);
-        challetBankRepository.save(account);
+        return challetBankRepository.save(account);
     }
 
     private String createAccountNum() {
@@ -156,17 +202,17 @@ public class ChalletBankServiceImpl implements ChalletBankService {
         long transactionBalance = calculateTransactionBalance(challetBank,
             paymentRequestDTO.transactionAmount());
 
+        String categoryName = getCategoryName(challetBank, paymentRequestDTO.deposit());
         ChalletBankTransaction paymentTransaction = createTransaction(challetBank,
-            paymentRequestDTO, transactionBalance);
+            paymentRequestDTO, transactionBalance, categoryName);
 
         challetBank.addTransaction(paymentTransaction);
-
         challetBankTransactionRepository.save(paymentTransaction);
         searchedTransactionRepository.save(
             SearchedTransaction.fromAccountIdAndChalletBankTransaction(accountId,
                 paymentTransaction));
 
-        return createPaymentResponse(paymentRequestDTO);
+        return PaymentResponseDTO.fromPaymentResponseDTO(paymentTransaction);
     }
 
     private long calculateTransactionBalance(ChalletBank challetBank, long transactionAmount) {
@@ -177,33 +223,74 @@ public class ChalletBankServiceImpl implements ChalletBankService {
         return transactionBalance;
     }
 
+    private String getCategoryName(ChalletBank challetBank, String deposit) {
+        String categoryName = challetBankRepository.getCategoryName(challetBank.getId(),
+            deposit);
+
+        if (categoryName.equals("ETC")) {
+            CategoryT categoryInfo = categoryRepository.getCategoryInfo(challetBank.getId(),
+                categoryName);
+
+            CategoryMapping newPayment = CategoryMapping
+                .builder()
+                .depositName(deposit)
+                .categoryT(categoryInfo)
+                .challetBank(challetBank)
+                .build();
+            categoryMappingRepository.save(newPayment);
+        }
+        return categoryName;
+    }
+
     private ChalletBankTransaction createTransaction(ChalletBank challetBank,
-        PaymentRequestDTO paymentRequestDTO, long transactionBalance) {
+        PaymentRequestDTO paymentRequestDTO, long transactionBalance, String categoryName) {
         return ChalletBankTransaction.builder()
             .transactionAmount(-1 * paymentRequestDTO.transactionAmount())
             .transactionDatetime(LocalDateTime.now())
             .deposit(paymentRequestDTO.deposit())
             .withdrawal(challetBank.getAccountNumber())
             .transactionBalance(transactionBalance)
-            .category(Category.valueOf(paymentRequestDTO.category()))
-            .build();
-    }
-
-    private PaymentResponseDTO createPaymentResponse(PaymentRequestDTO paymentRequestDTO) {
-        return PaymentResponseDTO.builder()
-            .transactionAmount(paymentRequestDTO.transactionAmount())
-            .deposit(paymentRequestDTO.deposit())
-            .category(paymentRequestDTO.category())
+            .category(Category.valueOf(categoryName))
             .build();
     }
 
     @Transactional
     @Override
-    public int sendPaymentInfoToChallet(Long accountId, PaymentRequestDTO paymentRequestDTO) {
+    public PaymentResponseDTO confirmPaymentInfo(Long accountId,
+        ConfirmPaymentRequestDTO paymentRequestDTO) {
+
+        ChalletBankTransaction transaction = challetBankTransactionRepository.findById(
+                paymentRequestDTO.id())
+            .orElseThrow(() -> new ExceptionResponse(
+                CustomException.NOT_FOUND_TRANSACTION_DETAIL_EXCEPTION));
+
+        if (!transaction.getCategory().equals(paymentRequestDTO.category())) {
+            CategoryT categoryInfo = categoryRepository.getCategoryInfo(accountId,
+                paymentRequestDTO.category());
+            long notFindSameCategory = categoryMappingRepository.updateCategory(accountId,
+                categoryInfo.getId(), paymentRequestDTO);
+
+            if (notFindSameCategory == 0) {
+                CategoryMapping newPayment = CategoryMapping
+                    .builder()
+                    .depositName(paymentRequestDTO.deposit())
+                    .categoryT(categoryInfo)
+                    .challetBank(transaction.getChalletBank())
+                    .build();
+                categoryMappingRepository.save(newPayment);
+            }
+            transaction.updateCategory(paymentRequestDTO.category());
+        }
+        return PaymentResponseDTO.fromPaymentResponseDTO(transaction);
+    }
+
+    @Transactional
+    @Override
+    public int sendPaymentInfoToChallet(Long accountId, PaymentResponseDTO paymentInfoDTO) {
         try {
             ChalletBank challetBank = getChalletBank(accountId);
             PaymentHttpMessageResponseDTO paymentHttpMessageResponseDTO = PaymentHttpMessageResponseDTO
-                .ofPaymentMessage(challetBank.getPhoneNumber(), paymentRequestDTO);
+                .ofPaymentMessage(challetBank.getPhoneNumber(), paymentInfoDTO);
             challetFeignClient.sendPaymentMessage(paymentHttpMessageResponseDTO);
             return 1;
         } catch (Exception e) {
@@ -340,16 +427,23 @@ public class ChalletBankServiceImpl implements ChalletBankService {
 
         long addMoney = toBank.getAccountBalance() + requestTransactionDTO.transactionAmount();
 
+        //카테고리 확인
+        String categoryName = getCategoryName(fromBank,
+            requestTransactionDTO.depositAccountNumber());
+
         ChalletBankTransaction paymentTransaction = ChalletBankTransaction.createAccountTransferHistory(
-            fromBank, toBank.getName(), requestTransactionDTO, transactionBalance, true);
+            fromBank, toBank.getName(), requestTransactionDTO, transactionBalance, true,
+            categoryName);
         fromBank.addTransaction(paymentTransaction);
 
         ChalletBankTransaction accountTransferHistory = ChalletBankTransaction.createAccountTransferHistory(
-            fromBank, toBank.getName(), requestTransactionDTO, addMoney, false);
+            fromBank, toBank.getName(), requestTransactionDTO, addMoney, false, "ETC");
         toBank.addTransaction(accountTransferHistory);
 
-        return AccountTransferResponseDTO.fromTransferInfo(fromBank, toBank.getName(),
-            requestTransactionDTO.transactionAmount());
+        challetBankTransactionRepository.save(accountTransferHistory);
+
+        return AccountTransferResponseDTO.fromTransferInfo(accountTransferHistory.getId(), fromBank,
+            toBank, requestTransactionDTO.transactionAmount(), categoryName);
     }
 
     private AccountTransferResponseDTO processExternalTransfer(ChalletBank fromBank,
@@ -362,12 +456,21 @@ public class ChalletBankServiceImpl implements ChalletBankService {
             BankTransferRequestDTO toBank = getExternalBankTransferAccount(bankDTO,
                 requestTransactionDTO.bankCode());
 
+            //카테고리 확인
+            String categoryName = getCategoryName(fromBank,
+                requestTransactionDTO.depositAccountNumber());
+
             ChalletBankTransaction paymentTransaction = ChalletBankTransaction.createAccountTransferHistory(
-                fromBank, toBank.name(), requestTransactionDTO, transactionBalance, true);
+                fromBank, toBank.name(), requestTransactionDTO, transactionBalance, true,
+                categoryName);
             fromBank.addTransaction(paymentTransaction);
 
-            return AccountTransferResponseDTO.fromTransferInfo(fromBank, toBank.name(),
-                requestTransactionDTO.transactionAmount());
+            challetBankTransactionRepository.save(paymentTransaction);
+
+            /// 외부에서 받을때 name만 받아서 안됌, accountNumber가 필요
+
+            return AccountTransferResponseDTO.fromExternalTransferInfo(paymentTransaction.getId(),
+                fromBank, toBank, requestTransactionDTO.transactionAmount(), categoryName);
         } catch (Exception e) {
             throw new ExceptionResponse(CustomException.ACCOUNT_NOT_FOUND_EXCEPTION);
         }

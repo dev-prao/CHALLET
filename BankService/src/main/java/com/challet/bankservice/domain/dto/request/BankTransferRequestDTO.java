@@ -8,6 +8,9 @@ import lombok.Builder;
 public record BankTransferRequestDTO(
 
     @Schema(description = "이체 받은 사용자 이름")
-    String name
+    String name,
+
+    @Schema(description = "이체 받은 계좌번호")
+    String accountNumber
 ) {
 }
