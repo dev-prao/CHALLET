@@ -45,7 +45,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className='fixed bottom-0 left-0 right-0 bg-white flex justify-around items-center py-3 shadow-t border-t w-full max-w-[640px] mx-auto'>
+    <nav className='fixed bottom-0 left-0 right-0 bg-white flex justify-around items-center py-4 pb-6 shadow-t border-t w-full max-w-[640px] mx-auto'>
       {buttons.map((button) => {
         const { iconSrc, textColor } = getIconAndStyle(
           button.path,
@@ -63,7 +63,7 @@ const Navbar = () => {
               alt={`${button.label} Icon`}
               className='w-6 h-6'
             />
-            <span className={`${textColor} text-xs font-medium`}>
+            <span className={`${textColor} text-sm font-medium`}>
               {button.label}
             </span>
           </Link>

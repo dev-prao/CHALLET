@@ -35,7 +35,7 @@ function MyDataHistoryPage() {
   if (!transactionData) {
     return (
       <div className='flex justify-center items-center h-screen'>
-        <p className='text-lg'>로딩 중...</p>
+        <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00CCCC]'></div>
       </div>
     );
   }
@@ -117,7 +117,7 @@ function MyDataHistoryPage() {
             const date = `${dateObject.getMonth() + 1}.${dateObject.getDate()}`;
             const time = dateObject.toTimeString().slice(0, 5);
 
-            const isDeposit = transaction.transactionAmount > 0;
+            // const isDeposit = transaction.transactionAmount > 0;
 
             return (
               <div
@@ -135,7 +135,8 @@ function MyDataHistoryPage() {
                 <div className='flex justify-between items-start mt-4'>
                   {/* 거래 종류에 따라 deposit 또는 withdrawal을 표시 */}
                   <p className='text-base font-medium text-[#373A3F]'>
-                    {isDeposit ? transaction.deposit : transaction.withdrawal}
+                    {/* {isDeposit ? transaction.deposit : transaction.withdrawal} */}
+                    {transaction.deposit}
                   </p>
                   <div className='text-right'>
                     <p

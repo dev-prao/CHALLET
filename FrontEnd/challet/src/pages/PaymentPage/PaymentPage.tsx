@@ -19,9 +19,14 @@ const PaymentPage = () => {
           throw new Error('No video input devices found.');
         }
 
-        const firstDeviceId = videoDevices[0].deviceId;
+        // 후면 카메라 우선 선택
+        const preferredDevice =
+          videoDevices.find((device) =>
+            device.label.toLowerCase().includes('back')
+          ) || videoDevices[0];
+
         controlsRef.current = await codeReader.decodeFromVideoDevice(
-          firstDeviceId,
+          preferredDevice.deviceId,
           'video',
           (result, err) => {
             if (result) {
@@ -29,7 +34,6 @@ const PaymentPage = () => {
               controlsRef.current?.stop();
               navigate('/payreview', { state: { qrData: text } });
             } else if (err && err.name !== 'NotFoundException') {
-              // NotFoundException 외의 오류만 로그로 출력
               console.error('Error during scanning:', err);
             }
           }

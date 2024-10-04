@@ -21,7 +21,7 @@ function PayResult() {
 
   const parsedData: ParsedData | null = (() => {
     try {
-      return qrData ? JSON.parse(qrData) : null;
+      return JSON.parse(qrData);
     } catch (error) {
       console.error('QR 데이터를 파싱하는 중 오류가 발생했습니다:', error);
       return null;

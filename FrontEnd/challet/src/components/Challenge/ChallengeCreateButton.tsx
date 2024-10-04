@@ -11,7 +11,7 @@ const ChallengeCreateButton = () => {
   };
 
   return (
-    <div className='fixed bottom-16 right-4 flex justify-end mb-4'>
+    <div className='fixed bottom-16 right-4 flex justify-end mb-6'>
       <button
         onClick={handleCreateChallenge}
         className='transform transition-transform duration-300 ease-in-out hover:scale-110'

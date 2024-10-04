@@ -21,6 +21,7 @@ import HistoryDetailPage from './pages/HistoryDetailPage/HistoryDetailPage';
 import MyDataHistoryPage from './pages/MyDataHistoryPage/MyDataHistoryPage';
 import MyDataDetailPage from './pages/MyDataDetailPage/MyDataDetailPage';
 import TransferPage from './pages/TransferPage/TransferPage';
+import TransferResultPage from './pages/TransferResultPage/TransferResultPage';
 import ChallengePage from './pages/ChallengePage/ChallengePage';
 import AnalysisPage from './pages/AnalysisPage/AnalysisPage';
 import MyPage2 from './pages/MyPage/MyPage2';
@@ -58,6 +59,7 @@ function App() {
   const matchHistory = useMatch('/history');
   const matchHistorydetail = useMatch('//history-detail/:transactionId');
   const matchTransfer = useMatch('/transfer');
+  const matchTransferPage = useMatch('/transfer-result');
   const matchmydataselect = useMatch('/mydataselect');
   const PhoneCheck = useMatch('/phone-check');
   const Login = useMatch('/login');
@@ -78,6 +80,7 @@ function App() {
     matchpayreview ||
     matchpayresult ||
     matchTransfer ||
+    matchTransferPage ||
     matchmydataselect ||
     PhoneCheck ||
     Login ||
@@ -108,6 +111,7 @@ function App() {
 
         <Route path='/history' element={<HistoryPage />} />
         <Route path='/transfer' element={<TransferPage />} />
+        <Route path='/transfer-result' element={<TransferResultPage />} />
         <Route path='/challenge' element={<ChallengePage />} />
         <Route path='/challenge/create' element={<ChallengeCreatePage />} />
         <Route path='/analysis' element={<AnalysisPage />} />

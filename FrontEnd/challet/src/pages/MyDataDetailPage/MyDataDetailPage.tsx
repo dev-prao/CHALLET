@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { TopBar } from '../../components/topbar/topbar';
+import deliveryIcon from '../../assets/HistoryDetail/DELIVERY.svg';
+import transportIcon from '../../assets/HistoryDetail/TRANSPORT.svg';
+import coffeeIcon from '../../assets/HistoryDetail/COFFEE.svg';
+import shoppingIcon from '../../assets/HistoryDetail/SHOPPING.svg';
 
 interface TransactionDetails {
   transactionAmount: number;
@@ -27,6 +31,21 @@ function MyDataDetailPage() {
     }
   }, [location.state]);
 
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'DELIVERY':
+        return deliveryIcon;
+      case 'TRANSPORT':
+        return transportIcon;
+      case 'COFFEE':
+        return coffeeIcon;
+      case 'SHOPPING':
+        return shoppingIcon;
+      default:
+        return '';
+    }
+  };
+
   if (loading) {
     return (
       <div className='flex justify-center items-center h-screen'>
@@ -42,6 +61,8 @@ function MyDataDetailPage() {
       </div>
     );
   }
+
+  const categoryIcon = getCategoryIcon(transactionDetails.category);
 
   // 날짜 포맷팅
   const formatDate = (datetime: string) => {
@@ -59,15 +80,24 @@ function MyDataDetailPage() {
       <TopBar title='상세 내역' />
 
       <div className='p-22 mt-16 text-left'>
-        <div className='p-4 text-left ml-2 mb-12'>
-          <p className='text-lg font-semibold text-[#00CCCC]'>
-            {transactionDetails.transactionAmount > 0
-              ? transactionDetails.withdrawal
-              : transactionDetails.deposit}
-          </p>
-          <h2 className='text-3xl font-semibold text-[#373A3F]'>
-            {transactionDetails.transactionAmount.toLocaleString()}원
-          </h2>
+        <div className='p-4 ml-2 mb-12 flex items-center'>
+          {categoryIcon && (
+            <img
+              src={categoryIcon}
+              alt='카테고리 아이콘'
+              className='w-20 h-20 mr-4'
+            />
+          )}
+          <div>
+            <p className='text-lg font-semibold text-[#00CCCC]'>
+              {transactionDetails.transactionAmount > 0
+                ? transactionDetails.withdrawal
+                : transactionDetails.deposit}
+            </p>
+            <h2 className='text-3xl font-semibold text-[#373A3F]'>
+              {transactionDetails.transactionAmount.toLocaleString()}원
+            </h2>
+          </div>
         </div>
 
         <div className='mx-6 border-t border-b border-gray-300 py-4'>

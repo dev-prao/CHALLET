@@ -5,6 +5,12 @@ import { TopBar } from '../../components/topbar/topbar';
 import TransactionInfo from '../../components/HistoryDetail/TransactionInfo';
 import TransactionDetailCard from '../../components/HistoryDetail/TransactionDetailCard';
 
+// 카테고리별 이미지 파일 import
+import deliveryIcon from '../../assets/HistoryDetail/DELIVERY.svg';
+import transportIcon from '../../assets/HistoryDetail/TRANSPORT.svg';
+import coffeeIcon from '../../assets/HistoryDetail/COFFEE.svg';
+import shoppingIcon from '../../assets/HistoryDetail/SHOPPING.svg';
+
 interface TransactionDetail {
   transactionAmount: number;
   transactionDatetime: string;
@@ -20,6 +26,21 @@ const HistoryDetailPage = () => {
     useState<TransactionDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'DELIVERY':
+        return deliveryIcon;
+      case 'TRANSPORT':
+        return transportIcon;
+      case 'COFFEE':
+        return coffeeIcon;
+      case 'SHOPPING':
+        return shoppingIcon;
+      default:
+        return '';
+    }
+  };
 
   useEffect(() => {
     const fetchTransactionDetail = async () => {
@@ -57,14 +78,17 @@ const HistoryDetailPage = () => {
     return <p>거래 내역 상세 정보를 불러오는 데 문제가 발생했습니다.</p>;
   }
 
+  const categoryIcon = getCategoryIcon(transactionDetail.category);
+
   return (
     <div className='min-h-screen bg-white'>
       <TopBar title='상세 내역' />
       {/* 거래 내역 정보 */}
       <TransactionInfo
         deposit={transactionDetail.deposit}
-        withdrawal={transactionDetail.withdrawal} // withdrawal 값 전달
+        withdrawal={transactionDetail.withdrawal}
         transactionAmount={transactionDetail.transactionAmount}
+        categoryIcon={categoryIcon}
       />
       {/* 상세 정보 카드 */}
       <TransactionDetailCard transactionDetail={transactionDetail} />

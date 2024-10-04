@@ -27,7 +27,7 @@ const PayReviewPage = () => {
   }, [qrData]);
 
   const handlePayment = () => {
-    navigate('/payresult', { state: { qrData } }); // 결제 결과 페이지로 이동
+    navigate('/payresult', { state: { qrData } });
   };
 
   if (!parsedData) {

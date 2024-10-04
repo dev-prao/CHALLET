@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import useAccountStore from '../../store/useAccountStore';
@@ -35,6 +36,7 @@ const bankDetails: Record<BankKey, { shortName: string; logo: string }> = {
 function ConnectedMyData({ data }: ConnectedMyDataProps) {
   const navigate = useNavigate();
   const setAccountInfo = useAccountStore((state) => state.setAccountInfo);
+  const [showAllAccounts, setShowAllAccounts] = useState(false);
 
   const apiEndpoints: Record<BankKey, string> = {
     nh: '/api/nh-bank/account',
@@ -42,7 +44,6 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
     sh: '/api/sh-bank/account',
   };
 
-  // 계좌 클릭 시 스토어에 저장 및 API 호출 후 이동
   const handleAccountClick = async (bankKey: BankKey, account: Account) => {
     setAccountInfo({
       id: Number(account.id),
@@ -52,12 +53,9 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
 
     try {
       const apiUrl = apiEndpoints[bankKey];
-
       const response = await axiosInstance.get(apiUrl, {
         headers: { AccountId: account.id.toString() },
       });
-
-      console.log('API 응답:', response.data);
 
       navigate('/mydata-history', {
         state: {
@@ -71,72 +69,83 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
     }
   };
 
-  // // 송금 버튼 클릭 시 계좌 정보와 함께 은행 정보도 navigate로 전달
-  // const handleTransferClick = (bankKey: BankKey, account: Account) => {
-  //   navigate('/transfer', {
-  //     state: {
-  //       accountNumber: account.accountNumber,
-  //       accountBalance: account.accountBalance,
-  //       accountId: account.id,
-  //       bankShortName: bankDetails[bankKey].shortName, // 은행 이름 추가
-  //     },
-  //   });
-  // };
+  const allAccounts = useMemo(() => {
+    const combinedAccounts: { account: Account; bankKey: BankKey }[] = [];
 
-  // 각 은행별 계좌 정보 렌더링
-  const renderBankAccounts = (bankKey: BankKey, bankData: BankData) => (
-    <div key={bankKey}>
-      {bankData.accounts.map((account) => (
-        <div
-          key={account.id}
-          className='p-4 pl-0 bg-white w-full flex justify-between items-center cursor-pointer '
-          // className='p-4 bg-white w-full flex justify-between items-center cursor-pointer rounded-lg shadow-md mb-4'
-          onClick={() => handleAccountClick(bankKey, account)}
-        >
-          <div className='flex-shrink-0'>
-            <img
-              src={bankDetails[bankKey].logo}
-              alt={`${bankDetails[bankKey].shortName} 로고`}
-              className='w-10 h-10 mr-4'
-            />
-          </div>
-          <div className='flex flex-col text-left'>
-            <p className='text-sm text-[#6C6C6C]'>
-              {bankDetails[bankKey].shortName} {account.accountNumber}
-            </p>
-            <p className='text-lg font-semibold text-[#373A3F]'>
-              {account.accountBalance.toLocaleString()}원
-            </p>
-          </div>
-          <div className='ml-auto'>
-            {/* <button
-              className='border border-gray-300 rounded-lg px-3 py-1 text-sm text-[#6C6C6C] bg-white'
-              onClick={(e) => {
-                e.stopPropagation();
-                handleTransferClick(bankKey, account); 
-              }}
-            >
-              송금
-            </button> */}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+    if (data.kbBanks?.accounts) {
+      combinedAccounts.push(
+        ...data.kbBanks.accounts.map((account) => ({
+          account,
+          bankKey: 'kb' as BankKey,
+        }))
+      );
+    }
+    if (data.nhBanks?.accounts) {
+      combinedAccounts.push(
+        ...data.nhBanks.accounts.map((account) => ({
+          account,
+          bankKey: 'nh' as BankKey,
+        }))
+      );
+    }
+    if (data.shBanks?.accounts) {
+      combinedAccounts.push(
+        ...data.shBanks.accounts.map((account) => ({
+          account,
+          bankKey: 'sh' as BankKey,
+        }))
+      );
+    }
+
+    return combinedAccounts;
+  }, [data]);
+
+  // 전체 계좌를 볼지 여부에 따라 계좌 목록을 계산
+  const accountsToShow = showAllAccounts
+    ? allAccounts
+    : allAccounts.slice(0, 3);
 
   return (
-    <div className='connected-mydata-section' style={{ width: '97%' }}>
-      <div className='border-t border-gray-200'>
-        <h2 className='text-base font-medium mt-4 ml-1 mb-4 text-left '>
-          마이데이터 연동 계좌
-        </h2>
-      </div>
-      <div className='bg-white mb-24 ' style={{ width: '100%' }}>
-        {data.kbBanks && renderBankAccounts('kb', data.kbBanks)}
-        {data.nhBanks && renderBankAccounts('nh', data.nhBanks)}
-        {data.shBanks && renderBankAccounts('sh', data.shBanks)}
-        {!data.kbBanks && !data.nhBanks && !data.shBanks && (
-          <p className='text-sm text-[#6C6C6C]'>연결된 계좌가 없습니다.</p>
+    <div
+      className='connected-mydata-section rounded-lg shadow-md mb-24'
+      style={{ width: '97%' }}
+    >
+      <h2 className='text-base font-medium mt-4 ml-4 mb-4 text-left'>
+        마이데이터 연동 계좌
+      </h2>
+
+      <div className='bg-white mb-6' style={{ width: '100%' }}>
+        {accountsToShow.map(({ account, bankKey }) => (
+          <div
+            key={account.id}
+            className='p-4 bg-white w-full flex items-center cursor-pointer mb-4'
+            onClick={() => handleAccountClick(bankKey, account)}
+          >
+            <div className='flex-shrink-0'>
+              <img
+                src={bankDetails[bankKey].logo}
+                alt={`${bankDetails[bankKey].shortName} 로고`}
+                className='w-10 h-10 mr-4'
+              />
+            </div>
+            <div className='flex flex-col text-left'>
+              <p className='text-sm text-[#6C6C6C]'>
+                {bankDetails[bankKey].shortName} {account.accountNumber}
+              </p>
+              <p className='text-lg font-semibold text-[#373A3F]'>
+                {account.accountBalance.toLocaleString()}원
+              </p>
+            </div>
+          </div>
+        ))}
+
+        {allAccounts.length > 3 && (
+          <button
+            onClick={() => setShowAllAccounts((prev) => !prev)}
+            className='text-[#00CCCC] text-center w-full bg-white py-3'
+          >
+            {showAllAccounts ? '접기' : '전체 보기'}
+          </button>
         )}
       </div>
     </div>
