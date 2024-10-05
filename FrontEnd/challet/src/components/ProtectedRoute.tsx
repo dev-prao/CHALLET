@@ -1,15 +1,17 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import useAuthStore from '../store/useAuthStore'; // Zustand 또는 전역 상태 관리에서 accessToken 가져오기
+import { useEffect } from 'react';
+import { useNavigate, Outlet } from 'react-router-dom';
+import useAuthStore from '../store/useAuthStore';
 
 const ProtectedRoute = () => {
-  const { accessToken } = useAuthStore.getState(); // accessToken 가져오기
+  const { accessToken } = useAuthStore.getState();
+  const navigate = useNavigate();
 
-  if (!accessToken) {
-    // Access Token이 없으면 리다이렉트
-    return <Navigate to='/onboarding' />;
-  }
+  useEffect(() => {
+    if (!accessToken) {
+      navigate('/onboarding'); // 액세스 토큰이 없으면 온보딩 페이지로 리다이렉트
+    }
+  }, [accessToken, navigate]); // accessToken이 변경될 때마다 실행
 
-  // Access Token이 있으면 하위 경로들을 렌더링
   return <Outlet />;
 };
 
