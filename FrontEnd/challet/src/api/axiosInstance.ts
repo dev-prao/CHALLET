@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import useAuthStore from '../store/useAuthStore';
-import { isTokenExpired } from '../utils/tokenUtils';
+import { isTokenExpired } from '../utils/tokenUtils'; // 토큰 만료 여부 확인 함수
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
@@ -10,16 +10,23 @@ const axiosInstance: AxiosInstance = axios.create({
   withCredentials: true,
 });
 
-// 재발급 실패 처리
-const handleTokenRefreshFailure = () => {
-  useAuthStore.getState().clearAuthData();
-  window.location.href = '/onboarding'; // 온보딩 페이지로 리다이렉트
-};
+// 요청 인터셉터: 모든 요청에 accessToken을 헤더에 추가
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const { accessToken } = useAuthStore.getState(); // Zustand에서 accessToken 가져오기
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`; // 수정된 부분: 문자열에 템플릿 리터럴 사용
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // 액세스 토큰 재발급 함수
-const refreshAccessToken = async (): Promise<string> => {
+export const refreshAccessToken = async (): Promise<string> => {
   console.log('토큰 재발급 시도 중...');
   try {
+    // axiosInstance 사용
     const response = await axiosInstance.post(
       '/api/challet/auth/refresh',
       {},
@@ -37,7 +44,6 @@ const refreshAccessToken = async (): Promise<string> => {
     return newAccessToken;
   } catch (error) {
     console.error('토큰 재발급 실패:', error);
-    handleTokenRefreshFailure(); // 재발급 실패 처리
     throw error;
   }
 };
@@ -69,33 +75,26 @@ axiosInstance.interceptors.request.use(
           const newAccessToken = await refreshAccessToken();
 
           // 재발급 받은 토큰을 Authorization 헤더에 추가
-          config.headers.Authorization = `Bearer ${newAccessToken}`;
+          config.headers.Authorization = `Bearer ${newAccessToken}`; // 수정된 부분: 문자열에 템플릿 리터럴 사용
+
+          // 재발급 성공 메시지와 토큰 출력
+          console.log('토큰 재발급 완료:', newAccessToken);
         } catch (error) {
+          console.error('토큰 재발급 실패:', error);
+
           // 재발급 실패 시 사용자 로그아웃 등의 추가 처리 필요할 수 있음
-          handleTokenRefreshFailure(); // 실패 처리
+          useAuthStore.getState().clearAuthData();
           return Promise.reject(error); // 재발급 실패 시 요청을 취소
         }
       } else {
         // 토큰이 만료되지 않았을 경우, 기존 토큰을 Authorization 헤더에 추가
-        config.headers.Authorization = `Bearer ${accessToken}`;
+        config.headers.Authorization = `Bearer ${accessToken}`; // 수정된 부분: 문자열에 템플릿 리터럴 사용
       }
     }
 
     return config;
   },
   (error) => Promise.reject(error)
-);
-
-// 응답 인터셉터: 모든 요청에 대한 응답에서 401 에러 처리
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    // 401 Unauthorized 처리
-    if (error.response && error.response.status === 401) {
-      handleTokenRefreshFailure(); // 실패 처리
-    }
-    return Promise.reject(error);
-  }
 );
 
 export default axiosInstance;
