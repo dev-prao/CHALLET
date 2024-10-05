@@ -59,6 +59,11 @@ spring:
     open-in-view: false
   elasticsearch:
     uris: "challet.world:9200"
+  data:
+    redis:
+      host: challet.world
+      port: 6379
+      database: 1
 
 
 springdoc:
