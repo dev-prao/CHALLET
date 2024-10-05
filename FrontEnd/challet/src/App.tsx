@@ -40,6 +40,7 @@ import ImageUpload from './pages/TestPage/ImageUpload';
 import WebSocketTest from './pages/TestPage/WebSocketTest';
 import CalendarSpendingPage from './pages/AnalysisPage/CalendarSpendingPage';
 import CalendarSpendingPage2 from './pages/AnalysisPage/CalendarSpending';
+import ProtectedRoute from './components/ProtectedRoute';
 import './assets/App.css';
 
 function App() {
@@ -90,6 +91,7 @@ function App() {
     <div className='min-h-screen flex flex-col justify-between'>
       {/* Routes 설정 */}
       <Routes>
+        {/* 공개된 페이지 */}
         <Route path='/' element={<RealOnboardingPage />} />
         <Route path='/onboarding' element={<OnboardingPage />} />
         <Route path='/phone-auth' element={<PhoneAuthPage />} />
@@ -98,16 +100,18 @@ function App() {
         <Route path='/signup2' element={<SignUpPage2 />} />
         <Route path='/set-password' element={<SetPasswordPage />} />
         <Route path='/login' element={<LoginPage />} />
-        <Route path='/wallet' element={<WalletPage />} />
-        <Route path='/mydata-history' element={<MyDataHistoryPage />} />
-        <Route
-          path='/history-detail/:transactionId'
-          element={<HistoryDetailPage />}
-        />
-        <Route
-          path='/mydata-detail/:transactionId'
-          element={<MyDataDetailPage />}
-        />
+        {/* 보호된 경로들은 ProtectedRoute로 그룹화 */}
+        <Route element={<ProtectedRoute />}>
+          <Route path='/wallet' element={<WalletPage />} />
+          <Route path='/mydata-history' element={<MyDataHistoryPage />} />
+          <Route
+            path='/history-detail/:transactionId'
+            element={<HistoryDetailPage />}
+          />
+          <Route
+            path='/mydata-detail/:transactionId'
+            element={<MyDataDetailPage />}
+          />
 
         <Route path='/history' element={<HistoryPage />} />
         <Route path='/transfer' element={<TransferPage />} />

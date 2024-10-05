@@ -16,6 +16,8 @@ export default defineConfig({
         'robots.txt',
         'apple-touch-icon.png',
         'assets/icons/*',
+        'icons/*',
+        'screenshots/*',
       ], // 캐싱할 자산 목록
 
       workbox: {
