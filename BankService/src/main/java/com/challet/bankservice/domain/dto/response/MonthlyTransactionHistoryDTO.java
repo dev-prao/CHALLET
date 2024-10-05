@@ -3,6 +3,7 @@ package com.challet.bankservice.domain.dto.response;
 
 import com.challet.bankservice.domain.entity.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Builder;
 
@@ -36,6 +37,6 @@ public record MonthlyTransactionHistoryDTO(
 
     @Schema(description = "카테고리")
     Category category
-){
+)implements Serializable {
 
 }

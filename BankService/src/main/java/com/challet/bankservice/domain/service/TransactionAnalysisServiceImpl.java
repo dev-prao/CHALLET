@@ -1,5 +1,6 @@
 package com.challet.bankservice.domain.service;
 
+import com.challet.bankservice.domain.dto.redis.MonthlyTransactionRedisListDTO;
 import com.challet.bankservice.domain.dto.request.BankToAnalysisMessageRequestDTO;
 import com.challet.bankservice.domain.dto.request.MonthlyTransactionRequestDTO;
 import com.challet.bankservice.domain.dto.request.UserInfoMessageRequestDTO;
@@ -9,6 +10,7 @@ import com.challet.bankservice.domain.dto.response.MonthlyTransactionHistoryDTO;
 import com.challet.bankservice.domain.dto.response.MonthlyTransactionHistoryListDTO;
 import com.challet.bankservice.domain.entity.Category;
 import com.challet.bankservice.domain.repository.ChalletBankRepository;
+import com.challet.bankservice.domain.repository.MonthlyTransactionHistoryListRepository;
 import com.challet.bankservice.global.client.ChalletFeignClient;
 import com.challet.bankservice.global.client.KbBankFeignClient;
 import com.challet.bankservice.global.client.NhBankFeignClient;
@@ -33,13 +35,22 @@ public class TransactionAnalysisServiceImpl implements TransactionAnalysisServic
     private final NhBankFeignClient nhBankFeignClient;
     private final ShBankFeignClient shBankFeignClient;
     private final ChalletFeignClient challetFeignClient;
+    private final MonthlyTransactionHistoryListRepository redisRepository;
 
 
     @Override
     public MonthlyTransactionHistoryListDTO getMonthlyTransactionHistory(String tokenHeader,
         MonthlyTransactionRequestDTO requestDTO) {
-
         String phoneNumber = jwtUtil.getLoginUserPhoneNumber(tokenHeader);
+
+        String redisId = requestDTO.year() + ":" + requestDTO.month() + ":" + phoneNumber;
+        //redis 조회
+        MonthlyTransactionRedisListDTO redisHistoryDTO = redisRepository.findById(redisId).orElse(null);
+
+        if (redisHistoryDTO != null) {
+            return MonthlyTransactionHistoryListDTO.from(redisHistoryDTO.getMonthlyTransactions());
+        }
+
         MonthlyTransactionHistoryListDTO chMonthlyTransaction = challetBankRepository.getTransactionByPhoneNumberAndYearMonth(
             phoneNumber, requestDTO);
 
@@ -63,6 +74,12 @@ public class TransactionAnalysisServiceImpl implements TransactionAnalysisServic
 
         MonthlyTransactionHistoryListDTO sortedTransactions = MonthlyTransactionHistoryListDTO.from(
             allTransactions);
+
+        // Redis에 정렬된 트랜잭션을 저장
+        redisRepository.save(MonthlyTransactionRedisListDTO.builder()
+            .id(redisId)
+            .monthlyTransactions(sortedTransactions.monthlyTransactions())
+            .build());
 
         return sortedTransactions;
     }
@@ -99,13 +116,6 @@ public class TransactionAnalysisServiceImpl implements TransactionAnalysisServic
         Map<Category, Long> shBankMyCategory = shBankFeignClient.getMyTransactionCategory(
             tokenHeader,
             requestDTO.year(), requestDTO.month());
-
-        System.out.println("---------------------------");
-        System.out.println(chBankMyCategory);
-        System.out.println(kbBankMyCategory);
-        System.out.println(nhBankMyCategory);
-        System.out.println(shBankMyCategory);
-        System.out.println("----------------------------");
 
         Map<Category, Long> totalCategoryAmount = new HashMap<>();
         combineCategoryAmounts(totalCategoryAmount, chBankMyCategory);
