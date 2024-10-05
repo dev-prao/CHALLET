@@ -1,6 +1,8 @@
 package com.challet.challetservice.domain.controller;
 
+import com.challet.challetservice.domain.dto.request.CertificateRequestDTO;
 import com.challet.challetservice.domain.dto.request.CheckDuplicateRequestDTO;
+import com.challet.challetservice.domain.dto.request.SmsRequestDTO;
 import com.challet.challetservice.domain.dto.request.UserLoginRequestDTO;
 import com.challet.challetservice.domain.dto.request.UserRegisterRequestDTO;
 import com.challet.challetservice.domain.dto.response.CheckDuplicateResponseDTO;
@@ -80,6 +82,23 @@ public class AuthController {
     public ResponseEntity<CheckDuplicateResponseDTO> checkDuplicate(@RequestBody CheckDuplicateRequestDTO request){
         CheckDuplicateResponseDTO result = authService.checkDuplicate(request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @Operation(summary = "SMS 인증코드 전송", description = "전화번호를 입력하면 해당 전화번호로 문자인증 전송")
+    @PostMapping("/sms")
+    public ResponseEntity<String> sendSms(@Valid @RequestBody SmsRequestDTO request){
+        authService.sendSms(request);
+        return ResponseEntity.status(HttpStatus.OK).body("인증코드 전송 성공");
+    }
+
+    @Operation(summary = "SMS 인증코드 인증", description = "전화번호와 인증코드를 요청으로 보내서 인증")
+    @PostMapping("/sms/certificate")
+    public ResponseEntity<String> certificate(@RequestBody CertificateRequestDTO request){
+        Boolean isPass = authService.certificate(request);
+        if (!isPass){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("인증 실패");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("인증 성공");
     }
 
 }

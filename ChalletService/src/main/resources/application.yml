@@ -59,6 +59,10 @@ spring:
     open-in-view: false
   elasticsearch:
     uris: "challet.world:9200"
+  data:
+    redis:
+      host: challet.world
+      port: ${redis_port}
 
 
 springdoc:
@@ -87,3 +91,8 @@ management:
     metrics:
       export:
         enabled: true
+
+coolsms:
+  api-key: ${coolsms_api_key}
+  api-secret: ${coolsms_api_secret}
+  sender-number: ${coolsms_sender_number}

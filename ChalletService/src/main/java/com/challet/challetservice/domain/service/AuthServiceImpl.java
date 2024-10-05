@@ -1,6 +1,8 @@
 package com.challet.challetservice.domain.service;
 
+import com.challet.challetservice.domain.dto.request.CertificateRequestDTO;
 import com.challet.challetservice.domain.dto.request.CheckDuplicateRequestDTO;
+import com.challet.challetservice.domain.dto.request.SmsRequestDTO;
 import com.challet.challetservice.domain.dto.request.UserLoginRequestDTO;
 import com.challet.challetservice.domain.dto.request.UserRegisterRequestDTO;
 import com.challet.challetservice.domain.dto.response.CheckDuplicateResponseDTO;
@@ -11,10 +13,13 @@ import com.challet.challetservice.domain.repository.UserRepository;
 import com.challet.challetservice.global.client.ChBankFeignClient;
 import com.challet.challetservice.global.exception.CustomException;
 import com.challet.challetservice.global.exception.ExceptionResponse;
+import com.challet.challetservice.global.util.CoolSmsUtil;
 import com.challet.challetservice.global.util.JwtUtil;
+import com.challet.challetservice.global.util.RedisUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Random;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Optional;
@@ -30,6 +35,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final ChBankFeignClient chBankFeignClient;
+    private final CoolSmsUtil coolSmsUtil;
+    private final RedisUtil redisUtil;
 
     @Override
     @Transactional
@@ -88,6 +95,23 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public void sendSms(SmsRequestDTO request) {
+        if(userRepository.existsByPhoneNumber(request.phoneNumber())) {
+            throw new ExceptionResponse(CustomException.USER_ALREADY_EXISTS_EXCEPTION);
+        }
+
+        String certificationCode = generateCertificationCode();
+        redisUtil.saveCertificationCode(request.phoneNumber(), certificationCode);
+        coolSmsUtil.sendSms(request.phoneNumber(), certificationCode);
+    }
+
+    @Override
+    public Boolean certificate(CertificateRequestDTO request) {
+        String savedCode = redisUtil.getCertificationCode(request.phoneNumber());
+        return request.code().equals(savedCode);
+    }
+
+    @Override
     @Transactional
     public TokenRefreshResponseDTO refreshToken(HttpServletRequest request) {
         String refreshToken = getRefreshTokenFromCookie(request);
@@ -126,6 +150,12 @@ public class AuthServiceImpl implements AuthService {
             .findFirst()
             .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_REFRESH_TOKEN_EXCEPTION));
 
+    }
+
+    public static String generateCertificationCode(){
+        Random random = new Random();
+        int code = random.nextInt(900000) + 100000;
+        return String.valueOf(code);
     }
 
 }
