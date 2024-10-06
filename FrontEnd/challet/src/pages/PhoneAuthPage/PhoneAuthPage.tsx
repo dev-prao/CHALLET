@@ -158,15 +158,18 @@ const PhoneAuthPage = () => {
           value={phoneNumber}
           onChange={handlePhoneNumberChange}
           placeholder='전화번호'
+          inputMode='numeric'
           className='w-3/4 bg-gray-100 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-700 '
           maxLength={13}
           required
-          disabled={isRequestSent} // 요청 후 비활성화
+          disabled={isRequestSent}
         />
         <button
           type='submit'
           className={`w-1/4 bg-[#00CCCC] text-white px-4 py-2 rounded-lg flex items-center justify-center ${
-            isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''
+            isButtonDisabled
+              ? 'opacity-50 cursor-not-allowed'
+              : 'active:bg-[#00aaaa]'
           }`}
           onClick={handleSubmit}
           disabled={isButtonDisabled}
@@ -185,6 +188,7 @@ const PhoneAuthPage = () => {
               setVerificationCode(e.target.value.replace(/\D/g, ''))
             }
             placeholder='인증번호'
+            inputMode='numeric'
             className='w-full bg-gray-100 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-gray-700'
             maxLength={6}
             required

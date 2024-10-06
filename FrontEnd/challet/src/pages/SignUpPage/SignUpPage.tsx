@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getRandomNickname } from '@woowa-babble/random-nickname'; // 랜덤 닉네임 생성
 import useSignUpStore from '../../store/useSignUpStore';
 import Button from '../../components/Button/Button'; // Button 컴포넌트 임포트
+import { TopBar } from '../../components/topbar/topbar';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const SignUpPage = () => {
   const [nickname, setNickname] = useState(''); // 랜덤 닉네임 상태
   const [isFormValid, setIsFormValid] = useState(false); // 회원가입 버튼 활성화 여부
   const [errorMessage, setErrorMessage] = useState(''); // 오류 메시지 상태
+  const [isComposing, setIsComposing] = useState(false); // 한글 조합 상태 확인
 
   // Input 필드 참조
   const idNumberFrontRef = useRef<HTMLInputElement>(null);
@@ -34,77 +36,46 @@ const SignUpPage = () => {
     return null; // 오류 처리
   };
 
-  // 주민등록번호 앞자리 입력 핸들러
-  const handleIdNumberFrontChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value;
-    if (value.length <= 6) {
-      setIdNumberFront(value);
-
-      // 입력이 6자리에 도달하면 뒷자리로 포커스 이동
-      if (value.length === 6) {
-        idNumberBackFirstRef.current?.focus();
-      }
-    }
-  };
-
   // 유효성 검사 - 이름, 주민등록번호 앞자리 6자리, 뒷자리 1자리 모두 유효할 때 true
   useEffect(() => {
     const isValidForm = () => {
-      if (!name) {
-        setErrorMessage('이름을 입력해주세요');
+      if (
+        !name ||
+        idNumberFront.length !== 6 ||
+        idNumberBackFirst.length !== 1
+      ) {
         return false;
-      } else if (idNumberFront.length !== 6) {
-        setErrorMessage('주민등록번호 앞자리는 6자리여야 합니다');
-        return false;
-      } else if (idNumberBackFirst.length !== 1) {
-        setErrorMessage('주민등록번호 뒷자리 첫 자리를 입력해주세요');
-        return false;
-      } else {
-        const year = parseInt(idNumberFront.slice(0, 2), 10);
-        const month = parseInt(idNumberFront.slice(2, 4), 10);
-        const day = parseInt(idNumberFront.slice(4, 6), 10);
-        const fullYear = year < 50 ? 2000 + year : 1900 + year;
-        const backFirstDigit = parseInt(idNumberBackFirst, 10);
-
-        // 날짜 유효성 검사
-        const isValidDate = (y: number, m: number, d: number) => {
-          const date = new Date(y, m - 1, d);
-          return (
-            date.getFullYear() === y &&
-            date.getMonth() + 1 === m &&
-            date.getDate() === d
-          );
-        };
-
-        if (!isValidDate(fullYear, month, day)) {
-          setErrorMessage('유효한 날짜를 입력해주세요');
-          return false;
-        }
-        // 2000년 이후 출생자는 뒷자리 첫 숫자가 3 또는 4, 2000년 이전은 1 또는 2
-        else if (
-          fullYear >= 2000 &&
-          backFirstDigit !== 3 &&
-          backFirstDigit !== 4
-        ) {
-          setErrorMessage(
-            '2000년 이후 출생자는 뒷자리 첫 숫자가 3 또는 4여야 합니다'
-          );
-          return false;
-        } else if (
-          fullYear < 2000 &&
-          backFirstDigit !== 1 &&
-          backFirstDigit !== 2
-        ) {
-          setErrorMessage(
-            '2000년 이전 출생자는 뒷자리 첫 숫자가 1 또는 2여야 합니다'
-          );
-          return false;
-        }
-        setErrorMessage('');
-        return true; // 유효한 경우 true 반환
       }
+      const year = parseInt(idNumberFront.slice(0, 2), 10);
+      const month = parseInt(idNumberFront.slice(2, 4), 10);
+      const day = parseInt(idNumberFront.slice(4, 6), 10);
+      const fullYear = year < 50 ? 2000 + year : 1900 + year;
+      const backFirstDigit = parseInt(idNumberBackFirst, 10);
+
+      // 날짜 유효성 검사
+      const isValidDate = (y: number, m: number, d: number) => {
+        const date = new Date(y, m - 1, d);
+        return (
+          date.getFullYear() === y &&
+          date.getMonth() + 1 === m &&
+          date.getDate() === d
+        );
+      };
+
+      if (!isValidDate(fullYear, month, day)) {
+        setErrorMessage('생년월일을 확인해주세요');
+        return false;
+      }
+      if (
+        (fullYear >= 2000 && ![3, 4].includes(backFirstDigit)) ||
+        (fullYear < 2000 && ![1, 2].includes(backFirstDigit))
+      ) {
+        setErrorMessage('주민 번호를 확인해주세요.');
+        return false;
+      }
+
+      setErrorMessage('');
+      return true;
     };
 
     setIsFormValid(isValidForm());
@@ -112,21 +83,15 @@ const SignUpPage = () => {
 
   // 랜덤 닉네임 생성
   useEffect(() => {
-    // 타입을 명시적으로 지정
     const nicknameCategories: (
       | 'animals'
       | 'heros'
       | 'characters'
       | 'monsters'
     )[] = ['animals', 'heros', 'characters', 'monsters'];
-
-    // 배열에서 랜덤하게 하나 선택
     const randomCategory =
       nicknameCategories[Math.floor(Math.random() * nicknameCategories.length)];
-
-    // 선택된 카테고리로 랜덤 닉네임 생성
-    const generatedNickname = getRandomNickname(randomCategory);
-    setNickname(generatedNickname);
+    setNickname(getRandomNickname(randomCategory));
   }, []);
 
   // 폼 제출 및 상태 저장
@@ -135,15 +100,10 @@ const SignUpPage = () => {
     const age = calculateAge(idNumberFront);
     const gender = determineGender(idNumberBackFirst);
 
-    if (gender == null) {
-      // 잘못된 주민등록번호 뒷자리일 때 에러 메시지 설정
-      setErrorMessage('잘못된 주민등록번호 뒷자리입니다.');
-      return;
-    }
-
     // 에러 메시지를 초기화 (성공적인 경우)
     setErrorMessage('');
 
+    // 전화번호에서 하이픈을 제거
     const phoneNumberWithoutHyphen = phoneNumber.replace(/-/g, ''); // 하이픈 제거
 
     const signUpData = {
@@ -158,63 +118,108 @@ const SignUpPage = () => {
     navigate('/set-password');
   };
 
+  // 이름 입력 핸들러
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 한글 조합이 끝나면 유효성 검사를 진행
+    if (!isComposing) {
+      const value = e.target.value;
+      setName(value.replace(/[^가-힣a-zA-Z\s]/g, '')); // 완성형 한글, 영문, 공백만 허용
+    } else {
+      // 조합 중일 때도 입력된 값 반영
+      setName(e.target.value);
+    }
+  };
+
+  // 한글 조합 시작
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  // 한글 조합 완료
+  const handleCompositionEnd = (
+    e: React.CompositionEvent<HTMLInputElement>
+  ) => {
+    setIsComposing(false);
+    const value = e.currentTarget.value;
+    setName(value.replace(/[^가-힣a-zA-Z\s]/g, '')); // 유효성 검사 후 최종값 반영
+  };
+
   return (
     <div className='min-h-screen flex flex-col justify-between px-6'>
-      <form onSubmit={handleSubmit} className='flex-grow'>
+      <TopBar title='회원가입' />
+      <form onSubmit={handleSubmit} className='flex-grow pt-16'>
         {/* 이름 입력 필드 */}
-        <div className='mb-6'>
-          <label className='block text-lg font-bold text-gray-700'>이름</label>
+        <div className='mb-6 mt-20'>
           <input
             type='text'
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder='이름을 입력하세요'
+            onChange={handleInputChange}
+            onCompositionStart={handleCompositionStart} // 한글 조합 시작
+            onCompositionEnd={handleCompositionEnd} // 한글 조합 완료
+            placeholder='이름'
             required
             className='border border-gray-300 rounded-md py-2 px-3 w-full focus:outline-none focus:ring-2 focus:ring-[#00cccc]'
           />
         </div>
 
         {/* 주민등록번호 입력 필드 */}
-        <div className='mb-6'>
-          <label className='block text-lg font-bold text-gray-700'>
-            주민등록번호
-          </label>
-          <div className='flex items-center'>
+        <div className='mb-6 w-full'>
+          <div className='flex items-center justify-between w-full'>
             {/* 주민번호 앞자리 입력 */}
             <input
               type='text'
               value={idNumberFront}
-              onChange={handleIdNumberFrontChange}
-              placeholder='앞자리 (예: 990101)'
+              onInput={(e) => {
+                const input = e.currentTarget.value
+                  .replace(/[^0-9]/g, '')
+                  .slice(0, 6); // 숫자만 입력 가능, 6자리로 제한
+                setIdNumberFront(input);
+
+                // 입력이 6자리에 도달하면 뒷자리로 포커스 이동
+                if (input.length === 6) {
+                  idNumberBackFirstRef.current?.focus();
+                }
+              }}
+              placeholder='주민등록번호'
               maxLength={6}
               required
-              className='border border-gray-300 rounded-md py-2 px-3 mr-2 w-24 focus:outline-none focus:ring-2 focus:ring-[#00cccc]'
+              className='border border-gray-300 rounded-md py-2 px-3 w-1/2 focus:outline-none focus:ring-2 focus:ring-[#00cccc]'
               ref={idNumberFrontRef}
             />
-            <span>-</span>
+
+            <span className='mx-2'>-</span>
+
             {/* 주민등록번호 뒷자리 첫 숫자 입력 */}
-            <input
-              type='text'
-              value={idNumberBackFirst}
-              onChange={(e) => setIdNumberBackFirst(e.target.value)}
-              placeholder='뒷자리 첫 숫자'
-              maxLength={1}
-              required
-              className='border border-gray-300 rounded-md py-2 px-3 ml-2 w-12 focus:outline-none focus:ring-2 focus:ring-[#00cccc]'
-              ref={idNumberBackFirstRef}
-            />
-            <span className='ml-2'>●●●●●●</span>
+            <div className='relative w-1/2 flex items-center'>
+              <input
+                type='text'
+                value={idNumberBackFirst}
+                onInput={
+                  (e) =>
+                    setIdNumberBackFirst(
+                      e.currentTarget.value.replace(/\D/g, '')
+                    ) // 숫자만 입력 가능
+                }
+                maxLength={1}
+                required
+                className='border border-gray-300 rounded-md py-2 px-3 w-12 focus:outline-none focus:ring-2 focus:ring-[#00cccc]'
+                ref={idNumberBackFirstRef}
+              />
+              {/* 마스킹된 번호 */}
+              <span className='ml-2 text-gray-500'>●●●●●●</span>
+            </div>
           </div>
         </div>
 
         {errorMessage && <p className='text-red-500'>{errorMessage}</p>}
-        <div className='w-full'>
+        {/* 가입 완료 버튼 */}
+        <div className='fixed bottom-0 left-0 right-0'>
           <Button
-            text='가입 완료'
+            text='확인'
             disabled={!isFormValid}
-            className={`mt-6 ${
+            className={`w-full py-6 rounded-none text-white ${
               isFormValid ? 'bg-[#00cccc]' : 'bg-gray-300'
-            } text-white w-full py-3 rounded-md focus:outline-none`}
+            }`}
           />
         </div>
       </form>
