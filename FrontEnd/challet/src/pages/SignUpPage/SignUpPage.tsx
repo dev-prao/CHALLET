@@ -144,7 +144,16 @@ const SignUpPage = () => {
     // 에러 메시지를 초기화 (성공적인 경우)
     setErrorMessage('');
 
-    const signUpData = { nickname, age, gender, name, phoneNumber };
+    const phoneNumberWithoutHyphen = phoneNumber.replace(/-/g, ''); // 하이픈 제거
+
+    const signUpData = {
+      nickname,
+      age,
+      gender,
+      name,
+      phoneNumber: phoneNumberWithoutHyphen,
+    };
+
     setSignUpData(signUpData);
     navigate('/set-password');
   };
