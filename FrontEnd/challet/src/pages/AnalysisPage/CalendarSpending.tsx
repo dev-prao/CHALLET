@@ -63,7 +63,7 @@ const CalendarSpendingPage = () => {
         }
       );
 
-      setTransactions(response.data.monthlyTransactions); // 응답 데이터 설정
+      setTransactions(response.data.monthlyTransactions || []); // 데이터가 없을 때 빈 배열로 설정
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching transactions:', error);
@@ -212,7 +212,10 @@ const CalendarSpendingPage = () => {
 
   return (
     <div className='max-w-md mx-auto pt-4'>
-      {isLoading && <div className='text-center'></div>}
+      {/* 로딩 중일 때 */}
+      {isLoading && <div className='text-center'>Loading...</div>}
+
+      {/* 에러 발생 시 */}
       {error && <div className='text-center text-red-500'>{error}</div>}
       {!isLoading && !error && (
         <>
@@ -228,6 +231,7 @@ const CalendarSpendingPage = () => {
               >
                 &lt;
               </button>
+
               {/* 중앙에 배치된 달 선택 드롭다운 버튼 */}
               <div className='absolute left-1/2 transform -translate-x-1/2'>
                 <button

@@ -7,7 +7,7 @@ import Button from '../../components/Button/Button'; // Button 컴포넌트 임�
 const SignUpPage = () => {
   const navigate = useNavigate();
 
-  const { setSignUpData } = useSignUpStore();
+  const { phoneNumber, setSignUpData } = useSignUpStore();
   const [name, setName] = useState(''); // 이름 입력 상태
   const [idNumberFront, setIdNumberFront] = useState(''); // 주민등록번호 앞자리
   const [idNumberBackFirst, setIdNumberBackFirst] = useState(''); // 주민등록번호 뒷자리 첫 숫자
@@ -65,7 +65,6 @@ const SignUpPage = () => {
         const year = parseInt(idNumberFront.slice(0, 2), 10);
         const month = parseInt(idNumberFront.slice(2, 4), 10);
         const day = parseInt(idNumberFront.slice(4, 6), 10);
-
         const fullYear = year < 50 ? 2000 + year : 1900 + year;
         const backFirstDigit = parseInt(idNumberBackFirst, 10);
 
@@ -135,11 +134,17 @@ const SignUpPage = () => {
     e.preventDefault();
     const age = calculateAge(idNumberFront);
     const gender = determineGender(idNumberBackFirst);
+
     if (gender == null) {
-      alert('잘못된 주민등록번호 뒷자리입니다.');
+      // 잘못된 주민등록번호 뒷자리일 때 에러 메시지 설정
+      setErrorMessage('잘못된 주민등록번호 뒷자리입니다.');
       return;
     }
-    const signUpData = { nickname, age, gender, name };
+
+    // 에러 메시지를 초기화 (성공적인 경우)
+    setErrorMessage('');
+
+    const signUpData = { nickname, age, gender, name, phoneNumber };
     setSignUpData(signUpData);
     navigate('/set-password');
   };

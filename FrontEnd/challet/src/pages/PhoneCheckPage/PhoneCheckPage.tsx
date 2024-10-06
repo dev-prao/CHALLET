@@ -17,7 +17,7 @@ const PhoneCheckPage = () => {
   const location = useLocation();
   const { setSignUpData } = useSignUpStore(); // Zustand에서 상태 업데이트 함수 가져오기
 
-  // 전화번호 포맷팅 함수 (010-xxxx-xxxx 형식으로 변환)
+  // 전화번호 포맷팅 함수
   const formatPhoneNumber = (value: string) => {
     const onlyNumbers = value.replace(/\D/g, ''); // 숫자 이외의 문자는 제거
     if (onlyNumbers.length <= 3) return onlyNumbers;
