@@ -52,7 +52,7 @@ const LoginPage = () => {
       setIsCheckingPhoneNumber(false);
       setIsExistingMember(response.data.isDuplicated);
       if (!response.data.isDuplicated) {
-        setErrorMessage('No matching phone number found.');
+        setErrorMessage('일치하는 전화번호가 없습니다');
       } else {
         setErrorMessage('');
       }
@@ -139,7 +139,10 @@ const LoginPage = () => {
                 <p className='text-xl text-gray-800'>입력해주세요</p>
               </div>
 
-              <div className='w-full border-b-2 border-teal-500 focus-within:border-teal-600'>
+              <div
+                className='w-full focus-within:border-teal-600'
+                style={{ borderBottom: '2px solid #00CCCC' }}
+              >
                 <input
                   type='tel'
                   value={phoneNumber}
@@ -148,12 +151,12 @@ const LoginPage = () => {
                   className='w-full text-lg font-bold text-gray-800 px-3 py-2 focus:outline-none'
                   maxLength={13}
                   required
+                  style={{ borderBottomColor: '#00CCCC' }}
                 />
               </div>
+
               {isCheckingPhoneNumber && (
-                <p className='text-teal-500 text-sm mt-2'>
-                  Checking phone number...
-                </p>
+                <p className='text-teal-500 text-sm mt-2'></p>
               )}
               {errorMessage && (
                 <p className='text-red-500 text-sm mt-2'>{errorMessage}</p>

@@ -66,13 +66,15 @@ const OnboardingPage = () => {
       >
         <button
           onClick={handleLogin}
-          className='w-full py-3 bg-teal-400 text-white text-lg rounded-md'
+          style={{ backgroundColor: '#00CCCC' }}
+          className='w-full py-3 text-white text-lg rounded-md'
         >
           로그인
         </button>
         <button
           onClick={handleSignUp}
-          className='w-full py-3 border border-teal-400 text-teal-400 text-lg rounded-md'
+          style={{ border: '1px solid #00CCCC', color: '#00CCCC' }}
+          className='w-full py-3 text-lg rounded-md'
         >
           가입하기
         </button>

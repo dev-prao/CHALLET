@@ -124,7 +124,7 @@ const CalendarSpendingPage = () => {
   };
 
   const getDailyTotal = (date: Date) => {
-    return transactions
+    return (transactions || [])
       .filter((t) => isSameDay(new Date(t.transactionDate), date))
       .reduce((sum, t) => sum + t.transactionAmount, 0);
   };
