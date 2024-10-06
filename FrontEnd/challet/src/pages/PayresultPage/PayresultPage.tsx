@@ -4,9 +4,10 @@ import AxiosInstance from '../../api/axiosInstance';
 import useAccountStore from '../../store/useAccountStore';
 import { AxiosError } from 'axios';
 
-interface ParsedData {
-  deposit: string;
+interface TransactionResponse {
+  transactionId: number;
   transactionAmount: number;
+  deposit: string;
   category: string;
 }
 
@@ -18,8 +19,14 @@ function PayResult() {
   const [hasSentRequest, setHasSentRequest] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [transactionResponse, setTransactionResponse] =
+    useState<TransactionResponse | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isEditingCategory, setIsEditingCategory] = useState(false);
 
-  const parsedData: ParsedData | null = (() => {
+  const categories = ['DELIVERY', 'TRANSPORT', 'COFFEE', 'SHOPPING', 'ETC'];
+
+  const parsedData = (() => {
     try {
       return JSON.parse(qrData);
     } catch (error) {
@@ -37,15 +44,20 @@ function PayResult() {
           transactionAmount: parsedData.transactionAmount,
           accountNumber: accountInfo.accountNumber,
           deposit: parsedData.deposit,
-          category: parsedData.category,
         };
 
-        await AxiosInstance.post('api/ch-bank/payments', data, {
-          headers: { AccountId: accountInfo.id.toString() },
-        });
+        const response = await AxiosInstance.post(
+          'api/ch-bank/payments',
+          data,
+          {
+            headers: { AccountId: accountInfo.id.toString() },
+          }
+        );
 
+        setTransactionResponse(response.data);
+        setSelectedCategory(response.data.category);
         setPaymentSuccess(true);
-        console.log('결제 성공:', parsedData, data);
+        console.log('결제 성공:', response.data);
       } catch (error: unknown) {
         if (error instanceof AxiosError && error.response?.status === 400) {
           setErrorMessage('잔액이 부족합니다.');
@@ -62,22 +74,99 @@ function PayResult() {
     sendPaymentRequest();
   }, [accountInfo, parsedData, hasSentRequest]);
 
+  const handleCategoryChange = (newCategory: string) => {
+    setSelectedCategory(newCategory);
+    setIsEditingCategory(false);
+  };
+
+  const handleCategoryConfirm = async () => {
+    if (!transactionResponse || !selectedCategory) return;
+
+    try {
+      const data = {
+        id: transactionResponse.transactionId,
+        transactionAmount: transactionResponse.transactionAmount,
+        deposit: transactionResponse.deposit,
+        category: selectedCategory,
+      };
+
+      await AxiosInstance.post('/api/ch-bank/confirm-payment', data, {
+        headers: { AccountId: accountInfo?.id.toString() },
+      });
+
+      console.log('카테고리 확인 및 전송 완료:', data);
+    } catch (error) {
+      console.error('카테고리 확인 실패:', error);
+      alert('카테고리 확인에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const handleConfirm = async () => {
+    await handleCategoryConfirm();
+    handleNavigate();
+  };
+
   const handleNavigate = () => navigate('/wallet');
 
   const renderPaymentDetails = () => (
     <div className='w-full mb-8 flex flex-col items-center'>
       <div className='w-full border-t border-gray-200'></div>
       {[
-        { label: '결제내역', value: parsedData?.deposit },
-        { label: '카테고리', value: parsedData?.category },
-        { label: '결제 금액', value: `${parsedData?.transactionAmount}원` },
+        { label: '결제내역', value: transactionResponse?.deposit },
+        {
+          label: '카테고리',
+          value: (
+            <div
+              className='flex items-center cursor-pointer'
+              onClick={() => setIsEditingCategory(!isEditingCategory)}
+            >
+              <p className='text-[#585962] font-medium'>
+                {selectedCategory || 'ETC'}
+              </p>
+              <svg
+                className='w-4 h-4 text-gray-500 ml-2'
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+                xmlns='http://www.w3.org/2000/svg'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth='2'
+                  d='M9 5l7 7-7 7'
+                />
+              </svg>
+            </div>
+          ),
+        },
+        {
+          label: '결제 금액',
+          value: `${Math.abs(transactionResponse?.transactionAmount || 0)}원`,
+        },
       ].map(({ label, value }) => (
         <div className='w-4/5 flex justify-between py-4' key={label}>
           <p className='text-[#585962] font-medium'>{label}</p>
-          <p className='text-[#585962] font-medium'>{value}</p>
+          <div>{value}</div>
         </div>
       ))}
       <div className='w-full border-b border-gray-300'></div>
+
+      {isEditingCategory && (
+        <div className='w-4/5 bg-white border border-gray-300 rounded-lg mt-4'>
+          {categories.map((category) => (
+            <div
+              key={category}
+              className={`py-2 px-4 cursor-pointer hover:bg-gray-100 ${
+                selectedCategory === category ? 'bg-gray-200' : ''
+              }`}
+              onClick={() => handleCategoryChange(category)}
+            >
+              {category}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 
@@ -114,11 +203,11 @@ function PayResult() {
               결제 완료
             </h2>
           </div>
-          {parsedData ? (
+          {transactionResponse ? (
             renderPaymentDetails()
           ) : (
             <p className='text-[#585962] text-xs mt-4 text-center'>
-              QR 데이터를 찾을 수 없습니다.
+              결제 데이터를 찾을 수 없습니다.
             </p>
           )}
         </div>
@@ -151,7 +240,7 @@ function PayResult() {
         </div>
       )}
       <button
-        onClick={handleNavigate}
+        onClick={handleConfirm}
         className='fixed bottom-0 left-0 right-0 w-full py-5 bg-[#00CCCC] text-white font-medium text-lg'
       >
         확인

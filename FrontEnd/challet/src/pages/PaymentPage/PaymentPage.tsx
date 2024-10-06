@@ -19,24 +19,44 @@ const PaymentPage = () => {
           throw new Error('No video input devices found.');
         }
 
-        const preferredDevice =
-          videoDevices.find((device) =>
-            device.label.toLowerCase().includes('back')
-          ) || videoDevices[0];
+        const storedDeviceId = localStorage.getItem('preferredCameraDeviceId');
 
-        controlsRef.current = await codeReader.decodeFromVideoDevice(
-          preferredDevice.deviceId,
-          'video',
-          (result, err) => {
-            if (result) {
-              const text = result.getText();
-              controlsRef.current?.stop();
-              navigate('/payreview', { state: { qrData: text } });
-            } else if (err && err.name !== 'NotFoundException') {
-              console.error('Error during scanning:', err);
+        let preferredDevice;
+
+        if (storedDeviceId) {
+          preferredDevice = videoDevices.find(
+            (device) => device.deviceId === storedDeviceId
+          );
+        }
+
+        if (!preferredDevice) {
+          // 후면 카메라를 찾고, 없으면 첫 번째 장치를 선택
+          preferredDevice =
+            videoDevices.find((device) =>
+              device.label.toLowerCase().includes('back')
+            ) || videoDevices[0];
+        }
+
+        if (preferredDevice) {
+          localStorage.setItem(
+            'preferredCameraDeviceId',
+            preferredDevice.deviceId
+          );
+
+          controlsRef.current = await codeReader.decodeFromVideoDevice(
+            preferredDevice.deviceId,
+            'video',
+            (result, err) => {
+              if (result) {
+                const text = result.getText();
+                controlsRef.current?.stop();
+                navigate('/payreview', { state: { qrData: text } });
+              } else if (err && err.name !== 'NotFoundException') {
+                console.error('Error during scanning:', err);
+              }
             }
-          }
-        );
+          );
+        }
       } catch (error: unknown) {
         if (error instanceof Error) {
           console.error('Error starting scan:', error);

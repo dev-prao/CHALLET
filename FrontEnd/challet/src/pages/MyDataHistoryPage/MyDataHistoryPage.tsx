@@ -177,7 +177,7 @@ function MyDataHistoryPage() {
             );
           })
         ) : (
-          <p className='text-center text-gray-500 py-4'>
+          <p className='mt- text-center text-gray-500 py-4'>
             거래 내역이 없습니다.
           </p>
         )}
