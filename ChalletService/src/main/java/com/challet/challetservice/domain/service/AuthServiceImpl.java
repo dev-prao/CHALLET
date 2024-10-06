@@ -20,6 +20,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Random;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.Optional;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final ChBankFeignClient chBankFeignClient;
@@ -46,12 +48,12 @@ public class AuthServiceImpl implements AuthService {
             throw new ExceptionResponse(CustomException.USER_ALREADY_EXISTS_EXCEPTION);
         }
 
-        User user = User.createUser(request, jwtUtil);
+        User user = User.createUser(request, passwordEncoder, jwtUtil);
         User savedUser = userRepository.save(user);
 
         // 전화번호 token을 ch-bank에 전달하여 계좌 생성
         ResponseEntity<String> responseAccount = chBankFeignClient.requestCreateChBankAccount(
-            request.phoneNumber());
+            request.name(), request.phoneNumber());
         if(responseAccount.getStatusCode() != HttpStatus.CREATED){
             throw new ExceptionResponse(CustomException.FAIL_ACCOUNT_CREATION_FAILED);
         }
@@ -71,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByPhoneNumber(request.phoneNumber())
             .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
 
-        if (!user.getPassword().equals(request.password())) {
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new ExceptionResponse(CustomException.PASSWORD_MISMATCH_EXCEPTION);
         }
 

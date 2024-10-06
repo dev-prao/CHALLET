@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Entity
 @Getter
@@ -35,7 +36,7 @@ public class User {
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(name = "password", nullable = false, length = 6)
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Column(name = "nickname", nullable = false)
@@ -76,10 +77,11 @@ public class User {
         this.refreshToken = refreshToken;
     }
 
-    public static User createUser(UserRegisterRequestDTO request, JwtUtil jwtUtil) {
+    public static User createUser(UserRegisterRequestDTO request,
+        BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         return User.builder()
             .phoneNumber(request.phoneNumber())
-            .password(request.password())
+            .password(passwordEncoder.encode(request.password()))
             .nickname(request.nickname())
             .profileImage(request.profileImage())
             .age(request.age())
