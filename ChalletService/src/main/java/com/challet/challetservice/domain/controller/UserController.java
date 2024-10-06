@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -98,6 +100,14 @@ public class UserController {
         @RequestHeader(value = "Authorization", required = false) String header, @PathVariable("id") Long id) {
         RewardDetailResponseDTO rewardDetail = userService.getRewardDetail(header, id);
         return ResponseEntity.status(HttpStatus.OK).body(rewardDetail);
+    }
+
+    @Operation(summary = "로그아웃")
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader(value = "Authorization", required = false) String header,
+        HttpServletResponse response) {
+        userService.logout(header, response);
+        return ResponseEntity.status(HttpStatus.OK).body("로그아웃 성공");
     }
 
 

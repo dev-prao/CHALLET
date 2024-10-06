@@ -99,4 +99,8 @@ public class User {
         this.profileImage = profileImage;
     }
 
+    public void deleteRefreshToken(){
+        this.refreshToken = null;
+    }
+
 }

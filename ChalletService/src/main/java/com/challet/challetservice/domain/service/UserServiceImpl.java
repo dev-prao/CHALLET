@@ -17,6 +17,8 @@ import com.challet.challetservice.domain.repository.UserRepository;
 import com.challet.challetservice.global.exception.CustomException;
 import com.challet.challetservice.global.exception.ExceptionResponse;
 import com.challet.challetservice.global.util.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -102,5 +104,23 @@ public class UserServiceImpl implements UserService {
     public UserInfoMessageResponseDTO getUserInfoMessage(String header) {
         String phoneNumber = jwtUtil.getLoginUserPhoneNumber(header);
         return userRepository.getUserInfoMessage(phoneNumber);
+    }
+
+    @Override
+    @Transactional
+    public void logout(String header, HttpServletResponse response) {
+        String loginUserPhoneNumber = jwtUtil.getLoginUserPhoneNumber(header);
+        User user = userRepository.findByPhoneNumber(loginUserPhoneNumber)
+            .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+        user.deleteRefreshToken();
+
+        Cookie deleteCookie = new Cookie("refreshToken", null);
+        deleteCookie.setMaxAge(0);
+        deleteCookie.setPath("/");
+        deleteCookie.setHttpOnly(true);
+        deleteCookie.setSecure(true);
+
+        response.addCookie(deleteCookie);
+
     }
 }
