@@ -26,7 +26,7 @@ const NicknameModal = ({ onNicknameChange, onClose }: NicknameModalProps) => {
 
     if (!isValidNickname(newNickname)) {
       setErrorMessage(
-        '닉네임은 2자 이상 16자 이하, 영어, 숫자, 한글로만 구성 가능합니다.'
+        '닉네임은 2자 이상 16자 이하, 영어, 숫자, 초성이 아닌 한글로만 구성 가능합니다.'
       );
       return;
     }

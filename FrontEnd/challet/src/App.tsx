@@ -12,7 +12,6 @@ import RealOnboardingPage from './pages/OnboardingPage/RealOnboardingPage';
 import PhoneAuthPage from './pages/PhoneAuthPage/PhoneAuthPage';
 import PhoneCheckPage from './pages/PhoneCheckPage/PhoneCheckPage';
 import SignUpPage from './pages/SignUpPage/SignUpPage';
-import SignUpPage2 from './pages/SignUpPage/SignUpPage2';
 import LoginPage from './pages/LoginPage/LoginPage';
 import Navbar from './components/navigation/Navbar';
 import WalletPage from './pages/WalletPage/WalletPage';
@@ -65,6 +64,7 @@ function App() {
   const PhoneCheck = useMatch('/phone-check');
   const Login = useMatch('/login');
   const Main = useMatch('/');
+  const Signup = useMatch('/signup');
 
   // 두 경로 중 하나와 매칭되는지 확인
   const shouldHideNavbar =
@@ -85,7 +85,8 @@ function App() {
     matchmydataselect ||
     PhoneCheck ||
     Login ||
-    Main;
+    Main ||
+    Signup;
 
   return (
     <div className='min-h-screen flex flex-col justify-between'>
@@ -97,7 +98,6 @@ function App() {
         <Route path='/phone-auth' element={<PhoneAuthPage />} />
         <Route path='/phone-check' element={<PhoneCheckPage />} />
         <Route path='/signup' element={<SignUpPage />} />
-        <Route path='/signup2' element={<SignUpPage2 />} />
         <Route path='/set-password' element={<SetPasswordPage />} />
         <Route path='/login' element={<LoginPage />} />
         {/* 보호된 경로들은 ProtectedRoute로 그룹화 */}

@@ -3,6 +3,8 @@ import { useRewardStore } from '../../store/useRewardStore';
 import RewardItem from '../RewardsPage/RewardItem'; // 리워드 아이템 컴포넌트
 import RewardDetail from './RewardDetail'; // 모달 컴포넌트
 import { TopBar } from '../../components/topbar/topbar';
+import CrossIcon from '../../../src/assets/mypage/Cross.png';
+import CheckIcon4 from '../../../src/assets/mypage/Check4.png';
 
 const RewardPage = () => {
   const { rewards, rewardDetail, fetchRewards, fetchRewardDetail } =
@@ -25,11 +27,27 @@ const RewardPage = () => {
       <TopBar title='나의 챌린지 리워드' />
       <div className='reward-list grid grid-cols-3 gap-4 mt-20'>
         {rewards.map((reward) => (
-          <RewardItem
-            key={reward.rewardId}
-            reward={reward} // 각 리워드 데이터 전달
-            onClick={handleItemClick} // 클릭 이벤트 연결
-          />
+          <div key={reward.rewardId} className='relative'>
+            {/* 성공 여부에 따른 아이콘 표시 */}
+            {reward.type ? (
+              <img
+                src={CheckIcon4}
+                alt='Success'
+                className='absolute top-4 right-4 w-12 h-12 transform translate-x-1/2 -translate-y-1/2'
+              />
+            ) : (
+              <img
+                src={CrossIcon}
+                alt='Failure'
+                className='absolute top-4 right-4 w-12 h-12 transform translate-x-1/2 -translate-y-1/2'
+              />
+            )}
+
+            <RewardItem
+              reward={reward} // 각 리워드 데이터 전달
+              onClick={handleItemClick} // 클릭 이벤트 연결
+            />
+          </div>
         ))}
       </div>
 

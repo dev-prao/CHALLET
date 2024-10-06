@@ -59,7 +59,7 @@ const RewardDetail = ({ rewardDetail, onClose }: RewardDetailProps) => {
               />
             )}
           </div>
-          <div className='flex-grow text-right'>
+          <div className='flex-grow text-left'>
             <div className='flex justify-end items-center mb-2'>
               <FontAwesomeIcon icon={faClock} className='mr-2' />
               <p>시작일: {rewardDetail.startDate}</p>
@@ -68,9 +68,9 @@ const RewardDetail = ({ rewardDetail, onClose }: RewardDetailProps) => {
               <FontAwesomeIcon icon={faClock} className='mr-2' />
               <p>종료일: {rewardDetail.endDate}</p>
             </div>
-            <div className='flex justify-end items-center'>
+            <div className='flex justify-start items-center'>
               <FontAwesomeIcon icon={faMoneyBill} className='mr-2' />
-              <p>사용 금액: {rewardDetail.spendingAmount.toLocaleString()}원</p>
+              <p>{rewardDetail.spendingAmount.toLocaleString()}원</p>
             </div>
           </div>
         </div>

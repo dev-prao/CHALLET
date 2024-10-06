@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; // useLocation 가져오기
 import axiosInstance from '../../api/axiosInstance';
 import useSignUpStore from '../../store/useSignUpStore';
 import Button from '../../components/Button/Button';
-import './PhoneCheckPage.css'; // CSS 파일을 추가합니다
+import { TopBar } from '../../components/topbar/topbar';
+import './PhoneCheckPage.css';
 
 const PhoneCheckPage = () => {
   const [phoneNumber, setPhoneNumber] = useState(''); // 실제 입력된 전화번호
@@ -13,6 +14,7 @@ const PhoneCheckPage = () => {
   const [isDuplicate, setIsDuplicate] = useState(false); // 중복 여부
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { setSignUpData } = useSignUpStore(); // Zustand에서 상태 업데이트 함수 가져오기
 
   // 전화번호 포맷팅 함수 (010-xxxx-xxxx 형식으로 변환)
@@ -42,7 +44,7 @@ const PhoneCheckPage = () => {
         { phoneNumber: number }
       );
       if (response.data.isDuplicated) {
-        setErrorMessage('이미 사용중인 전화번호입니다.');
+        setErrorMessage('이미 가입된 회원입니다.');
         setIsValid(false);
         setIsDuplicate(true); // 중복된 상태로 설정
       } else {
@@ -70,6 +72,15 @@ const PhoneCheckPage = () => {
     }
   }, [phoneNumber]);
 
+  // 처음 페이지가 로드될 때 location.state에서 phoneNumber 가져오기
+  useEffect(() => {
+    const passedPhoneNumber = location.state?.phoneNumber || '';
+    if (passedPhoneNumber) {
+      setPhoneNumber(passedPhoneNumber);
+      setFormattedPhoneNumber(formatPhoneNumber(passedPhoneNumber));
+    }
+  }, [location.state]);
+
   // 확인 버튼 클릭 핸들러
   const handleConfirm = () => {
     if (isValid && !isDuplicate) {
@@ -83,14 +94,11 @@ const PhoneCheckPage = () => {
   };
 
   return (
-    <div className='phone-check-container flex flex-col items-center justify-center min-h-screen pt-16'>
-      <h1 className='text-2xl font-bold mb-8'>번호 입력</h1>
+    <div className='phone-check-container'>
+      <TopBar title='회원가입' />
 
       {/* 전화번호 입력 필드 */}
       <div className='input-group'>
-        <label htmlFor='phone-number' className='input-label'>
-          전화번호
-        </label>
         <input
           type='tel'
           id='phone-number'
@@ -99,11 +107,11 @@ const PhoneCheckPage = () => {
           placeholder='전화번호'
           maxLength={13}
           inputMode='numeric'
-          className='phone-input'
+          className='w-full bg-transparent border-b-2 border-[#00cccc] focus:outline-none focus:border-[#00cccc] text-center text-lg'
           pattern='[0-9]*'
+          disabled
         />
       </div>
-
       {errorMessage && (
         <p className={`error-message ${isValid ? 'valid' : 'invalid'}`}>
           {errorMessage}

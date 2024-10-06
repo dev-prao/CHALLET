@@ -2,7 +2,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  justify-content: flex-start; /* 상단부터 시작하여 조정 */
+  min-height: 100vh;
+  padding-top: 150px; /* 여백을 더 줘서 위로 올림 */
 }
 
 .page-title {
@@ -15,7 +17,7 @@
 .input-group {
   display: flex;
   align-items: center;
-  margin-bottom: 16px;
+  margin-top: 16px;
 }
 
 .input-label {
@@ -47,7 +49,7 @@
 }
 
 .error-message {
-  margin-top: 10px;
+  margin-top: 24px;
   font-size: 14px;
 }
 

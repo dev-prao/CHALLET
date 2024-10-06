@@ -145,8 +145,8 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className='min-h-screen flex flex-col justify-center px-6'>
-      <form onSubmit={handleSubmit}>
+    <div className='min-h-screen flex flex-col justify-between px-6'>
+      <form onSubmit={handleSubmit} className='flex-grow'>
         {/* 이름 입력 필드 */}
         <div className='mb-6'>
           <label className='block text-lg font-bold text-gray-700'>이름</label>
@@ -156,7 +156,7 @@ const SignUpPage = () => {
             onChange={(e) => setName(e.target.value)}
             placeholder='이름을 입력하세요'
             required
-            className='border border-gray-300 rounded-md py-2 px-3 w-full'
+            className='border border-gray-300 rounded-md py-2 px-3 w-full focus:outline-none focus:ring-2 focus:ring-[#00cccc]'
           />
         </div>
 
@@ -174,7 +174,7 @@ const SignUpPage = () => {
               placeholder='앞자리 (예: 990101)'
               maxLength={6}
               required
-              className='border border-gray-300 rounded-md py-2 px-3 mr-2 w-24'
+              className='border border-gray-300 rounded-md py-2 px-3 mr-2 w-24 focus:outline-none focus:ring-2 focus:ring-[#00cccc]'
               ref={idNumberFrontRef}
             />
             <span>-</span>
@@ -186,17 +186,25 @@ const SignUpPage = () => {
               placeholder='뒷자리 첫 숫자'
               maxLength={1}
               required
-              className='border border-gray-300 rounded-md py-2 px-3 ml-2 w-16'
+              className='border border-gray-300 rounded-md py-2 px-3 ml-2 w-12 focus:outline-none focus:ring-2 focus:ring-[#00cccc]'
               ref={idNumberBackFirstRef}
             />
             <span className='ml-2'>●●●●●●</span>
           </div>
         </div>
 
-        <Button text='가입 완료' disabled={!isFormValid} />
-
         {errorMessage && <p className='text-red-500'>{errorMessage}</p>}
       </form>
+
+      <div className='w-full'>
+        <Button
+          text='가입 완료'
+          disabled={!isFormValid}
+          className={`mt-6 ${
+            isFormValid ? 'bg-[#00cccc]' : 'bg-gray-300'
+          } text-white w-full py-3 rounded-md focus:outline-none`}
+        />
+      </div>
     </div>
   );
 };
