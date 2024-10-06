@@ -19,7 +19,6 @@ const PaymentPage = () => {
           throw new Error('No video input devices found.');
         }
 
-        // 후면 카메라 우선 선택
         const preferredDevice =
           videoDevices.find((device) =>
             device.label.toLowerCase().includes('back')
@@ -47,8 +46,10 @@ const PaymentPage = () => {
       }
     };
 
+    // 스캔을 시작
     startScanning();
 
+    // 컴포넌트가 언마운트될 때 스캔을 중지
     return () => {
       controlsRef.current?.stop();
     };
