@@ -29,7 +29,6 @@ type BankResponse = {
   shBanks: null | { accountCount: number; accounts: Account[] };
 };
 
-// 'key'와 대응하는 타입 정의
 type BankKey = keyof BankResponse;
 
 const bankDetails = [
@@ -73,7 +72,7 @@ const MyDataSelectPage = () => {
     nh: false,
   });
   const [connectedAccounts, setConnectedAccounts] = useState<
-    { account: Account; bankKey: string }[]
+    { account: Account | null; bankKey: string }[]
   >([]);
   const [bankResponse, setBankResponse] = useState<BankResponse | null>(null); // API 응답 데이터 저장
   const [connectionComplete, setConnectionComplete] = useState(false);
@@ -136,32 +135,38 @@ const MyDataSelectPage = () => {
     }
   };
 
-  // 각 은행별 응답 데이터를 처리하여 계좌와 은행 키를 결합하는 함수
   const processBankData = (bankData: BankResponse) => {
-    const accounts: { account: Account; bankKey: string }[] = [];
+    const accounts: { account: Account | null; bankKey: string }[] = [];
 
     if (bankData.kbBanks) {
       bankData.kbBanks.accounts.forEach((account) =>
         accounts.push({ account, bankKey: 'kb' })
       );
+      if (bankData.kbBanks.accountCount === 0) {
+        accounts.push({ account: null, bankKey: 'kb' });
+      }
     }
     if (bankData.nhBanks) {
       bankData.nhBanks.accounts.forEach((account) =>
         accounts.push({ account, bankKey: 'nh' })
       );
+      if (bankData.nhBanks.accountCount === 0) {
+        accounts.push({ account: null, bankKey: 'nh' });
+      }
     }
     if (bankData.shBanks) {
       bankData.shBanks.accounts.forEach((account) =>
         accounts.push({ account, bankKey: 'sh' })
       );
+      if (bankData.shBanks.accountCount === 0) {
+        accounts.push({ account: null, bankKey: 'sh' });
+      }
     }
     return accounts;
   };
 
-  // 한 가지 이상의 은행이 선택되었는지 확인
   const isAnySelected = Object.values(selectedBanks).some((value) => value);
 
-  // 확인 버튼 클릭 시 API 호출
   const handleConfirmClick = () => {
     if (isAnySelected) {
       connectToBanks();
@@ -182,8 +187,6 @@ const MyDataSelectPage = () => {
     };
     return labels[key];
   };
-
-  // 은행 키와 연결된 로고를 반환
 
   const getBankLogo = (bankKey: string, hasAccounts: boolean) => {
     const bank = bankDetails.find((detail) => detail.key === bankKey);
@@ -222,32 +225,38 @@ const MyDataSelectPage = () => {
             {connectedAccounts.length > 0
               ? connectedAccounts.map(({ account, bankKey }, index) => (
                   <div
-                    key={`${account.accountNumber}-${index}`}
+                    key={`${account ? account.accountNumber : bankKey}-${index}`}
                     className='flex items-center p-4 shadow-md bg-white rounded-lg'
                   >
                     <div className='flex items-center'>
                       <img
-                        src={getBankLogo(bankKey, true)} // 계좌가 있는 경우 로고
+                        src={getBankLogo(bankKey, account !== null)}
                         alt='은행 로고'
                         className='w-10 h-10 mr-4'
                       />
                     </div>
                     <div>
-                      <p className='text-sm text-[#6C6C6C]'>
-                        {bankDetails
-                          .find((bank) => bank.key === bankKey)
-                          ?.name.slice(0, 2)}{' '}
-                        {account.accountNumber}
-                      </p>
-
-                      <p className='text-lg font-semibold text-[#373A3F]'>
-                        {account.accountBalance.toLocaleString()}원
-                      </p>
+                      {account ? (
+                        <>
+                          <p className='text-sm text-[#6C6C6C]'>
+                            {bankDetails
+                              .find((bank) => bank.key === bankKey)
+                              ?.name.slice(0, 2)}{' '}
+                            {account.accountNumber}
+                          </p>
+                          <p className='text-lg font-semibold text-[#373A3F]'>
+                            {account.accountBalance.toLocaleString()}원
+                          </p>
+                        </>
+                      ) : (
+                        <p className='text-medium font-semibold text-[#373A3F]'>
+                          연결할 계좌가 없습니다.
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))
               : bankDetails
-                  // null이 아닌 은행 필터링
                   .filter(
                     ({ key }) => bankResponse[`${key}Banks` as BankKey] !== null
                   )
@@ -258,14 +267,14 @@ const MyDataSelectPage = () => {
                     >
                       <div className='flex items-center'>
                         <img
-                          src={noAccountLogo} // 계좌가 없는 경우 로고
+                          src={noAccountLogo}
                           alt={`${name} 로고`}
                           className='w-9 h-9 mr-4'
                         />
                       </div>
                       <div>
                         <p className='text-sm text-[#6C6C6C]'>{name}</p>
-                        <p className='text-legular font-medium text-[#373A3F]'>
+                        <p className='text-lg font-medium text-[#373A3F]'>
                           연결할 계좌가 없습니다.
                         </p>
                       </div>
@@ -299,7 +308,6 @@ const MyDataSelectPage = () => {
         )}
       </div>
 
-      {/* 확인 버튼 */}
       <button
         onClick={() => {
           if (connectionComplete) {
@@ -334,7 +342,7 @@ const MyDataSelectPage = () => {
                   ×
                 </button>
               </div>
-              {/* 전체 동의 */}
+
               <div
                 className='flex items-center mb-4 cursor-pointer'
                 onClick={handleAllChecked}
@@ -350,7 +358,7 @@ const MyDataSelectPage = () => {
                   전체 동의
                 </label>
               </div>
-              {/* 개별 동의 항목 */}
+
               <ul className='space-y-3 text-gray-700'>
                 {Object.keys(agreements).map((key) => (
                   <li

@@ -157,7 +157,7 @@ function TransferPage() {
             name='accountNumber'
             value={form.accountNumber}
             onChange={handleInputChange}
-            maxLength={20}
+            maxLength={14}
             placeholder='계좌번호 입력'
             className={`w-full px-4 py-4 bg-[#F1F4F6] rounded-lg mb-2 ${
               form.accountNumber
@@ -178,7 +178,7 @@ function TransferPage() {
             value={form.amount}
             onChange={handleInputChange}
             placeholder='보낼 금액 입력'
-            className={`w-full px-4 py-2 text-lg font-medium mt-8 border-b-2 ${
+            className={`w-full px-4 py-2 text-lg  mt-8 font-semibold border-b-2 ${
               form.amount ? 'border-b-[#00CCCC]' : 'border-b-gray-400'
             }`}
             onKeyDown={handleKeyDown}

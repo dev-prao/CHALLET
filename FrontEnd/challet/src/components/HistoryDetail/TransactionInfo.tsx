@@ -12,7 +12,6 @@ const TransactionInfo = ({
   categoryIcon,
 }: TransactionInfoProps) => (
   <div className='p-4 mt-20 text-left ml-2 mb-12 flex items-center'>
-    {/* 카테고리 아이콘 */}
     {categoryIcon && (
       <img
         src={categoryIcon}
