@@ -2,6 +2,7 @@ type Transaction = {
   id: number;
   transactionDate: string;
   deposit: string;
+  withdrawal: string;
   transactionBalance: number;
   transactionAmount: number;
 };
@@ -28,7 +29,9 @@ const TransactionItem = ({ transaction, onClick }: TransactionItemProps) => {
       </div>
       <div className='flex justify-between items-start mt-4'>
         <p className='text-base font-medium text-[#373A3F]'>
-          {transaction.deposit}
+          {transaction.transactionAmount > 0
+            ? transaction.withdrawal
+            : transaction.deposit}
         </p>
         <div className='text-right'>
           <p

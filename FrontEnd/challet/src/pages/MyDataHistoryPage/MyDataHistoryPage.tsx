@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import { TopBar } from '../../components/topbar/topbar';
+import kbLogo from '../../assets/mydata/kb-logo.svg';
+import nhLogo from '../../assets/mydata/nh-logo.svg';
+import shLogo from '../../assets/mydata/sh-logo.svg';
 
 interface Transaction {
   id: number;
@@ -46,6 +49,12 @@ function MyDataHistoryPage() {
     신한: '/api/sh-bank/details',
   };
 
+  const bankLogos: Record<string, string> = {
+    국민: kbLogo,
+    농협: nhLogo,
+    신한: shLogo,
+  };
+
   const handleTransactionClick = async (transactionId: number) => {
     const apiUrl = bankEndpoints[bankShortName];
     if (!apiUrl) {
@@ -75,13 +84,23 @@ function MyDataHistoryPage() {
       <TopBar title='거래 내역' />
 
       {/* 연동된 계좌 정보 표시 */}
-      <div className='p-4 mt-16 ml-2 text-left'>
-        <p className='text-sm font-medium mb-1 text-[#6C6C6C]'>
-          {bankShortName} {accountNumber}
-        </p>
-        <h2 className='text-3xl font-bold'>
-          {transactionData.accountBalance?.toLocaleString()}원
-        </h2>
+      <div className='p-4 mt-16 ml-2 text-left flex items-center'>
+        {bankShortName && (
+          <img
+            src={bankLogos[bankShortName]}
+            alt={`${bankShortName} 로고`}
+            className='w-14 h-14 mr-4'
+          />
+        )}
+
+        <div>
+          <p className='text-sm font-medium mb-1 text-[#6C6C6C]'>
+            {bankShortName} {accountNumber}
+          </p>
+          <h2 className='text-3xl font-bold'>
+            {transactionData.accountBalance?.toLocaleString()}원
+          </h2>
+        </div>
       </div>
 
       {/* 거래 내역 검색 필드 */}
@@ -117,8 +136,6 @@ function MyDataHistoryPage() {
             const date = `${dateObject.getMonth() + 1}.${dateObject.getDate()}`;
             const time = dateObject.toTimeString().slice(0, 5);
 
-            // const isDeposit = transaction.transactionAmount > 0;
-
             return (
               <div
                 key={transaction.id}
@@ -133,10 +150,10 @@ function MyDataHistoryPage() {
                   <p className='text-sm font-medium text-[#6C6C6C]'>{time}</p>
                 </div>
                 <div className='flex justify-between items-start mt-4'>
-                  {/* 거래 종류에 따라 deposit 또는 withdrawal을 표시 */}
                   <p className='text-base font-medium text-[#373A3F]'>
-                    {/* {isDeposit ? transaction.deposit : transaction.withdrawal} */}
-                    {transaction.deposit}
+                    {transaction.transactionAmount > 0
+                      ? transaction.withdrawal
+                      : transaction.deposit}
                   </p>
                   <div className='text-right'>
                     <p

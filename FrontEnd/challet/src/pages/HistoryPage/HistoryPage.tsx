@@ -11,6 +11,7 @@ interface Transaction {
   id: number;
   transactionDate: string;
   deposit: string;
+  withdrawal: string;
   transactionBalance: number;
   transactionAmount: number;
 }
