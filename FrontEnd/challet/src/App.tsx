@@ -65,6 +65,7 @@ function App() {
   const Login = useMatch('/login');
   const Main = useMatch('/');
   const Signup = useMatch('/signup');
+  const Setpassword = useMatch('/set-password');
 
   // 두 경로 중 하나와 매칭되는지 확인
   const shouldHideNavbar =
@@ -86,6 +87,7 @@ function App() {
     PhoneCheck ||
     Login ||
     Main ||
+    Setpassword ||
     Signup;
 
   return (

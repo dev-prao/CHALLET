@@ -194,17 +194,16 @@ const SignUpPage = () => {
         </div>
 
         {errorMessage && <p className='text-red-500'>{errorMessage}</p>}
+        <div className='w-full'>
+          <Button
+            text='가입 완료'
+            disabled={!isFormValid}
+            className={`mt-6 ${
+              isFormValid ? 'bg-[#00cccc]' : 'bg-gray-300'
+            } text-white w-full py-3 rounded-md focus:outline-none`}
+          />
+        </div>
       </form>
-
-      <div className='w-full'>
-        <Button
-          text='가입 완료'
-          disabled={!isFormValid}
-          className={`mt-6 ${
-            isFormValid ? 'bg-[#00cccc]' : 'bg-gray-300'
-          } text-white w-full py-3 rounded-md focus:outline-none`}
-        />
-      </div>
     </div>
   );
 };
