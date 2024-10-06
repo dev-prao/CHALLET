@@ -245,16 +245,16 @@ public class ChallengeServiceImpl implements ChallengeService {
 				() -> new ExceptionResponse(CustomException.NOT_FOUND_CHALLENGE_EXCEPTION));
 
 		SearchedChallenge updatedChallenge = SearchedChallenge.builder()
-			.challengeId(searchedChallenge.getChallengeId())
-			.status(searchedChallenge.getStatus())
-			.category(searchedChallenge.getCategory())
-			.title(searchedChallenge.getTitle())
-			.spendingLimit(searchedChallenge.getSpendingLimit())
-			.startDate(searchedChallenge.getStartDate())
-			.endDate(searchedChallenge.getEndDate())
-			.maxParticipants(searchedChallenge.getMaxParticipants())
-			.currentParticipants(searchedChallenge.getCurrentParticipants() + 1)
-			.isPublic(searchedChallenge.getIsPublic())
+			.challengeId(searchedChallenge.challengeId())
+			.status(searchedChallenge.status())
+			.category(searchedChallenge.category())
+			.title(searchedChallenge.title())
+			.spendingLimit(searchedChallenge.spendingLimit())
+			.startDate(searchedChallenge.startDate())
+			.endDate(searchedChallenge.endDate())
+			.maxParticipants(searchedChallenge.maxParticipants())
+			.currentParticipants(searchedChallenge.currentParticipants() + 1)
+			.isPublic(searchedChallenge.isPublic())
 			.build();
 
 		searchedChallengeRepository.save(updatedChallenge);

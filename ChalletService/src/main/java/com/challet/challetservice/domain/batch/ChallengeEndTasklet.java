@@ -1,7 +1,9 @@
 package com.challet.challetservice.domain.batch;
 
+import com.challet.challetservice.domain.elasticsearch.repository.SearchedChallengeRepository;
 import com.challet.challetservice.domain.entity.Challenge;
 import com.challet.challetservice.domain.entity.Reward;
+import com.challet.challetservice.domain.entity.SearchedChallenge;
 import com.challet.challetservice.domain.entity.SharedTransaction;
 import com.challet.challetservice.domain.entity.User;
 import com.challet.challetservice.domain.entity.UserChallenge;
@@ -29,6 +31,7 @@ public class ChallengeEndTasklet implements Tasklet {
     private final SharedTransactionRepository sharedTransactionRepository;
     private final UserChallengeRepository userChallengeRepository;
     private final RewardRepository rewardRepository;
+    private final SearchedChallengeRepository searchedChallengeRepository;
 
     @Override
     @Transactional
@@ -71,6 +74,23 @@ public class ChallengeEndTasklet implements Tasklet {
                     log.info("{} User got success reward", userChallenge.getId());
                 }
             }
+        }
+
+        List<SearchedChallenge> searchedChallenges = searchedChallengeRepository.findByEndDateBeforeAndStatus(LocalDate.now(), "PROGRESSING");
+        for (SearchedChallenge searchedChallenge : searchedChallenges) {
+            SearchedChallenge endSearchedChallenge = SearchedChallenge.builder()
+                .challengeId(searchedChallenge.challengeId())
+                .status("END")
+                .category(searchedChallenge.category())
+                .title(searchedChallenge.title())
+                .spendingLimit(searchedChallenge.spendingLimit())
+                .startDate(searchedChallenge.startDate())
+                .endDate(searchedChallenge.endDate())
+                .maxParticipants(searchedChallenge.maxParticipants())
+                .currentParticipants(searchedChallenge.currentParticipants())
+                .isPublic(searchedChallenge.isPublic())
+                .build();
+            searchedChallengeRepository.save(endSearchedChallenge);
         }
 
         return RepeatStatus.FINISHED;

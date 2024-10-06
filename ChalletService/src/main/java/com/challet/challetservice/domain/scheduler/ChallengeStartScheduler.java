@@ -1,6 +1,8 @@
 package com.challet.challetservice.domain.scheduler;
 
+import com.challet.challetservice.domain.elasticsearch.repository.SearchedChallengeRepository;
 import com.challet.challetservice.domain.entity.Challenge;
+import com.challet.challetservice.domain.entity.SearchedChallenge;
 import com.challet.challetservice.domain.repository.ChallengeRepository;
 import java.time.LocalDate;
 import java.util.List;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChallengeStartScheduler {
 
     private final ChallengeRepository challengeRepository;
+    private final SearchedChallengeRepository searchedChallengeRepository;
 
     @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
@@ -27,6 +30,23 @@ public class ChallengeStartScheduler {
             log.info("{} Challenge started", challenge.getId());
         }
         challengeRepository.saveAll(challenges);
+
+        List<SearchedChallenge> searchedChallenges = searchedChallengeRepository.findByStartDateAndStatus(LocalDate.now(), "RECRUITING");
+        for(SearchedChallenge searchedChallenge : searchedChallenges) {
+            SearchedChallenge startSearchedChallenge = SearchedChallenge.builder()
+                .challengeId(searchedChallenge.challengeId())
+                .status("PROGRESSING")
+                .category(searchedChallenge.category())
+                .title(searchedChallenge.title())
+                .spendingLimit(searchedChallenge.spendingLimit())
+                .startDate(searchedChallenge.startDate())
+                .endDate(searchedChallenge.endDate())
+                .maxParticipants(searchedChallenge.maxParticipants())
+                .currentParticipants(searchedChallenge.currentParticipants())
+                .isPublic(searchedChallenge.isPublic())
+                .build();
+            searchedChallengeRepository.save(startSearchedChallenge);
+        }
 
     }
 

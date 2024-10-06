@@ -1,5 +1,6 @@
 package com.challet.challetservice.domain.elasticsearch.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -31,5 +32,9 @@ public interface SearchedChallengeRepository
 	List<SearchedChallenge> findByStatusAndCategoryContaining(String status, String category);
 
 	List<SearchedChallenge> findByStatusContaining(String status);
+
+	List<SearchedChallenge> findByStartDateAndStatus(LocalDate startDate, String status);
+
+	List<SearchedChallenge> findByEndDateBeforeAndStatus(LocalDate today, String status);
 }
 
