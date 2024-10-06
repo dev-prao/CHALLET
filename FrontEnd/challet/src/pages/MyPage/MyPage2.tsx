@@ -60,7 +60,6 @@ const MyPage = () => {
       );
 
       console.log('프로필 이미지 수정 성공:', response.data);
-      alert('프로필 이미지가 수정되었습니다.');
       setProfileImageUrl(urlImage);
     } catch (error) {
       console.error('프로필 이미지 수정 실패:', error);
@@ -69,7 +68,21 @@ const MyPage = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+
     if (file) {
+      // 이미지 파일 형식인지 확인
+      const validImageTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+      ];
+      if (!validImageTypes.includes(file.type)) {
+        alert('이미지 파일만 업로드 가능합니다. (JPEG, PNG, GIF, WEBP)');
+        return;
+      }
+
+      // 이미지 파일이 유효하다면 기존 로직 호출
       handleProfileImageChange(file);
     }
   };
@@ -122,13 +135,16 @@ const MyPage = () => {
         </div>
 
         {/* 닉네임과 수정 아이콘 */}
-        <div className='mt-6 flex items-center '>
-          <h2 className='font-semibold text-xl'>{nickname}</h2>
-          <FontAwesomeIcon
-            icon={faPencilAlt}
-            className='text-gray-600 ml-2 cursor-pointer'
-            onClick={() => setIsNicknameModalOpen(true)}
-          />
+        <div className='mt-6 w-full text-center'>
+          {/* 닉네임을 중앙에 배치하고 그 옆에 아이콘 */}
+          <span className='inline-block relative'>
+            <h2 className='font-semibold text-xl inline'>{nickname}</h2>
+            <FontAwesomeIcon
+              icon={faPencilAlt}
+              className='text-gray-600 ml-2 cursor-pointer absolute top-1/2 transform -translate-y-1/2' // ml-4로 간격 조정
+              onClick={() => setIsNicknameModalOpen(true)}
+            />
+          </span>
         </div>
       </div>
 

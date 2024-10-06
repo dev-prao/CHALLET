@@ -10,7 +10,7 @@ interface NicknameModalProps {
 
 const NicknameModal = ({ onNicknameChange, onClose }: NicknameModalProps) => {
   const [newNickname, setNewNickname] = useState(''); // 기본 닉네임을 현재 닉네임으로 설정
-  const [errorMessage, setErrorMessage] = useState('');
+  const [isComposing, setIsComposing] = useState(false); // 한글 조합 상태 확인
 
   // 닉네임 유효성 검사 함수
   const isValidNickname = (nickname: string): boolean => {
@@ -18,19 +18,38 @@ const NicknameModal = ({ onNicknameChange, onClose }: NicknameModalProps) => {
     return nicknamePattern.test(nickname);
   };
 
+  // 닉네임 실시간 입력 제어 함수
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isComposing) {
+      const inputValue = e.target.value;
+
+      // 영어, 숫자, 완성된 한글만 허용
+      const filteredValue = inputValue.replace(/[^a-zA-Z0-9가-힣]/g, '');
+
+      // 16자 이하로만 제한
+      if (filteredValue.length <= 16) {
+        setNewNickname(filteredValue);
+      }
+    } else {
+      setNewNickname(e.target.value);
+    }
+  };
+
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  const handleCompositionEnd = (
+    e: React.CompositionEvent<HTMLInputElement>
+  ) => {
+    setIsComposing(false);
+    const value = e.currentTarget.value;
+
+    // 한글 조합 완료 후 유효성 검사
+    setNewNickname(value.replace(/[^a-zA-Z0-9가-힣]/g, ''));
+  };
+
   const handleNicknameChange = async () => {
-    if (!newNickname.trim()) {
-      setErrorMessage('닉네임을 입력하세요.');
-      return;
-    }
-
-    if (!isValidNickname(newNickname)) {
-      setErrorMessage(
-        '닉네임은 2자 이상 16자 이하, 영어, 숫자, 초성이 아닌 한글로만 구성 가능합니다.'
-      );
-      return;
-    }
-
     try {
       const response = await axiosInstance.patch(
         '/api/challet/users/nicknames',
@@ -41,20 +60,15 @@ const NicknameModal = ({ onNicknameChange, onClose }: NicknameModalProps) => {
       console.log('닉네임 수정 성공:', response.data);
       onNicknameChange(newNickname); // 부모 컴포넌트에 닉네임 수정된 정보 전달
     } catch (error) {
-      // error가 AxiosError 타입인지 확인한 후 처리
       if (error instanceof AxiosError) {
         console.error(
           '닉네임 수정 실패:',
           error.response?.data || error.message
         );
-        setErrorMessage('닉네임 수정 실패');
       } else if (error instanceof Error) {
-        // 일반 Error인 경우 처리
         console.error('닉네임 수정 실패:', error.message);
-        setErrorMessage('닉네임 수정 실패');
       } else {
         console.error('알 수 없는 오류:', error);
-        setErrorMessage('알 수 없는 오류가 발생했습니다.');
       }
     }
   };
@@ -66,13 +80,20 @@ const NicknameModal = ({ onNicknameChange, onClose }: NicknameModalProps) => {
         <input
           type='text'
           value={newNickname}
-          onChange={(e) => setNewNickname(e.target.value)}
+          onChange={handleInputChange}
+          onCompositionStart={handleCompositionStart} // 한글 조합 시작
+          onCompositionEnd={handleCompositionEnd} // 한글 조합 완료
           placeholder='닉네임을 입력하세요'
           className='border border-gray-300 p-2 rounded-md w-full'
+          maxLength={16} // 최대 16자 입력 제한
         />
-        {errorMessage && <p className='text-red-500'>{errorMessage}</p>}
+
         <div className='flex justify-center mt-4 space-x-4'>
-          <Button text='확인' onClick={handleNicknameChange} />
+          <Button
+            text='확인'
+            onClick={handleNicknameChange}
+            disabled={!isValidNickname(newNickname)} // 유효할 때만 활성화
+          />
           <Button text='취소' onClick={onClose} />
         </div>
       </div>
