@@ -79,7 +79,7 @@ public class SharedTransaction {
         SharedTransaction sharedTransaction = SharedTransaction.builder()
             .userChallenge(userChallenge)
             .deposit(paymentNotification.deposit())
-            .transactionAmount(paymentNotification.transactionAmount())
+            .transactionAmount(-paymentNotification.transactionAmount())
             .transactionDateTime(LocalDateTime.now())
             .build();
 

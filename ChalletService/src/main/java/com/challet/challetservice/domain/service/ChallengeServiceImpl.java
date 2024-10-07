@@ -333,7 +333,7 @@ public class ChallengeServiceImpl implements ChallengeService {
 
 			SharedTransaction savedSharedTransaction = sharedTransactionRepository.save(
 				SharedTransaction.fromPayment(paymentNotification, userChallenge));
-			userChallenge.addSpendingAmount(paymentNotification.transactionAmount());
+			userChallenge.addSpendingAmount(-paymentNotification.transactionAmount());
 
 			SharedTransactionRegisterResponseDTO registerResponseDTO = SharedTransactionRegisterResponseDTO.fromSharedTransaction(
 				savedSharedTransaction, user);
