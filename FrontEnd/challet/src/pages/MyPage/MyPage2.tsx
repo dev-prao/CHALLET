@@ -92,9 +92,22 @@ const MyPage = () => {
     setIsNicknameModalOpen(false);
   };
 
-  const handleLogout = () => {
-    clearAuthData();
-    navigate('/');
+  // 로그아웃 수정
+  const handleLogout = async () => {
+    try {
+      // 로그아웃 API 요청
+      await axiosInstance.post('/api/challet/users/logout');
+
+      // 로그아웃 성공 시 인증 정보 삭제 및 메인 페이지로 이동
+      clearAuthData();
+      navigate('/');
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.error('로그아웃 실패:', error.response?.data || error.message);
+      } else {
+        console.error('로그아웃 실패:', error);
+      }
+    }
   };
 
   // 각각의 버튼 클릭 시 이동할 페이지 처리
@@ -160,16 +173,14 @@ const MyPage = () => {
           </div>
 
           <div
-            className='flex justify-between items-center py-4 px-4 cursor-pointer border-b border-gray-200' // Bottom border added
+            className='flex justify-between items-center py-4 px-4 cursor-pointer border-b border-gray-200'
             onClick={handleLogout}
           >
             <span>로그아웃</span>
             <FontAwesomeIcon icon={faSignOutAlt} className='text-gray-600' />
           </div>
 
-          <div
-            className='flex justify-between items-center py-4 px-4' // No extra margin needed here
-          >
+          <div className='flex justify-between items-center py-4 px-4'>
             <span>앱 정보</span>
             <span>1.01</span>
           </div>

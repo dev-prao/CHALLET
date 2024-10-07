@@ -68,6 +68,7 @@ const LoginPage = () => {
   const handleLogin = useCallback(async () => {
     const formattedPhoneNumber = phoneNumber.replace(/\D/g, '');
     try {
+      setPasswordErrorMessage('');
       const { data } = await AxiosInstance.post('/api/challet/auth/login', {
         phoneNumber: formattedPhoneNumber,
         password,
