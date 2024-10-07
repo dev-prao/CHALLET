@@ -4,6 +4,7 @@ import { AxiosError } from 'axios';
 import AxiosInstance from '../../api/axiosInstance';
 import useAuthStore from '../../store/useAuthStore';
 import Keypad from '../../components/Keypad/Keypad';
+import { TopBar } from '../../components/topbar/topbar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -14,7 +15,8 @@ const LoginPage = () => {
   const [isPhoneNumberComplete, setIsPhoneNumberComplete] = useState(false);
   const [isExistingMember, setIsExistingMember] = useState(false);
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [phoneErrorMessage, setPhoneErrorMessage] = useState(''); // 전화번호 에러 메시지
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState(''); // 비밀번호 에러 메시지
   const [isCheckingPhoneNumber, setIsCheckingPhoneNumber] = useState(false);
 
   const formatPhoneNumber = (value: string) => {
@@ -36,7 +38,7 @@ const LoginPage = () => {
     } else {
       setIsPhoneNumberComplete(false);
       setIsExistingMember(false);
-      setErrorMessage('');
+      setPhoneErrorMessage(''); // 전화번호 관련 에러 메시지 초기화
     }
   };
 
@@ -52,14 +54,14 @@ const LoginPage = () => {
       setIsCheckingPhoneNumber(false);
       setIsExistingMember(response.data.isDuplicated);
       if (!response.data.isDuplicated) {
-        setErrorMessage('일치하는 전화번호가 없습니다');
+        setPhoneErrorMessage('일치하는 전화번호가 없습니다');
       } else {
-        setErrorMessage('');
+        setPhoneErrorMessage('');
       }
     } catch (error) {
       console.error('Error checking phone number:', error);
       setIsCheckingPhoneNumber(false);
-      setErrorMessage('An error occurred while checking the phone number.');
+      setPhoneErrorMessage('전화번호 확인 중 오류가 발생했습니다.');
     }
   };
 
@@ -80,20 +82,20 @@ const LoginPage = () => {
 
         // 서버의 응답 상태 코드가 401일 경우 비밀번호 오류 메시지 표시
         if (error.response && error.response.status === 401) {
-          setErrorMessage('비밀번호가 일치하지 않습니다.');
+          setPasswordErrorMessage('비밀번호가 일치하지 않습니다.');
         } else if (
           error.response &&
           error.response.data &&
           error.response.data.message
         ) {
           // 서버가 추가적인 오류 메시지를 전달할 경우 해당 메시지 표시
-          setErrorMessage(error.response.data.message);
+          setPasswordErrorMessage(error.response.data.message);
         } else {
-          setErrorMessage('로그인 정보를 확인할 수 없습니다.');
+          setPasswordErrorMessage('로그인 정보를 확인할 수 없습니다.');
         }
       } else {
         console.error('An unexpected error occurred:', error);
-        setErrorMessage('알 수 없는 오류가 발생했습니다.');
+        setPasswordErrorMessage('알 수 없는 오류가 발생했습니다.');
       }
     }
   }, [phoneNumber, password, setAuthData, navigate]);
@@ -102,6 +104,7 @@ const LoginPage = () => {
     setIsPhoneNumberComplete(false);
     setIsExistingMember(false);
     setPassword('');
+    setPhoneErrorMessage(''); // 뒤로 갈 때 오류 메시지도 초기화
   }, []);
 
   const handleCancel = useCallback(() => {
@@ -116,6 +119,10 @@ const LoginPage = () => {
 
   return (
     <div className='min-h-screen flex flex-col bg-white'>
+      <TopBar
+        title='로그인'
+        backAction={isPhoneNumberComplete ? handleBackToPhoneInput : undefined}
+      />
       {isPhoneNumberComplete && isExistingMember && (
         <div className='flex justify-between items-center p-4'>
           <FontAwesomeIcon
@@ -154,15 +161,18 @@ const LoginPage = () => {
                   style={{ borderBottomColor: '#00CCCC' }}
                 />
               </div>
-
-              {isCheckingPhoneNumber && (
-                <p className='text-teal-500 text-sm mt-2'></p>
-              )}
-              {errorMessage && (
-                <p className='text-red-500 text-sm mt-2'>{errorMessage}</p>
-              )}
             </div>
           )}
+
+          {/* 전화번호 입력 에러 메시지를 별도로 처리 */}
+          <div className='h-6 mt-2'>
+            {isCheckingPhoneNumber && (
+              <p className='text-teal-500 text-sm mt-2'></p>
+            )}
+            {phoneErrorMessage && (
+              <p className='text-red-500 text-sm'>{phoneErrorMessage}</p>
+            )}
+          </div>
 
           {isPhoneNumberComplete && isExistingMember && (
             <div>
@@ -171,16 +181,15 @@ const LoginPage = () => {
               </label>
               <div className='min-h-[1.5rem]'>
                 {' '}
-                {/* 에러 메시지가 차지할 고정된 공간 설정 */}
+                {/* 비밀번호 오류 메시지 고정된 공간 */}
                 <p
                   className={`text-red-500 text-sm mt-2 ${
-                    errorMessage && password.length === 6
+                    passwordErrorMessage && password.length === 6
                       ? 'visible'
                       : 'invisible'
                   }`}
                 >
-                  {errorMessage || ' '}{' '}
-                  {/* 에러 메시지가 없을 경우 빈 문자열을 출력 */}
+                  {passwordErrorMessage || ' '}
                 </p>
               </div>
               <Keypad onPinChange={setPassword} maxLength={6} />
