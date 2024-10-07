@@ -111,6 +111,14 @@ const LoginPage = () => {
     navigate('/');
   }, [navigate]);
 
+  // 비밀번호 입력 시 에러 메시지 초기화
+  const handlePinChange = (pin: string) => {
+    setPassword(pin);
+    if (passwordErrorMessage) {
+      setPasswordErrorMessage(''); // 비밀번호를 다시 입력하면 에러 메시지 초기화
+    }
+  };
+
   useEffect(() => {
     if (password.length === 6 && isExistingMember) {
       handleLogin();
@@ -192,7 +200,7 @@ const LoginPage = () => {
                   {passwordErrorMessage || ' '}
                 </p>
               </div>
-              <Keypad onPinChange={setPassword} maxLength={6} />
+              <Keypad onPinChange={handlePinChange} maxLength={6} />
             </div>
           )}
         </div>
