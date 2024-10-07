@@ -10,6 +10,7 @@ import deliveryIcon from '../../assets/HistoryDetail/DELIVERY.svg';
 import transportIcon from '../../assets/HistoryDetail/TRANSPORT.svg';
 import coffeeIcon from '../../assets/HistoryDetail/COFFEE.svg';
 import shoppingIcon from '../../assets/HistoryDetail/SHOPPING.svg';
+import etcIcon from '../../assets/HistoryDetail/ETC.svg';
 
 interface TransactionDetail {
   transactionAmount: number;
@@ -37,6 +38,8 @@ const HistoryDetailPage = () => {
         return coffeeIcon;
       case 'SHOPPING':
         return shoppingIcon;
+      case 'ETC':
+        return etcIcon;
       default:
         return '';
     }

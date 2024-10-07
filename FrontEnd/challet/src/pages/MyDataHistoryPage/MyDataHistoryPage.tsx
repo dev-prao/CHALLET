@@ -83,7 +83,6 @@ function MyDataHistoryPage() {
     <div className='min-h-screen bg-white'>
       <TopBar title='거래 내역' />
 
-      {/* 연동된 계좌 정보 표시 */}
       <div className='p-4 mt-16 ml-2 text-left flex items-center'>
         {bankShortName && (
           <img
@@ -124,6 +123,7 @@ function MyDataHistoryPage() {
             type='text'
             placeholder='거래 내역 검색'
             className='bg-transparent flex-1 focus:outline-none text-gray-500'
+            maxLength={15}
           />
         </div>
       </div>

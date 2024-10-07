@@ -141,7 +141,7 @@ function PayResult() {
           ),
         },
         {
-          label: '결제 금액',
+          label: '결제금액',
           value: `${Math.abs(transactionResponse?.transactionAmount || 0)}원`,
         },
       ].map(({ label, value }) => (

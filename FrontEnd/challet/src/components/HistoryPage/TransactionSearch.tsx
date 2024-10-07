@@ -19,6 +19,7 @@ const TransactionSearch = () => (
         type='text'
         placeholder='거래 내역 검색'
         className='bg-transparent flex-1 focus:outline-none text-gray-500'
+        maxLength={15}
       />
     </div>
   </div>

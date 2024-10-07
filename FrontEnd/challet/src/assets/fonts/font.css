@@ -59,7 +59,7 @@
   font-weight: 600;
   font-style: normal;
 
-  src: url('/Pretendard-SemiBold.ttf') format('truetype');
+  src: url('./Pretendard-SemiBold.ttf') format('truetype');
 }
 @font-face {
   font-family: 'Pretendard';

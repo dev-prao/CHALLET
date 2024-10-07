@@ -20,7 +20,6 @@ const PaymentPage = () => {
         }
 
         const storedDeviceId = localStorage.getItem('preferredCameraDeviceId');
-
         let preferredDevice;
 
         if (storedDeviceId) {
@@ -30,7 +29,6 @@ const PaymentPage = () => {
         }
 
         if (!preferredDevice) {
-          // 후면 카메라를 찾고, 없으면 첫 번째 장치를 선택
           preferredDevice =
             videoDevices.find((device) =>
               device.label.toLowerCase().includes('back')
@@ -43,6 +41,7 @@ const PaymentPage = () => {
             preferredDevice.deviceId
           );
 
+          // QR 코드 스캔 시작
           controlsRef.current = await codeReader.decodeFromVideoDevice(
             preferredDevice.deviceId,
             'video',
@@ -66,10 +65,10 @@ const PaymentPage = () => {
       }
     };
 
-    // 스캔을 시작
+    // 스캔 시작
     startScanning();
 
-    // 컴포넌트가 언마운트될 때 스캔을 중지
+    // 컴포넌트 언마운트 시 스캔 중지
     return () => {
       controlsRef.current?.stop();
     };

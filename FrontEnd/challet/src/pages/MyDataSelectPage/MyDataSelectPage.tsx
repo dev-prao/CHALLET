@@ -29,8 +29,6 @@ type BankResponse = {
   shBanks: null | { accountCount: number; accounts: Account[] };
 };
 
-type BankKey = keyof BankResponse;
-
 const bankDetails = [
   {
     key: 'sh',
@@ -71,18 +69,17 @@ const MyDataSelectPage = () => {
     kb: false,
     nh: false,
   });
-  const [connectedAccounts, setConnectedAccounts] = useState<
-    { account: Account | null; bankKey: string }[]
-  >([]);
-  const [bankResponse, setBankResponse] = useState<BankResponse | null>(null); // API 응답 데이터 저장
+  const [bankResponse, setBankResponse] = useState<BankResponse | null>(null);
   const [connectionComplete, setConnectionComplete] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const isAnySelected = Object.values(selectedBanks).some((value) => value);
 
   const handleAllChecked = () => {
     const newState = !allChecked;
     setAllChecked(newState);
-    setAgreements((prevState) => ({
-      ...prevState,
+    setAgreements((prev) => ({
+      ...prev,
       serviceAgreement: newState,
       financialTransaction: newState,
       personalInfoUsage: newState,
@@ -92,18 +89,15 @@ const MyDataSelectPage = () => {
   };
 
   const handleIndividualCheck = (key: keyof AgreementType) => {
-    setAgreements((prevState) => {
-      const updatedAgreements = { ...prevState, [key]: !prevState[key] };
+    setAgreements((prev) => {
+      const updatedAgreements = { ...prev, [key]: !prev[key] };
       setAllChecked(Object.values(updatedAgreements).every((value) => value));
       return updatedAgreements;
     });
   };
 
   const handleBankSelect = (bankKey: string) => {
-    setSelectedBanks((prevState) => ({
-      ...prevState,
-      [bankKey]: !prevState[bankKey],
-    }));
+    setSelectedBanks((prev) => ({ ...prev, [bankKey]: !prev[bankKey] }));
   };
 
   const getSelectedBanksPayload = () => {
@@ -115,18 +109,13 @@ const MyDataSelectPage = () => {
 
   const connectToBanks = async () => {
     const payload = { selectedBanks: getSelectedBanksPayload() };
-    console.log('Payload to send:', JSON.stringify(payload, null, 2));
     setLoading(true);
     try {
       const response = await axiosInstance.post<BankResponse>(
         '/api/ch-bank/mydata-connect',
         payload
       );
-      console.log('Server Response:', response.data);
-
-      const allAccounts = processBankData(response.data);
-      setConnectedAccounts(allAccounts);
-      setBankResponse(response.data); // API 응답 저장
+      setBankResponse(response.data);
       setConnectionComplete(true);
     } catch (error) {
       console.error('Failed to connect to banks:', error);
@@ -135,42 +124,16 @@ const MyDataSelectPage = () => {
     }
   };
 
-  const processBankData = (bankData: BankResponse) => {
-    const accounts: { account: Account | null; bankKey: string }[] = [];
-
-    if (bankData.kbBanks) {
-      bankData.kbBanks.accounts.forEach((account) =>
-        accounts.push({ account, bankKey: 'kb' })
-      );
-      if (bankData.kbBanks.accountCount === 0) {
-        accounts.push({ account: null, bankKey: 'kb' });
-      }
-    }
-    if (bankData.nhBanks) {
-      bankData.nhBanks.accounts.forEach((account) =>
-        accounts.push({ account, bankKey: 'nh' })
-      );
-      if (bankData.nhBanks.accountCount === 0) {
-        accounts.push({ account: null, bankKey: 'nh' });
-      }
-    }
-    if (bankData.shBanks) {
-      bankData.shBanks.accounts.forEach((account) =>
-        accounts.push({ account, bankKey: 'sh' })
-      );
-      if (bankData.shBanks.accountCount === 0) {
-        accounts.push({ account: null, bankKey: 'sh' });
-      }
-    }
-    return accounts;
+  const isAllBanksEmpty = (bankData: BankResponse) => {
+    const totalAccountCount =
+      (bankData.kbBanks?.accountCount || 0) +
+      (bankData.nhBanks?.accountCount || 0) +
+      (bankData.shBanks?.accountCount || 0);
+    return totalAccountCount === 0;
   };
 
-  const isAnySelected = Object.values(selectedBanks).some((value) => value);
-
   const handleConfirmClick = () => {
-    if (isAnySelected) {
-      connectToBanks();
-    }
+    if (isAnySelected) connectToBanks();
   };
 
   const handleModalClose = () => {
@@ -188,9 +151,23 @@ const MyDataSelectPage = () => {
     return labels[key];
   };
 
-  const getBankLogo = (bankKey: string, hasAccounts: boolean) => {
-    const bank = bankDetails.find((detail) => detail.key === bankKey);
-    return bank ? (hasAccounts ? bank.logo : bank.noAccountLogo) : undefined;
+  const renderTitle = () => {
+    if (!connectionComplete) return '연결할 계좌';
+    if (bankResponse && isAllBanksEmpty(bankResponse)) return '계좌 연결에';
+    return '계좌가 성공적으로';
+  };
+
+  const renderSubtitle = () => {
+    if (!connectionComplete) return '한번에 찾기';
+    if (bankResponse && isAllBanksEmpty(bankResponse)) return '실패했습니다.';
+    return '연결됐습니다.';
+  };
+
+  const renderDescription = () => {
+    if (!connectionComplete) return '계좌를 연결할 은행을 선택해주세요.';
+    if (bankResponse && isAllBanksEmpty(bankResponse))
+      return '연결할 계좌가 존재하지 않습니다.';
+    return '연결된 계좌 정보를 확인하세요.';
   };
 
   if (loading) {
@@ -204,82 +181,69 @@ const MyDataSelectPage = () => {
   return (
     <div className='min-h-screen bg-white'>
       <TopBar title='' />
-
       <div className='mt-20 p-4 text-left'>
         <h2 className='text-xl text-[#373A3F]'>
-          {connectionComplete ? '계좌가 성공적으로' : '연결할 계좌'}
+          {renderTitle()}
           <br />
-          <span className='font-bold'>
-            {connectionComplete ? '연결됐습니다.' : '한번에 찾기'}
-          </span>
+          <span className='font-bold'>{renderSubtitle()}</span>
         </h2>
         <p className='text-sm text-[#373A3F] mt-2 mb-24'>
-          {connectionComplete
-            ? '연결된 계좌 정보를 확인하세요.'
-            : '계좌를 연결할 은행을 선택해주세요.'}
+          {renderDescription()}
         </p>
 
         {/* 연결된 계좌 정보 표시 */}
         {connectionComplete && bankResponse ? (
           <div className='space-y-4 mb-40'>
-            {connectedAccounts.length > 0
-              ? connectedAccounts.map(({ account, bankKey }, index) => (
+            {bankDetails
+              .filter(
+                ({ key }) =>
+                  bankResponse[`${key}Banks` as keyof BankResponse] !== null
+              )
+              .map(({ key, name, noAccountLogo, logo }) => {
+                const bankInfo =
+                  bankResponse[`${key}Banks` as keyof BankResponse];
+
+                return (
                   <div
-                    key={`${account ? account.accountNumber : bankKey}-${index}`}
+                    key={key}
                     className='flex items-center p-4 shadow-md bg-white rounded-lg'
                   >
                     <div className='flex items-center'>
                       <img
-                        src={getBankLogo(bankKey, account !== null)}
-                        alt='은행 로고'
-                        className='w-10 h-10 mr-4'
+                        src={
+                          bankInfo && bankInfo.accountCount > 0
+                            ? logo
+                            : noAccountLogo
+                        }
+                        alt={`${name} 로고`}
+                        className='w-9 h-9 mr-4'
                       />
                     </div>
                     <div>
-                      {account ? (
+                      {bankInfo && bankInfo.accountCount > 0 ? (
+                        // 계좌가 있는 경우
                         <>
-                          <p className='text-sm text-[#6C6C6C]'>
-                            {bankDetails
-                              .find((bank) => bank.key === bankKey)
-                              ?.name.slice(0, 2)}{' '}
-                            {account.accountNumber}
-                          </p>
-                          <p className='text-lg font-semibold text-[#373A3F]'>
-                            {account.accountBalance.toLocaleString()}원
-                          </p>
+                          {bankInfo.accounts.map((account) => (
+                            <div key={account.id}>
+                              <p className='text-sm text-[#6C6C6C]'>
+                                {name.slice(0, 2)} {account.accountNumber}
+                              </p>
+                              <p className='text-lg font-semibold text-[#373A3F]'>
+                                {account.accountBalance.toLocaleString()}원
+                              </p>
+                            </div>
+                          ))}
                         </>
                       ) : (
+                        // 계좌가 없는 경우
                         <p className='text-medium font-semibold text-[#373A3F]'>
-                          연결할 계좌가 없습니다.
+                          {name} 연결할 계좌가 없습니다.
                         </p>
                       )}
                     </div>
                   </div>
-                ))
-              : bankDetails
-                  .filter(
-                    ({ key }) => bankResponse[`${key}Banks` as BankKey] !== null
-                  )
-                  .map(({ key, name, noAccountLogo }) => (
-                    <div
-                      key={key}
-                      className='flex items-center p-4 shadow-md bg-white rounded-lg'
-                    >
-                      <div className='flex items-center'>
-                        <img
-                          src={noAccountLogo}
-                          alt={`${name} 로고`}
-                          className='w-9 h-9 mr-4'
-                        />
-                      </div>
-                      <div>
-                        <p className='text-sm text-[#6C6C6C]'>{name}</p>
-                        <p className='text-lg font-medium text-[#373A3F]'>
-                          연결할 계좌가 없습니다.
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                );
+              })}
           </div>
         ) : (
           <div className='mt-8 space-y-4'>
@@ -330,7 +294,7 @@ const MyDataSelectPage = () => {
       {isModalOpen && (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-end z-50'>
           <div className='bg-white rounded-t-3xl w-full pb-20 relative'>
-            <div className=' p-6'>
+            <div className='p-6'>
               <div className='flex justify-center items-center mb-6'>
                 <h2 className='text-lg font-medium text-[#373A3F]'>
                   오픈뱅킹 이용동의

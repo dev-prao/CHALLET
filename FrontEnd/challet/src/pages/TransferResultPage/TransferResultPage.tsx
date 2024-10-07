@@ -1,21 +1,116 @@
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import AxiosInstance from '../../api/axiosInstance';
 
 function TransferResult() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // 송금 완료 데이터를 location.state에서 받음
-  const { accountNumber, amount, accountId } = location.state || {};
+  const {
+    id,
+    amount,
+    depositAccountName,
+    category: initialCategory,
+    AccountId,
+  } = location.state || {};
 
-  if (!accountNumber || !amount || !accountId) {
-    // 송금 정보가 없으면 지갑 페이지로 리다이렉트
-    navigate('/wallet');
-    return null;
-  }
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(
+    initialCategory || 'ETC'
+  );
+  const [isEditingCategory, setIsEditingCategory] = useState(false);
+
+  const categories = ['DELIVERY', 'TRANSPORT', 'COFFEE', 'SHOPPING', 'ETC'];
+
+  useEffect(() => {
+    if (!id || !amount || !AccountId) {
+      navigate('/wallet');
+    }
+  }, [id, amount, AccountId, navigate]);
+
+  const handleCategoryChange = (newCategory: string) => {
+    setSelectedCategory(newCategory);
+    setIsEditingCategory(false);
+  };
+
+  const handleConfirm = async () => {
+    try {
+      await AxiosInstance.post(
+        'http://localhost:8000/api/ch-bank/confirm-account-transfers',
+        {
+          id,
+          transactionAmount: Math.abs(amount),
+          deposit: depositAccountName,
+          category: selectedCategory,
+        },
+        {
+          headers: {
+            AccountId,
+          },
+        }
+      );
+
+      navigate('/wallet');
+    } catch (error) {
+      console.error('송금 요청 실패:', error);
+      alert('송금에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const renderCategorySelection = () => (
+    <div className='w-full border-t border-b border-gray-300 py-4 mb-32'>
+      <div className='grid grid-cols-2 gap-y-6 px-6 text-base text-[#585962]'>
+        <div className='text-left font-medium'>거래내역</div>
+        <div className='text-right font-medium'>{depositAccountName}</div>
+        <div className='text-left font-medium'>카테고리</div>
+        <div className='text-right font-medium'>
+          <div
+            className='flex justify-end items-center cursor-pointer'
+            onClick={() => setIsEditingCategory(!isEditingCategory)}
+          >
+            <p className='text-[#585962] font-medium'>
+              {selectedCategory || 'ETC'}
+            </p>
+            <svg
+              className='w-4 h-4 text-gray-500 ml-2'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+              xmlns='http://www.w3.org/2000/svg'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
+                d='M9 5l7 7-7 7'
+              />
+            </svg>
+          </div>
+        </div>
+        <div className='text-left font-medium'>거래금액</div>
+        <div className='text-right font-medium'>
+          {Math.abs(amount).toLocaleString()}원
+        </div>
+      </div>
+      {isEditingCategory && (
+        <div className='w-4/5 bg-white border border-gray-300 rounded-lg mt-4'>
+          {categories.map((category) => (
+            <div
+              key={category}
+              className={`py-2 px-4 cursor-pointer hover:bg-gray-100 ${
+                selectedCategory === category ? 'bg-gray-200' : ''
+              }`}
+              onClick={() => handleCategoryChange(category)}
+            >
+              {category}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className='flex flex-col items-center justify-center min-h-screen p-4'>
-      {/* 송금 완료 아이콘 */}
       <div className='flex flex-col items-center justify-center mt-32'>
         <div className='w-16 h-16 bg-[#00CCCC] rounded-full flex items-center justify-center'>
           <svg
@@ -38,22 +133,10 @@ function TransferResult() {
         </h2>
       </div>
 
-      {/* 송금 내역 정보 표시 */}
+      {renderCategorySelection()}
 
-      <div className='w-full border-t border-b border-gray-300 py-4 mb-32'>
-        <div className='grid grid-cols-2 gap-y-6 px-6 text-base text-[#585962]'>
-          <div className='text-left font-medium'>거래내역</div>
-          <div className='text-right font-medium'>강현후</div>
-          <div className='text-left font-medium'>카테고리</div>
-          <div className='text-right font-medium'>DELIVERY</div>
-          <div className='text-left font-medium'>거래금액</div>
-          <div className='text-right font-medium'>26,000원</div>
-        </div>
-      </div>
-
-      {/* 확인 버튼 */}
       <button
-        onClick={() => navigate('/wallet')}
+        onClick={handleConfirm}
         className='w-full py-5 bg-[#00CCCC] text-white font-medium text-lg fixed bottom-0 left-0 right-0'
       >
         확인

@@ -77,7 +77,7 @@ const WalletPage = () => {
           <img
             src={ChalletLogo}
             alt='Challet Logo'
-            className='w-28 h-auto ml-2 mt-10 mb-12'
+            className='w-28 h-auto ml-2 mt-8 mb-12'
           />
         </div>
         <PaymentButton />

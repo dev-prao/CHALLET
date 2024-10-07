@@ -1,4 +1,3 @@
-// useAccountStore.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -20,7 +19,7 @@ const useAccountStore = create<AccountState>()(
       setAccountInfo: (info) => set({ accountInfo: info }),
     }),
     {
-      name: 'account-storage', // 로컬 스토리지에 저장될 키 이름
+      name: 'account-storage',
     }
   )
 );
