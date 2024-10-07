@@ -19,16 +19,16 @@ const PaymentPage = () => {
           throw new Error('No video input devices found.');
         }
 
-        const storedDeviceId = localStorage.getItem('preferredCameraDeviceId');
-        let preferredDevice;
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-        if (storedDeviceId) {
-          preferredDevice = videoDevices.find(
-            (device) => device.deviceId === storedDeviceId
-          );
-        }
+        let preferredDevice = null;
 
-        if (!preferredDevice) {
+        if (isIOS) {
+          preferredDevice =
+            videoDevices.find((device) =>
+              device.label.toLowerCase().includes('back')
+            ) || videoDevices[videoDevices.length - 1];
+        } else {
           preferredDevice =
             videoDevices.find((device) =>
               device.label.toLowerCase().includes('back')
@@ -36,6 +36,7 @@ const PaymentPage = () => {
         }
 
         if (preferredDevice) {
+          // 선택한 카메라 장치 ID 저장
           localStorage.setItem(
             'preferredCameraDeviceId',
             preferredDevice.deviceId

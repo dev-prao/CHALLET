@@ -35,7 +35,7 @@ function TransferResult() {
   const handleConfirm = async () => {
     try {
       await AxiosInstance.post(
-        'http://localhost:8000/api/ch-bank/confirm-account-transfers',
+        '/api/ch-bank/confirm-account-transfers',
         {
           id,
           transactionAmount: Math.abs(amount),
