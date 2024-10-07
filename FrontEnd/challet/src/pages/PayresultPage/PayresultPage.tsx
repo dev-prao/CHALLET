@@ -24,9 +24,21 @@ function PayResult() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
 
+  const categoryMap: { [key: string]: string } = {
+    DELIVERY: '배달',
+    TRANSPORT: '교통',
+    COFFEE: '커피',
+    SHOPPING: '쇼핑',
+    ETC: '기타',
+  };
+
   const categories = ['DELIVERY', 'TRANSPORT', 'COFFEE', 'SHOPPING', 'ETC'];
 
   const parsedData = (() => {
+    if (!qrData) {
+      return null;
+    }
+
     try {
       return JSON.parse(qrData);
     } catch (error) {
@@ -36,6 +48,13 @@ function PayResult() {
   })();
 
   useEffect(() => {
+    // qrData가 없으면 경고 메시지와 함께 지갑 페이지로 리다이렉트
+    if (!qrData) {
+      alert('잘못된 접근입니다.');
+      navigate('/wallet');
+      return;
+    }
+
     if (!accountInfo || !parsedData || hasSentRequest) return;
 
     const sendPaymentRequest = async () => {
@@ -72,7 +91,21 @@ function PayResult() {
     };
 
     sendPaymentRequest();
-  }, [accountInfo, parsedData, hasSentRequest]);
+  }, [accountInfo, parsedData, hasSentRequest, qrData, navigate]);
+
+  // 뒤로 가기 방지 useEffect 추가
+  useEffect(() => {
+    const handlePopState = () => {
+      window.history.pushState(null, '', window.location.href); // 뒤로 가기를 막기 위해 현재 상태를 다시 추가
+    };
+
+    window.history.pushState(null, '', window.location.href); // 현재 상태를 추가
+    window.addEventListener('popstate', handlePopState); // popstate 이벤트 리스너 등록
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState); // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    };
+  }, []);
 
   const handleCategoryChange = (newCategory: string) => {
     setSelectedCategory(newCategory);
@@ -109,7 +142,7 @@ function PayResult() {
   const handleNavigate = () => navigate('/wallet');
 
   const renderPaymentDetails = () => (
-    <div className='w-full mb-8 flex flex-col items-center'>
+    <div className='w-full mb-16 flex flex-col items-center'>
       <div className='w-full border-t border-gray-200'></div>
       {[
         { label: '결제내역', value: transactionResponse?.deposit },
@@ -121,7 +154,7 @@ function PayResult() {
               onClick={() => setIsEditingCategory(!isEditingCategory)}
             >
               <p className='text-[#585962] font-medium'>
-                {selectedCategory || 'ETC'}
+                {categoryMap[selectedCategory || 'ETC']} {/* 한국어로 출력 */}
               </p>
               <svg
                 className='w-4 h-4 text-gray-500 ml-2'
@@ -141,7 +174,7 @@ function PayResult() {
           ),
         },
         {
-          label: '결제금액',
+          label: '결제 금액',
           value: `${Math.abs(transactionResponse?.transactionAmount || 0)}원`,
         },
       ].map(({ label, value }) => (
@@ -162,7 +195,7 @@ function PayResult() {
               }`}
               onClick={() => handleCategoryChange(category)}
             >
-              {category}
+              {categoryMap[category]}
             </div>
           ))}
         </div>
@@ -199,7 +232,7 @@ function PayResult() {
                 ></path>
               </svg>
             </div>
-            <h2 className='text-xl text-[#373A3F] font-bold mt-6 mb-24'>
+            <h2 className='text-xl text-[#373A3F] font-bold mt-6 mb-16'>
               결제 완료
             </h2>
           </div>

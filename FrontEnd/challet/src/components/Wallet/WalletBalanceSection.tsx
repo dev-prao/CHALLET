@@ -75,6 +75,17 @@ const WalletBalanceSection = () => {
     fetchAccountInfo();
   }, [fetchAccountInfo]);
 
+  const handleAccountNumberCopy = (accountNumber: string) => {
+    navigator.clipboard
+      .writeText(accountNumber)
+      .then(() => {
+        alert('계좌번호가 복사되었습니다.');
+      })
+      .catch(() => {
+        alert('계좌번호 복사에 실패했습니다.');
+      });
+  };
+
   if (loading) {
     return (
       <div className='w-full bg-white p-4 rounded-lg shadow-md mb-8'>
@@ -104,8 +115,15 @@ const WalletBalanceSection = () => {
       style={{ width: '97%' }}
     >
       <div className='text-left'>
-        <h2 className='text-sm font-medium text-[#6C6C6C] mb-4'>
-          챌렛계좌 {` ${accountInfo.accountNumber}`}
+        <h2
+          className='text-sm font-medium text-[#6C6C6C] mb-4 cursor-pointer'
+          onClick={(e) => {
+            e.stopPropagation();
+            handleAccountNumberCopy(accountInfo.accountNumber);
+          }}
+        >
+          챌렛계좌 {` ${accountInfo.accountNumber}`}{' '}
+          {/* 계좌번호 클릭 시 복사 */}
         </h2>
         <p className='text-2xl font-bold mt-2 mb-4'>
           {accountInfo.accountBalance.toLocaleString()}원

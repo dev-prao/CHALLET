@@ -22,6 +22,14 @@ function MyDataDetailPage() {
     useState<TransactionDetails | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const categoryMap: { [key: string]: string } = {
+    DELIVERY: '배달',
+    TRANSPORT: '교통',
+    COFFEE: '커피',
+    SHOPPING: '쇼핑',
+    ETC: '기타',
+  };
+
   useEffect(() => {
     if (location.state?.transactionDetails) {
       setTransactionDetails(location.state.transactionDetails);
@@ -115,7 +123,7 @@ function MyDataDetailPage() {
             </div>
             <div className='text-left font-medium'>카테고리</div>
             <div className='text-right font-medium'>
-              {transactionDetails.category}
+              {categoryMap[transactionDetails.category] || '기타'}{' '}
             </div>
             <div className='text-left font-medium'>출금처</div>
             <div className='text-right font-medium'>

@@ -69,6 +69,17 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
     }
   };
 
+  const handleAccountNumberCopy = (accountNumber: string) => {
+    navigator.clipboard
+      .writeText(accountNumber)
+      .then(() => {
+        alert('계좌번호가 복사되었습니다.');
+      })
+      .catch(() => {
+        alert('계좌번호 복사에 실패했습니다.');
+      });
+  };
+
   const allAccounts = useMemo(() => {
     const combinedAccounts: { account: Account; bankKey: BankKey }[] = [];
 
@@ -129,8 +140,15 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
               />
             </div>
             <div className='flex flex-col text-left'>
-              <p className='text-sm text-[#6C6C6C]'>
-                {bankDetails[bankKey].shortName} {account.accountNumber}
+              <p
+                className='text-sm text-[#6C6C6C] cursor-pointer'
+                onClick={(e) => {
+                  e.stopPropagation(); // 클릭 이벤트 전파 방지
+                  handleAccountNumberCopy(account.accountNumber);
+                }}
+              >
+                {bankDetails[bankKey].shortName} {account.accountNumber}{' '}
+                {/* 계좌번호 클릭 시 복사 */}
               </p>
               <p className='text-lg font-semibold text-[#373A3F]'>
                 {account.accountBalance.toLocaleString()}원

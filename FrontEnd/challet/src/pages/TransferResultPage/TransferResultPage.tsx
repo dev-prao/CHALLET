@@ -19,6 +19,14 @@ function TransferResult() {
   );
   const [isEditingCategory, setIsEditingCategory] = useState(false);
 
+  const categoryMap: { [key: string]: string } = {
+    DELIVERY: '배달',
+    TRANSPORT: '교통',
+    COFFEE: '커피',
+    SHOPPING: '쇼핑',
+    ETC: '기타',
+  };
+
   const categories = ['DELIVERY', 'TRANSPORT', 'COFFEE', 'SHOPPING', 'ETC'];
 
   useEffect(() => {
@@ -57,7 +65,7 @@ function TransferResult() {
   };
 
   const renderCategorySelection = () => (
-    <div className='w-full border-t border-b border-gray-300 py-4 mb-32'>
+    <div className='w-full border-t border-b border-gray-300 py-4 mb-48'>
       <div className='grid grid-cols-2 gap-y-6 px-6 text-base text-[#585962]'>
         <div className='text-left font-medium'>거래내역</div>
         <div className='text-right font-medium'>{depositAccountName}</div>
@@ -68,7 +76,7 @@ function TransferResult() {
             onClick={() => setIsEditingCategory(!isEditingCategory)}
           >
             <p className='text-[#585962] font-medium'>
-              {selectedCategory || 'ETC'}
+              {categoryMap[selectedCategory || 'ETC']}
             </p>
             <svg
               className='w-4 h-4 text-gray-500 ml-2'
@@ -92,7 +100,10 @@ function TransferResult() {
         </div>
       </div>
       {isEditingCategory && (
-        <div className='w-4/5 bg-white border border-gray-300 rounded-lg mt-4'>
+        <div
+          className='w-4/5 bg-white border border-gray-300 rounded-lg mt-4'
+          style={{ maxHeight: '200px', overflowY: 'auto' }}
+        >
           {categories.map((category) => (
             <div
               key={category}
@@ -101,7 +112,7 @@ function TransferResult() {
               }`}
               onClick={() => handleCategoryChange(category)}
             >
-              {category}
+              {categoryMap[category]}
             </div>
           ))}
         </div>
@@ -111,7 +122,7 @@ function TransferResult() {
 
   return (
     <div className='flex flex-col items-center justify-center min-h-screen p-4'>
-      <div className='flex flex-col items-center justify-center mt-32'>
+      <div className='flex flex-col items-center justify-center mt-24'>
         <div className='w-16 h-16 bg-[#00CCCC] rounded-full flex items-center justify-center'>
           <svg
             className='w-8 h-8 text-white'
@@ -128,7 +139,7 @@ function TransferResult() {
             />
           </svg>
         </div>
-        <h2 className='text-xl text-[#373A3F] font-semibold mt-6 mb-24 text-center whitespace-pre-line'>
+        <h2 className='text-xl text-[#373A3F] font-semibold mt-6 mb-16'>
           송금완료
         </h2>
       </div>

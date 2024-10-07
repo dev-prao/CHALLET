@@ -11,6 +11,14 @@ type TransactionDetailCardProps = {
 const TransactionDetailCard = ({
   transactionDetail,
 }: TransactionDetailCardProps) => {
+  const categoryMap: { [key: string]: string } = {
+    DELIVERY: '배달',
+    TRANSPORT: '교통',
+    COFFEE: '커피',
+    SHOPPING: '쇼핑',
+    ETC: '기타',
+  };
+
   const formatDate = (datetime: string) => {
     const date = new Date(datetime);
     const year = date.getFullYear();
@@ -35,7 +43,7 @@ const TransactionDetailCard = ({
         </div>
         <div className='text-left font-medium'>카테고리</div>
         <div className='text-right font-medium'>
-          {transactionDetail.category}
+          {categoryMap[transactionDetail.category] || '기타'}{' '}
         </div>
         <div className='text-left font-medium'>출금처</div>
         <div className='text-right font-medium'>

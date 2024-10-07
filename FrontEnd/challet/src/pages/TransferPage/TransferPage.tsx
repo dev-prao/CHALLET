@@ -48,10 +48,7 @@ function TransferPage() {
     const { name, value } = e.target;
 
     if (name === 'accountNumber') {
-      // 계좌번호는 숫자만 입력 가능
       const cleanedValue = value.replace(/\D/g, '');
-
-      // 14자를 초과하려는 경우 오류 메시지 표시
       if (cleanedValue.length > 16) {
         setAccountNumberError('계좌번호를 다시 확인해주세요.');
       } else {
@@ -63,18 +60,36 @@ function TransferPage() {
         [name]: cleanedValue.slice(0, 16),
       }));
     } else {
-      setForm((prev) => ({
-        ...prev,
-        [name]: name === 'amount' ? formatNumberWithCommas(value) : value,
-      }));
-
+      // 첫 번째 자리에 0이 입력되지 않도록 막음
       if (name === 'amount') {
-        const enteredAmount = parseInt(value.replace(/[^0-9]/g, ''), 10);
-        setErrorMessage(
-          accountBalance && enteredAmount > accountBalance
-            ? `${accountBalance.toLocaleString()}원까지 보낼 수 있어요.`
-            : ''
-        );
+        const cleanedValue = value.replace(/[^0-9]/g, '');
+
+        // 첫 번째 입력값이 0인 경우 무시
+        if (cleanedValue.length === 1 && cleanedValue === '0') {
+          return; // 첫 번째 값이 0이면 아무 작업도 하지 않음
+        }
+
+        setForm((prev) => ({
+          ...prev,
+          [name]: formatNumberWithCommas(cleanedValue),
+        }));
+
+        const enteredAmount = parseInt(cleanedValue, 10);
+
+        if (enteredAmount === 0) {
+          setErrorMessage('0원은 보낼 수 없습니다.');
+        } else if (accountBalance && enteredAmount > accountBalance) {
+          setErrorMessage(
+            `${accountBalance.toLocaleString()}원까지 보낼 수 있어요.`
+          );
+        } else {
+          setErrorMessage('');
+        }
+      } else {
+        setForm((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
       }
     }
   };
@@ -184,6 +199,8 @@ function TransferPage() {
             <input
               type='text'
               name='accountNumber'
+              inputMode='numeric' // 숫자 키패드를 표시
+              pattern='[0-9]*' // 숫자만 입력 가능
               className={`w-full px-4 py-4 bg-[#F1F4F6] rounded-lg text-[#6C6C6C] focus:ring-0 focus:outline-none mb-2 ${
                 form.accountNumber
                   ? 'border-[#00CCCC] border-2'
@@ -192,7 +209,6 @@ function TransferPage() {
               placeholder='계좌번호 입력'
               value={form.accountNumber}
               onChange={handleInputChange}
-              pattern='[0-9]*'
             />
 
             {accountNumberError && (
@@ -206,6 +222,8 @@ function TransferPage() {
               <input
                 type='text'
                 name='amount'
+                inputMode='numeric' // 숫자 키패드를 표시
+                pattern='[0-9]*' // 숫자만 입력 가능
                 className={`w-full px-4 py-2 focus:outline-none focus:ring-0 bg-white text-lg font-medium text-[#6C6C6C] border-b-2 ${
                   form.amount ? 'border-b-[#00CCCC]' : 'border-b-gray-300'
                 }`}
@@ -241,6 +259,13 @@ function TransferPage() {
         <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-end z-50'>
           <div className='bg-white rounded-t-3xl w-full pb-20 relative min-h-[50%]'>
             <div className='p-6'>
+              <button
+                className='absolute right-6 top-6 text-[#373A3F] text-3xl bg-white'
+                onClick={() => setIsModalOpen(false)}
+              >
+                ×
+              </button>
+
               <div className='flex justify-center items-center mt-8 mb-12'>
                 <img src={chLogo} alt='챌렛뱅크 로고' className='w-16 h-16' />
 
@@ -264,7 +289,7 @@ function TransferPage() {
                 으로
               </p>
               <p className='text-xl font-medium text-center text-[#373A3F] mt-2'>
-                <span className='font-bold text-[#373A3F]'>{form.amount}</span>
+                <span className='font-bold text-[#373A3F]'>{form.amount}</span>{' '}
                 원을 보낼까요?
               </p>
             </div>
