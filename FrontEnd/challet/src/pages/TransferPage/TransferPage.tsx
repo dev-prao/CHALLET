@@ -52,15 +52,15 @@ function TransferPage() {
       const cleanedValue = value.replace(/\D/g, '');
 
       // 14자를 초과하려는 경우 오류 메시지 표시
-      if (cleanedValue.length > 14) {
-        setAccountNumberError('계좌번호는 최대 14자까지 입력 가능합니다.');
+      if (cleanedValue.length > 16) {
+        setAccountNumberError('계좌번호를 다시 확인해주세요.');
       } else {
         setAccountNumberError('');
       }
 
       setForm((prev) => ({
         ...prev,
-        [name]: cleanedValue.slice(0, 14),
+        [name]: cleanedValue.slice(0, 16),
       }));
     } else {
       setForm((prev) => ({
