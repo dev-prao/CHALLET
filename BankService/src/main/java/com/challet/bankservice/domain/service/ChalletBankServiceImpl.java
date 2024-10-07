@@ -164,7 +164,7 @@ public class ChalletBankServiceImpl implements ChalletBankService {
     }
 
     private String createAccountNum() {
-        String bankCode = env.getProperty("server.port", "8000");  // 은행 코드
+        String bankCode = env.getProperty("8082");  // 은행 코드
         String accountType = "01";  // 계좌 유형
 
         // 밀리초 단위 시간에서 마지막 6자리 사용
