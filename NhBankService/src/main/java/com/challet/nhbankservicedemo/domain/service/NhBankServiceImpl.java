@@ -105,6 +105,8 @@ public class NhBankServiceImpl implements NhBankService {
             requestDTO, accountTransactionBalance, "ETC");
 
         nhBank.addTransaction(transaction);
+        NhBankTransaction savedToTransaction = nhBankTransactionRepository.save(transaction);
+        searchedTransactionRepository.save(SearchedTransaction.fromAccountTransferByTo(savedToTransaction));
 
         return BankTransferResponseDTO.fromBankTransferResponseDTO(nhBank);
     }
@@ -141,10 +143,10 @@ public class NhBankServiceImpl implements NhBankService {
 
     private Page<SearchedTransaction> getResult(
         SearchTransactionRequestDTO searchTransactionRequestDTO, Pageable pageable) {
-        if (searchTransactionRequestDTO.deposit() != null) {
-            return searchedTransactionRepository.findByAccountIdAndDepositContaining(
+        if (searchTransactionRequestDTO.keyword() != null) {
+            return searchedTransactionRepository.findByAccountIdAndKeyword(
                 searchTransactionRequestDTO.accountId(),
-                searchTransactionRequestDTO.deposit(), pageable);
+                searchTransactionRequestDTO.keyword(), pageable);
         }
         return searchedTransactionRepository.findByAccountId(
             searchTransactionRequestDTO.accountId(), pageable);

@@ -146,7 +146,7 @@ public class NhBankController {
     })
     @Parameters(value = {
         @Parameter(name = "accountId", description = "계좌 ID", in = ParameterIn.QUERY),
-        @Parameter(name = "deposit", description = "입금처", in = ParameterIn.QUERY),
+        @Parameter(name = "keyword", description = "검색어", in = ParameterIn.QUERY),
         @Parameter(name = "page", description = "페이지", in = ParameterIn.QUERY),
         @Parameter(name = "size", description = "사이즈", in = ParameterIn.QUERY),
     })
@@ -154,7 +154,7 @@ public class NhBankController {
     public ResponseEntity<SearchedTransactionResponseDTO> searchTransactions(
         @RequestHeader("Authorization") String header,
         @RequestParam Long accountId,
-        @RequestParam(required = false) String deposit,
+        @RequestParam(required = false) String keyword,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
 
@@ -163,7 +163,7 @@ public class NhBankController {
         }
 
         SearchTransactionRequestDTO searchTransactionRequestDTO = SearchTransactionRequestDTO.of(
-            accountId, deposit, page, size);
+            accountId, keyword, page, size);
 
         SearchedTransactionResponseDTO searchedTransactionResponseDTO = nhBankService.searchTransaction(
             searchTransactionRequestDTO);
