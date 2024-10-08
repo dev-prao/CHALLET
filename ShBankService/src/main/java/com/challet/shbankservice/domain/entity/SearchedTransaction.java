@@ -34,6 +34,10 @@ public record SearchedTransaction(
     @Schema(description = "입금처")
     String deposit,
 
+    @Field(type = FieldType.Text)
+    @Schema(description = "출금처")
+    String withdrawal,
+
     @Field(type = FieldType.Long)
     @Schema(description = "거래 후 잔액")
     Long transactionBalance,
@@ -49,6 +53,7 @@ public record SearchedTransaction(
             .accountId(accountId)
             .transactionDate(convertToDate(transaction.getTransactionDatetime()))
             .deposit(transaction.getDeposit())
+            .withdrawal(transaction.getWithdrawal())
             .transactionBalance(transaction.getTransactionBalance())
             .transactionAmount(transaction.getTransactionAmount())
             .build();
@@ -56,5 +61,17 @@ public record SearchedTransaction(
 
     public static Date convertToDate(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    public static SearchedTransaction fromAccountTransferByTo(ShBankTransaction transaction) {
+        return SearchedTransaction.builder()
+            .transactionId(String.valueOf(transaction.getId()))
+            .accountId(transaction.getShBank().getId())
+            .transactionDate(convertToDate(transaction.getTransactionDatetime()))
+            .deposit(transaction.getDeposit())
+            .withdrawal(transaction.getWithdrawal())
+            .transactionBalance(transaction.getTransactionBalance())
+            .transactionAmount(transaction.getTransactionAmount())
+            .build();
     }
 }

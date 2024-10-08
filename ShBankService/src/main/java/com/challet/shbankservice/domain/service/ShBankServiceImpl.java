@@ -108,6 +108,8 @@ public class ShBankServiceImpl implements ShBankService {
 			requestDTO, accountTransactionBalance, "ETC");
 
 		shBank.addTransaction(transaction);
+		ShBankTransaction savedToTransaction = shBankTransactionRepository.save(transaction);
+		searchedTransactionRepository.save(SearchedTransaction.fromAccountTransferByTo(savedToTransaction));
 
 		return BankTransferResponseDTO.fromBankTransferResponseDTO(shBank);
 	}
@@ -146,10 +148,10 @@ public class ShBankServiceImpl implements ShBankService {
 
 	private Page<SearchedTransaction> getResult(
 		SearchTransactionRequestDTO searchTransactionRequestDTO, Pageable pageable) {
-		if (searchTransactionRequestDTO.deposit() != null) {
-			return searchedTransactionRepository.findByAccountIdAndDepositContaining(
+		if (searchTransactionRequestDTO.keyword() != null) {
+			return searchedTransactionRepository.findByAccountIdAndKeyword(
 				searchTransactionRequestDTO.accountId(),
-				searchTransactionRequestDTO.deposit(), pageable);
+				searchTransactionRequestDTO.keyword(), pageable);
 		}
 		return searchedTransactionRepository.findByAccountId(
 			searchTransactionRequestDTO.accountId(), pageable);
