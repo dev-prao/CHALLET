@@ -5,6 +5,7 @@ import useAccountStore from '../../store/useAccountStore';
 import shLogo from '../../assets/mydata/sh-logo.svg';
 import kbLogo from '../../assets/mydata/kb-logo.svg';
 import nhLogo from '../../assets/mydata/nh-logo.svg';
+import plusIcon from '../../assets/mydata/plus-icon.svg'; // 플러스 아이콘 경로 추가
 
 type Account = {
   id: number | string;
@@ -125,7 +126,7 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
         마이데이터 연동 계좌
       </h2>
 
-      <div className='bg-white mb-4 ' style={{ width: '100%' }}>
+      <div className='bg-white mb-4' style={{ width: '100%' }}>
         {accountsToShow.map(({ account, bankKey }) => (
           <div
             key={account.id}
@@ -165,6 +166,23 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
             {showAllAccounts ? '접기' : '전체 보기'}
           </button>
         )}
+      </div>
+
+      {/* 자산 연결 추가하기 버튼 추가 */}
+      <div
+        className='p-4 bg-white w-full flex items-center cursor-pointer'
+        onClick={() => navigate('/myconnect')}
+      >
+        <div className='flex-shrink-0'>
+          <div className='w-10 h-10 bg-[#F1F4F6] rounded-full flex items-center justify-center'>
+            <img src={plusIcon} alt='플러스 아이콘' className='w-6 h-6' />
+          </div>
+        </div>
+        <div className='flex flex-col text-left ml-4'>
+          <p className='text-base font-semibold text-[#878787]'>
+            자산 연결 추가하기
+          </p>
+        </div>
       </div>
     </div>
   );

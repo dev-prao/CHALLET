@@ -36,6 +36,7 @@ function TransferPage() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [accountNumberError, setAccountNumberError] = useState('');
+  const [accountUsername, setAccountUsername] = useState(''); // 응답 받은 계좌 사용자명 저장
 
   const formatNumberWithCommas = (value: string) => {
     const cleanedValue = value.replace(/[^0-9]/g, '');
@@ -64,9 +65,8 @@ function TransferPage() {
       if (name === 'amount') {
         const cleanedValue = value.replace(/[^0-9]/g, '');
 
-        // 첫 번째 입력값이 0인 경우 무시
         if (cleanedValue.length === 1 && cleanedValue === '0') {
-          return; // 첫 번째 값이 0이면 아무 작업도 하지 않음
+          return;
         }
 
         setForm((prev) => ({
@@ -94,8 +94,33 @@ function TransferPage() {
     }
   };
 
-  const handleConfirmTransfer = () => setIsModalOpen(true);
+  // 확인 버튼 클릭 시 /api/ch-bank/account-username로 요청을 보내고 응답으로 사용자명 받기
+  const handleConfirmTransfer = async () => {
+    setLoading(true);
+    try {
+      const bankCode = bankCodes[form.bank]?.code;
 
+      const response = await AxiosInstance.post(
+        '/api/ch-bank/account-username',
+        {
+          bankCode,
+          depositAccountNumber: form.accountNumber,
+          transactionAmount: form.amount.replace(/[^0-9]/g, ''),
+        },
+        { headers: { AccountId: accountId as string } }
+      );
+
+      setAccountUsername(response.data); // 사용자명 응답 저장
+      setIsModalOpen(true); // 모달 열기
+    } catch (error) {
+      console.error('계좌 사용자명 요청 실패:', error);
+      alert('계좌 사용자명을 가져오지 못했습니다. 다시 확인해주세요.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 송금하기 버튼 클릭 시 /api/ch-bank/account-transfers로 요청
   const handleSubmit = async () => {
     setLoading(true);
     try {
@@ -115,6 +140,7 @@ function TransferPage() {
         { headers: { AccountId: accountId as string } }
       );
 
+      // 송금 성공 후 결과 페이지로 이동
       navigate('/transfer-result', {
         state: { ...response.data, AccountId: accountId },
       });
@@ -199,8 +225,8 @@ function TransferPage() {
             <input
               type='text'
               name='accountNumber'
-              inputMode='numeric' // 숫자 키패드를 표시
-              pattern='[0-9]*' // 숫자만 입력 가능
+              inputMode='numeric'
+              pattern='[0-9]*'
               className={`w-full px-4 py-4 bg-[#F1F4F6] rounded-lg text-[#6C6C6C] focus:ring-0 focus:outline-none mb-2 ${
                 form.accountNumber
                   ? 'border-[#00CCCC] border-2'
@@ -222,8 +248,8 @@ function TransferPage() {
               <input
                 type='text'
                 name='amount'
-                inputMode='numeric' // 숫자 키패드를 표시
-                pattern='[0-9]*' // 숫자만 입력 가능
+                inputMode='numeric'
+                pattern='[0-9]*'
                 className={`w-full px-4 py-2 focus:outline-none focus:ring-0 bg-white text-lg font-medium text-[#6C6C6C] border-b-2 ${
                   form.amount ? 'border-b-[#00CCCC]' : 'border-b-gray-300'
                 }`}
@@ -266,7 +292,7 @@ function TransferPage() {
                 ×
               </button>
 
-              <div className='flex justify-center items-center mt-8 mb-12'>
+              <div className='flex justify-center items-center mt-12 mb-6'>
                 <img src={chLogo} alt='챌렛뱅크 로고' className='w-16 h-16' />
 
                 <img
@@ -282,15 +308,14 @@ function TransferPage() {
                 />
               </div>
 
-              <p className='text-xl font-medium text-center text-[#373A3F]'>
-                <span className='font-bold text-[#373A3F]'>
-                  {form.accountNumber}
-                </span>
-                으로
+              <p className='text-xl font-bold text-center text-[#373A3F] '>
+                {accountUsername}님에게
               </p>
-              <p className='text-xl font-medium text-center text-[#373A3F] mt-2'>
-                <span className='font-bold text-[#373A3F]'>{form.amount}</span>{' '}
-                원을 보낼까요?
+              <p className='text-xl font-bold text-center text-[#373A3F] mb-4'>
+                {form.amount}원을 보낼까요?
+              </p>
+              <p className='text-sm font-medium text-center text-[#373A3F]'>
+                {form.bank.slice(0, 2)} {form.accountNumber} 계좌로 보냅니다.
               </p>
             </div>
 

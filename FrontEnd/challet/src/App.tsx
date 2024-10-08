@@ -30,6 +30,7 @@ import PaymentPage from './pages/PaymentPage/PaymentPage';
 import PayReviewPage from './pages/PaymentReviewPage/PaymentReviewPage';
 import PayResult from './pages/PayresultPage/PayresultPage';
 import MyDataSelectPage from './pages/MyDataSelectPage/MyDataSelectPage';
+import MyConnectPage from './pages/MyConnectPage/MyConnectPage';
 import ChallengeCreateButton from './components/Challenge/ChallengeCreateButton';
 import ChallengeCreatePage from './components/Challenge/ChallengeCreatePage';
 import SharedTransactionCreate from './components/Challenge/SharedTransactionCreate';
@@ -61,6 +62,7 @@ function App() {
   const matchTransfer = useMatch('/transfer');
   const matchTransferPage = useMatch('/transfer-result');
   const matchmydataselect = useMatch('/mydataselect');
+  const matchMyConnectPage = useMatch('/myconnect');
   const PhoneCheck = useMatch('/phone-check');
   const Login = useMatch('/login');
   const Main = useMatch('/');
@@ -85,6 +87,7 @@ function App() {
     matchTransfer ||
     matchTransferPage ||
     matchmydataselect ||
+    matchMyConnectPage ||
     PhoneCheck ||
     Login ||
     Main ||
@@ -127,6 +130,7 @@ function App() {
           <Route path='/payreview' element={<PayReviewPage />} />
           <Route path='/payresult' element={<PayResult />} />
           <Route path='/mydataselect' element={<MyDataSelectPage />} />
+          <Route path='/myconnect' element={<MyConnectPage />} />
           <Route path='/mypage' element={<MyPage2 />} />
           <Route path='/rewards' element={<RewardsPage />} />
           <Route path='/challet-service/users/login' element={<LoginPage />} />
