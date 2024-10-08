@@ -17,4 +17,7 @@ public interface ChalletFeignClient {
     @GetMapping("/api/challet/message/info")
     UserInfoMessageRequestDTO getUserInfo(
         @RequestHeader(value = "Authorization", required = false) String header);
+
+    @PostMapping("/api/challet/message/simple-password")
+    boolean sendSimplePassword(@RequestBody String password);
 }

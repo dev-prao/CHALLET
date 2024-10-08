@@ -124,7 +124,19 @@ public class ChalletBankController {
 
         return ResponseEntity.ok(searchedTransactionResponseDTO);
     }
-
+    
+    @PostMapping("/simple-password")
+    @Operation(summary = "간편 비밀번호 확인", description = "간편 비밀번호 확인")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "비밀번호 인증 성공"),
+        @ApiResponse(responseCode = "400", description = "비밀번호 인증 실패", content = @Content(schema = @Schema(implementation = Exception.class))),
+    })
+    public ResponseEntity<?> checkPassword(@RequestBody String password){
+        if(challetBankService.verifyPassword(password)){
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
 
     @PostMapping("/payments")
     @Operation(summary = "결제 서비스", description = "결제 금액, 결제 장소 데이터를 이용한 결제")

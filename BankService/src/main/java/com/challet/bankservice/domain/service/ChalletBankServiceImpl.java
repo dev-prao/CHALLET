@@ -193,6 +193,11 @@ public class ChalletBankServiceImpl implements ChalletBankService {
         return sb.toString();
     }
 
+    @Override
+    public boolean verifyPassword(String password) {
+        return challetFeignClient.sendSimplePassword(password);
+    }
+
     @Transactional
     @Override
     public PaymentResponseDTO qrPayment(Long accountId,
