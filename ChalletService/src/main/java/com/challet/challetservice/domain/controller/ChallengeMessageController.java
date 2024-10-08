@@ -41,4 +41,12 @@ public class ChallengeMessageController {
         UserInfoMessageResponseDTO userInfoMessage = userService.getUserInfoMessage(header);
         return ResponseEntity.status(HttpStatus.OK).body(userInfoMessage);
     }
+    
+    @PostMapping("/simple-password")
+    public boolean sendSimplePassword(@RequestBody String password){
+        log.info("------------------------");
+        log.info(password);
+        log.info("------------------------");
+        return true;
+    }
 }
