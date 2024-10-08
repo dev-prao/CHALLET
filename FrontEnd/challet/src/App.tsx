@@ -38,6 +38,7 @@ import SharedTransactionEdit from './components/Challenge/SharedTransactionEdit'
 import ImageUpload from './pages/TestPage/ImageUpload';
 import WebSocketTest from './pages/TestPage/WebSocketTest';
 import CalendarSpendingPage2 from './pages/AnalysisPage/CalendarSpending';
+import CalendarDetailPage from './pages/AnalysisPage/CalendarDetailPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import './assets/App.css';
 
@@ -65,6 +66,7 @@ function App() {
   const Main = useMatch('/');
   const Signup = useMatch('/signup');
   const Setpassword = useMatch('/set-password');
+  const calendarDetail = useMatch('/calendar-detail');
 
   // 두 경로 중 하나와 매칭되는지 확인
   const shouldHideNavbar =
@@ -87,7 +89,8 @@ function App() {
     Login ||
     Main ||
     Setpassword ||
-    Signup;
+    Signup ||
+    calendarDetail;
 
   return (
     <div className='min-h-screen flex flex-col justify-between'>
@@ -146,6 +149,7 @@ function App() {
             path='/calendarSpendingPage2'
             element={<CalendarSpendingPage2 />}
           />
+          <Route path='/calendar-detail' element={<CalendarDetailPage />} />
         </Route>
       </Routes>
       {/* /challenge 경로에서만 챌린지 생성 버튼 보여줌 */}

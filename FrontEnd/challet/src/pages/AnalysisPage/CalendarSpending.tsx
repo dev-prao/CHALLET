@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AxiosInstance from '../../api/axiosInstance';
 
 import Delivery from '../../assets/Challenge/Motorcycle_Delivery.png';
@@ -31,6 +32,8 @@ const CalendarSpendingPage = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
 
   const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -65,6 +68,11 @@ const CalendarSpendingPage = () => {
       setError('Failed to fetch transactions. Please try again.');
       setIsLoading(false);
     }
+  };
+
+  // 상세 내역 페이지로 이동하는 함수 - 거래 데이터를 state로 전달
+  const handleTransactionClick = (transaction: Transaction) => {
+    navigate('/calendar-detail', { state: { transaction } }); // transaction 데이터 전달
   };
 
   const handlePrevMonth = () => {
@@ -219,6 +227,9 @@ const CalendarSpendingPage = () => {
   const getCategoryIcon = (category: string) => {
     return categoryThumbnails[category] || DefaultThumbnail; // 카테고리가 없으면 기본 썸네일 사용
   };
+  useEffect(() => {
+    console.log('Transactions:', transactions); // API에서 가져온 데이터를 확인
+  }, [transactions]);
 
   return (
     <div className='max-w-md mx-auto pt-4'>
@@ -275,8 +286,10 @@ const CalendarSpendingPage = () => {
           </div>
           {/* 캘린더 출력 */}
           {renderCalendar()}
+
           {/* 구분선*/}
           <hr className='border-t-1 border-gray-100' />
+
           {/* 거래 내역 출력 */}
           <div>
             {selectedDate && // selectedDate가 있을 때만 거래 내역 출력
@@ -284,12 +297,15 @@ const CalendarSpendingPage = () => {
                 .filter((transaction) =>
                   isSameDay(new Date(transaction.transactionDate), selectedDate)
                 )
-                .map((transaction, index) => {
+                .map((transaction, index, filteredTransactions) => {
                   const isIncome = transaction.transactionAmount > 0; // 입금 여부 확인
                   const transactionAmount = Math.abs(
                     transaction.transactionAmount
                   ).toLocaleString(); // 금액 절대값
                   const amountPrefix = isIncome ? '+' : '-'; // 입금: +, 출금: -
+
+                  // filter된 거래 내역에서 마지막 아이템인지 확인
+                  const isLastItem = index === filteredTransactions.length - 1;
 
                   return (
                     <div
@@ -298,7 +314,10 @@ const CalendarSpendingPage = () => {
                           ? `transaction-${transaction.id}`
                           : `transaction-${index}`
                       }
-                      className='flex items-center justify-between py-2 border-b'
+                      className={`flex items-center justify-between py-2 ${
+                        isLastItem ? '' : 'border-b'
+                      }`} // 마지막 아이템일 경우 border-b 제거
+                      onClick={() => handleTransactionClick(transaction)} // 클릭 시 상세 내역으로 이동
                     >
                       {/* 왼쪽 카테고리 썸네일 (원형) */}
                       <div className='flex items-center space-x-2'>
