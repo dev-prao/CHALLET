@@ -267,7 +267,7 @@ function PayResult() {
               결제 실패
             </h2>
             <p className='text-[#585962] text-lg font-medium mb-28 text-center'>
-              {errorMessage}
+              {errorMessage == null}
             </p>
           </div>
         </div>

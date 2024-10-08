@@ -14,7 +14,9 @@ const AnalysisPage = () => {
   return (
     <div className='flex flex-col items-center  p-2'>
       {/* 탭 버튼 */}
-      <div className='flex justify-center w-full mt-4 mb-4'>
+      <div className='flex justify-center w-full max-w-[640px] mx-auto mt-4 mb-4'>
+        {' '}
+        {/* max-width와 mx-auto 적용 */}
         {['내 소비', '소비 비교'].map((tab) => (
           <button
             key={tab}

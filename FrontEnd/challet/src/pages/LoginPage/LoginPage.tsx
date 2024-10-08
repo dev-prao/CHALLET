@@ -54,7 +54,7 @@ const LoginPage = () => {
       setIsCheckingPhoneNumber(false);
       setIsExistingMember(response.data.isDuplicated);
       if (!response.data.isDuplicated) {
-        setPhoneErrorMessage('일치하는 전화번호가 없습니다');
+        setPhoneErrorMessage('가입된 전화번호가 없습니다');
       } else {
         setPhoneErrorMessage('');
       }
@@ -147,63 +147,101 @@ const LoginPage = () => {
         </div>
       )}
       <div className='flex-grow flex items-center justify-center'>
-        <div className='w-full max-w-md p-8 space-y-6 mb-48'>
+        <div className='w-full max-w-md p-8 space-y-6 mb-80'>
           {(!isPhoneNumberComplete || !isExistingMember) && (
             <div className='mb-4'>
               <div className='text-left mb-6'>
+                {/* 휴대폰 번호 안내 텍스트 */}
                 <p className='text-xl font-bold text-gray-800'>휴대폰 번호를</p>
                 <p className='text-xl text-gray-800'>입력해주세요</p>
               </div>
 
+              {/* 휴대폰 입력란 */}
               <div
                 className='w-full focus-within:border-teal-600'
                 style={{ borderBottom: '2px solid #00CCCC' }}
               >
-                <input
-                  type='tel'
-                  value={phoneNumber}
-                  onChange={handlePhoneNumberChange}
-                  placeholder=''
-                  className='w-full text-lg font-bold text-gray-800 px-3 py-2 focus:outline-none'
-                  maxLength={13}
-                  required
-                  style={{ borderBottomColor: '#00CCCC' }}
-                />
+                {isPhoneNumberComplete && isExistingMember ? (
+                  // Input이 사라지지만 공간을 차지하게 설정
+                  <input
+                    type='tel'
+                    value={phoneNumber}
+                    onChange={handlePhoneNumberChange}
+                    placeholder=''
+                    className='w-full text-lg font-bold text-gray-800 px-3 py-2 focus:outline-none'
+                    maxLength={13}
+                    required
+                    style={{
+                      borderBottomColor: '#00CCCC',
+                      opacity: 0,
+                      pointerEvents: 'none',
+                    }} // 여기에서 투명하게 하고 클릭 불가로 설정
+                  />
+                ) : (
+                  <input
+                    type='tel'
+                    value={phoneNumber}
+                    onChange={handlePhoneNumberChange}
+                    placeholder=''
+                    className='w-full text-lg font-bold text-gray-800 px-3 py-2 focus:outline-none'
+                    maxLength={13}
+                    required
+                    style={{ borderBottomColor: '#00CCCC' }}
+                  />
+                )}
               </div>
             </div>
           )}
 
-          {/* 전화번호 입력 에러 메시지를 별도로 처리 */}
-          <div className='h-6 mt-2'>
-            {isCheckingPhoneNumber && (
-              <p className='text-teal-500 text-sm mt-2'></p>
-            )}
-            {phoneErrorMessage && (
-              <p className='text-red-500 text-sm'>{phoneErrorMessage}</p>
-            )}
-          </div>
-
           {isPhoneNumberComplete && isExistingMember && (
-            <div>
-              <label className='block text-xl font-bold text-gray-800 mb-6'>
-                간편비밀번호를 입력해주세요
-              </label>
-              <div className='min-h-[1.5rem]'>
-                {' '}
-                {/* 비밀번호 오류 메시지 고정된 공간 */}
+            <div className='mb-4'>
+              {/* 간편 비밀번호 안내 텍스트 */}
+              <div className='text-left mb-6'>
+                <p className='text-xl font-bold text-gray-800'>
+                  간편비밀번호를
+                </p>
+                <p className='text-xl text-gray-800'>입력해주세요</p>
+              </div>
+
+              {/* 휴대폰 입력란을 제거하고 공간만 차지하는 빈 div */}
+              <div
+                style={{
+                  height: '80px', // 기존 input의 높이만큼 공간 차지
+                }}
+              ></div>
+
+              {/* 비밀번호 오류 메시지 고정된 공간 */}
+              <div className='min-h-[1.5rem] relative'>
                 <p
-                  className={`text-red-500 text-sm mt-2 ${
+                  className={`text-red-500 text-sm mt-2 absolute left-1/2 transform -translate-x-1/2 bottom-[30px] whitespace-nowrap ${
                     passwordErrorMessage && password.length === 6
                       ? 'visible'
                       : 'invisible'
                   }`}
+                  style={{
+                    whiteSpace: 'nowrap', // 줄바꿈 없이 한 줄로 출력
+                    overflow: 'hidden', // 내용이 넘칠 경우 숨김
+                    textOverflow: 'ellipsis', // 넘칠 경우 '...'으로 표시
+                  }}
                 >
                   {passwordErrorMessage || ' '}
                 </p>
               </div>
-              <Keypad onPinChange={handlePinChange} maxLength={6} />
+
+              {/* 키패드를 화면 하단에 고정 */}
+              <div className='fixed bottom-0 w-full z-10'>
+                <Keypad onPinChange={handlePinChange} maxLength={6} />
+              </div>
             </div>
           )}
+
+          {/* 전화번호 입력 에러 메시지 */}
+          <div className='h-6 mt-2'>
+            {isCheckingPhoneNumber && <p className='text-teal-500 text-sm'></p>}
+            {phoneErrorMessage && (
+              <p className='text-red-500 text-sm'>{phoneErrorMessage}</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

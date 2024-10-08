@@ -81,9 +81,9 @@ const NicknameModal = ({ onNicknameChange, onClose }: NicknameModalProps) => {
           type='text'
           value={newNickname}
           onChange={handleInputChange}
-          onCompositionStart={handleCompositionStart} // 한글 조합 시작
-          onCompositionEnd={handleCompositionEnd} // 한글 조합 완료
-          placeholder='닉네임을 입력하세요'
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
+          placeholder='2~16자의 한글, 영어, 숫자 입력 가능'
           className='border border-gray-300 p-2 rounded-md w-full'
           maxLength={16} // 최대 16자 입력 제한
         />
@@ -93,8 +93,13 @@ const NicknameModal = ({ onNicknameChange, onClose }: NicknameModalProps) => {
             text='확인'
             onClick={handleNicknameChange}
             disabled={!isValidNickname(newNickname)} // 유효할 때만 활성화
+            className='px-4 py-2 text-lg' // 버튼의 padding과 텍스트 크기 조정
           />
-          <Button text='취소' onClick={onClose} />
+          <Button
+            text='취소'
+            onClick={onClose}
+            className='px-4 py-2 text-lg' // 동일하게 크기 조정
+          />
         </div>
       </div>
     </div>

@@ -37,7 +37,6 @@ import SharedTransactionDetail from './components/Challenge/SharedTransactionDet
 import SharedTransactionEdit from './components/Challenge/SharedTransactionEdit';
 import ImageUpload from './pages/TestPage/ImageUpload';
 import WebSocketTest from './pages/TestPage/WebSocketTest';
-import CalendarSpendingPage from './pages/AnalysisPage/CalendarSpendingPage';
 import CalendarSpendingPage2 from './pages/AnalysisPage/CalendarSpending';
 import ProtectedRoute from './components/ProtectedRoute';
 import './assets/App.css';
@@ -143,10 +142,6 @@ function App() {
           />
           <Route path='/test' element={<ImageUpload />} />
           <Route path='/websocket-test' element={<WebSocketTest />}></Route>
-          <Route
-            path='/calendarSpendingPage'
-            element={<CalendarSpendingPage />}
-          />
           <Route
             path='/calendarSpendingPage2'
             element={<CalendarSpendingPage2 />}

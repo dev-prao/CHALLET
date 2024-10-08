@@ -62,7 +62,7 @@ const OnboardingPage = () => {
 
       {/* 로그인/가입 버튼 */}
       <div
-        className={`flex flex-col space-y-4 mt-8 w-full transition-opacity duration-1000 ${isButtonVisible ? 'opacity-100' : 'opacity-0'}`}
+        className={`flex flex-col space-y-4 mt-8 w-full max-w-[320px] mx-auto transition-opacity duration-1000 ${isButtonVisible ? 'opacity-100' : 'opacity-0'}`}
       >
         <button
           onClick={handleLogin}

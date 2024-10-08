@@ -72,7 +72,9 @@ const WalletPage = () => {
 
   return (
     <div className='min-h-screen bg-white flex flex-col items-center p-6 mt-6'>
-      <div className='w-full flex flex-col items-center mb-8'>
+      <div className='w-full max-w-[640px] mx-auto flex flex-col items-center mb-8'>
+        {' '}
+        {/* max-width 적용 */}
         <div className='w-full flex justify-start'>
           <img
             src={ChalletLogo}
@@ -83,10 +85,18 @@ const WalletPage = () => {
         <PaymentButton />
       </div>
 
-      <WalletBalanceSection />
+      <div className='w-full max-w-[640px] mx-auto'>
+        {' '}
+        {/* Balance 섹션에도 max-width 적용 */}
+        <WalletBalanceSection />
+      </div>
 
       {/* MyData 섹션 렌더링 */}
-      {renderMyDataSection()}
+      <div className='w-full max-w-[640px] mx-auto'>
+        {' '}
+        {/* MyData 섹션에도 max-width 적용 */}
+        {renderMyDataSection()}
+      </div>
     </div>
   );
 };

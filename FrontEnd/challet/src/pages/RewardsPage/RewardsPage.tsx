@@ -26,29 +26,36 @@ const RewardPage = () => {
     <div className='reward-page p-4'>
       <TopBar title='나의 챌린지 리워드' />
       <div className='reward-list grid grid-cols-3 gap-4 mt-20'>
-        {rewards.map((reward) => (
-          <div key={reward.rewardId} className='relative'>
-            {/* 성공 여부에 따른 아이콘 표시 */}
-            {reward.type ? (
-              <img
-                src={CheckIcon4}
-                alt='Success'
-                className='absolute top-4 right-4 w-12 h-12 transform translate-x-1/2 -translate-y-1/2'
-              />
-            ) : (
-              <img
-                src={CrossIcon}
-                alt='Failure'
-                className='absolute top-4 right-4 w-12 h-12 transform translate-x-1/2 -translate-y-1/2'
-              />
-            )}
+        {/* 리워드가 없을 때 메시지 출력 */}
+        {rewards.length === 0 ? (
+          <p className='col-span-3 text-center text-[#00cccc]'>
+            받은 리워드가 없습니다!
+          </p>
+        ) : (
+          rewards.map((reward) => (
+            <div key={reward.rewardId} className='relative'>
+              {/* 성공 여부에 따른 아이콘 표시 */}
+              {reward.type ? (
+                <img
+                  src={CheckIcon4}
+                  alt='Success'
+                  className='absolute top-4 right-4 w-12 h-12 transform translate-x-1/2 -translate-y-1/2'
+                />
+              ) : (
+                <img
+                  src={CrossIcon}
+                  alt='Failure'
+                  className='absolute top-4 right-4 w-12 h-12 transform translate-x-1/2 -translate-y-1/2'
+                />
+              )}
 
-            <RewardItem
-              reward={reward} // 각 리워드 데이터 전달
-              onClick={handleItemClick} // 클릭 이벤트 연결
-            />
-          </div>
-        ))}
+              <RewardItem
+                reward={reward} // 각 리워드 데이터 전달
+                onClick={handleItemClick} // 클릭 이벤트 연결
+              />
+            </div>
+          ))
+        )}
       </div>
 
       {/* 모달 열림 여부에 따른 렌더링 */}
