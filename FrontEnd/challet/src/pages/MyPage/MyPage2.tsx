@@ -58,14 +58,9 @@ const MyPage = () => {
       }
 
       // 이미지 파일 형식 확인
-      const validImageTypes = [
-        'image/jpeg',
-        'image/png',
-        'image/gif',
-        'image/webp',
-      ];
+      const validImageTypes = ['image/jpeg', 'image/png'];
       if (!validImageTypes.includes(file.type)) {
-        alert('이미지 파일만 업로드 가능합니다. (JPEG, PNG, GIF, WEBP)');
+        alert('이미지 파일만 업로드 가능합니다. (JPEG, PNG)');
         return;
       }
 
@@ -160,7 +155,7 @@ const MyPage = () => {
             <input
               id='fileInput'
               type='file'
-              accept='image/jpeg, image/png, image/gif, image/webp' // 허용된 이미지 형식만 선택 가능
+              accept='image/jpeg, image/png' // 허용된 이미지 형식만 선택 가능
               onChange={handleFileChange}
               className='hidden'
             />
