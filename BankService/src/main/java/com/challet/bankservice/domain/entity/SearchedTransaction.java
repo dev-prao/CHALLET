@@ -34,6 +34,10 @@ public record SearchedTransaction(
     @Schema(description = "입금처")
     String deposit,
 
+    @Field(type = FieldType.Text)
+    @Schema(description = "출금처")
+    String withdrawal,
+
     @Field(type = FieldType.Long)
     @Schema(description = "거래 후 잔액")
     Long transactionBalance,
@@ -49,6 +53,7 @@ public record SearchedTransaction(
             .accountId(accountId)
             .transactionDate(convertToDate(transaction.getTransactionDatetime()))
             .deposit(transaction.getDeposit())
+            .withdrawal(transaction.getWithdrawal())
             .transactionBalance(transaction.getTransactionBalance())
             .transactionAmount(transaction.getTransactionAmount())
             .build();
@@ -56,5 +61,29 @@ public record SearchedTransaction(
 
     public static Date convertToDate(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    public static SearchedTransaction fromAccountTransferByFrom(ChalletBankTransaction fromTransaction) {
+        return SearchedTransaction.builder()
+            .transactionId(String.valueOf(fromTransaction.getId()))
+            .accountId(fromTransaction.getChalletBank().getId())
+            .transactionDate(convertToDate(fromTransaction.getTransactionDatetime()))
+            .deposit(fromTransaction.getDeposit())
+            .withdrawal(fromTransaction.getWithdrawal())
+            .transactionBalance(fromTransaction.getTransactionBalance())
+            .transactionAmount(fromTransaction.getTransactionAmount())
+            .build();
+    }
+
+    public static SearchedTransaction fromAccountTransferByTo(ChalletBankTransaction toTransaction) {
+        return SearchedTransaction.builder()
+            .transactionId(String.valueOf(toTransaction.getId()))
+            .accountId(toTransaction.getChalletBank().getId())
+            .transactionDate(convertToDate(toTransaction.getTransactionDatetime()))
+            .deposit(toTransaction.getDeposit())
+            .withdrawal(toTransaction.getWithdrawal())
+            .transactionBalance(toTransaction.getTransactionBalance())
+            .transactionAmount(toTransaction.getTransactionAmount())
+            .build();
     }
 }

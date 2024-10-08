@@ -424,10 +424,12 @@ public class ChalletBankServiceImpl implements ChalletBankService {
         long transactionBalance = calculateTransactionBalance(fromBank,
             requestTransactionDTO.transactionAmount());
 
+        // 만약에 이체은행이 챌렛이라면
         if (requestTransactionDTO.bankCode().equals("8082")) {
             return processInternalTransfer(fromBank, requestTransactionDTO, transactionBalance);
         }
 
+        // 이체은행이 챌렛이 아니라면
         return processExternalTransfer(fromBank, requestTransactionDTO, transactionBalance);
     }
 
@@ -447,10 +449,9 @@ public class ChalletBankServiceImpl implements ChalletBankService {
 
     private Page<SearchedTransaction> getResult(
         SearchTransactionRequestDTO searchTransactionRequestDTO, Pageable pageable) {
-        if (searchTransactionRequestDTO.deposit() != null) {
-            return searchedTransactionRepository.findByAccountIdAndDepositContaining(
-                searchTransactionRequestDTO.accountId(),
-                searchTransactionRequestDTO.deposit(), pageable);
+        if (searchTransactionRequestDTO.keyword() != null) {
+            return searchedTransactionRepository.findByAccountIdAndKeyword(
+                searchTransactionRequestDTO.accountId(), searchTransactionRequestDTO.keyword(), pageable);
         }
         return searchedTransactionRepository.findByAccountId(
             searchTransactionRequestDTO.accountId(), pageable);
@@ -481,7 +482,11 @@ public class ChalletBankServiceImpl implements ChalletBankService {
             fromBank, toBank.getName(), requestTransactionDTO, addMoney, false, "ETC");
         toBank.addTransaction(toTransaction);
 
-        challetBankTransactionRepository.save(fromTransaction);
+        ChalletBankTransaction savedFromTransaction = challetBankTransactionRepository.save(fromTransaction);
+        ChalletBankTransaction savedToTransaction = challetBankTransactionRepository.save(toTransaction);
+
+        searchedTransactionRepository.save(SearchedTransaction.fromAccountTransferByFrom(savedFromTransaction));
+        searchedTransactionRepository.save(SearchedTransaction.fromAccountTransferByTo(savedToTransaction));
 
         return AccountTransferResponseDTO.fromTransferInfo(fromTransaction.getId(), fromBank,
             toBank, requestTransactionDTO.transactionAmount(), categoryName);
@@ -506,7 +511,8 @@ public class ChalletBankServiceImpl implements ChalletBankService {
                 categoryName);
             fromBank.addTransaction(paymentTransaction);
 
-            challetBankTransactionRepository.save(paymentTransaction);
+            ChalletBankTransaction savedFromTransaction = challetBankTransactionRepository.save(paymentTransaction);
+            searchedTransactionRepository.save(SearchedTransaction.fromAccountTransferByFrom(savedFromTransaction));
 
             /// 외부에서 받을때 name만 받아서 안됌, accountNumber가 필요
 

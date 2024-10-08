@@ -1,7 +1,5 @@
 package com.challet.bankservice.domain.controller;
 
-import static com.netflix.appinfo.AmazonInfo.MetaDataKey.accountId;
-
 import com.challet.bankservice.domain.dto.request.AccountTransferRequestDTO;
 import com.challet.bankservice.domain.dto.request.BankSelectionRequestDTO;
 import com.challet.bankservice.domain.dto.request.ConfirmPaymentRequestDTO;
@@ -103,15 +101,15 @@ public class ChalletBankController {
         @ApiResponse(responseCode = "400", description = "챌린지 검색 실패", content = @Content(schema = @Schema(implementation = ExceptionDto.class))),
         @ApiResponse(responseCode = "401", description = "접근 권한 없음", content = @Content(schema = @Schema(implementation = ExceptionDto.class)))
     })
-    @Parameters(value = {
-        @Parameter(name = "category", description = "카테고리", in = ParameterIn.QUERY),
-        @Parameter(name = "keyword", description = "검색어", in = ParameterIn.QUERY),
-    })
+//    @Parameters(value = {
+//        @Parameter(name = "category", description = "카테고리", in = ParameterIn.QUERY),
+//        @Parameter(name = "keyword", description = "검색어", in = ParameterIn.QUERY),
+//    })
     @GetMapping("/search")
     public ResponseEntity<SearchedTransactionResponseDTO> searchTransactions(
         @RequestHeader("Authorization") String header,
         @RequestParam Long accountId,
-        @RequestParam(required = false) String deposit,
+        @RequestParam(required = false) String keyword,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
 
@@ -120,7 +118,7 @@ public class ChalletBankController {
         }
 
         SearchTransactionRequestDTO searchTransactionRequestDTO = SearchTransactionRequestDTO.of(
-            accountId, deposit, page, size);
+            accountId, keyword, page, size);
 
         SearchedTransactionResponseDTO searchedTransactionResponseDTO = challetBankService.searchTransaction(
             searchTransactionRequestDTO);
