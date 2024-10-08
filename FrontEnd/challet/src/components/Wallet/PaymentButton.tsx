@@ -33,7 +33,7 @@ const PaymentButton = () => {
     try {
       const response = await axiosInstance.post(
         '/api/ch-bank/simple-password',
-        pin
+        { password: pin }
       );
       if (response.status === 200) {
         navigate('/payment');
