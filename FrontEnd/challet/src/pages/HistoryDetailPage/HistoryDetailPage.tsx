@@ -28,6 +28,7 @@ const HistoryDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  // 카테고리 아이콘을 선택하는 함수
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'DELIVERY':
@@ -49,11 +50,14 @@ const HistoryDetailPage = () => {
     const fetchTransactionDetail = async () => {
       if (!transactionId) return;
 
+      // transactionId를 확인하기 위한 콘솔 로그
+      console.log('transactionId:', transactionId);
+
       try {
         const response = await AxiosInstance.get<TransactionDetail>(
           `api/ch-bank/details`,
           {
-            headers: { TransactionId: transactionId },
+            headers: { TransactionId: transactionId }, // transactionId를 헤더로 전송
           }
         );
 

@@ -29,6 +29,11 @@ function MyDataHistoryPage() {
 
   const { bankShortName, accountNumber } = location.state || {};
 
+  // 페이지 로드 시 최상단으로 스크롤 이동
+  useEffect(() => {
+    window.scrollTo(0, 0); // 페이지가 렌더링되면 최상단으로 스크롤 이동
+  }, []); // 빈 배열을 사용하여 컴포넌트가 처음 렌더링될 때만 실행
+
   useEffect(() => {
     if (location.state?.transactionData) {
       setTransactionData(location.state.transactionData);
@@ -125,6 +130,9 @@ function MyDataHistoryPage() {
             className='bg-transparent flex-1 focus:outline-none text-gray-500'
             maxLength={15}
           />
+          <button className='ml-2 bg-[#00CCCC] text-white px-3 py-2 rounded-md'>
+            검색
+          </button>
         </div>
       </div>
 

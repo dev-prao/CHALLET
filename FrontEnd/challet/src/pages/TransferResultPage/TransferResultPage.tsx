@@ -35,6 +35,20 @@ function TransferResult() {
     }
   }, [id, amount, AccountId, navigate]);
 
+  // 뒤로 가기 방지 useEffect 추가
+  useEffect(() => {
+    const handlePopState = () => {
+      window.history.pushState(null, '', window.location.href); // 뒤로 가기를 막기 위해 현재 상태를 다시 추가
+    };
+
+    window.history.pushState(null, '', window.location.href); // 현재 상태를 추가
+    window.addEventListener('popstate', handlePopState); // popstate 이벤트 리스너 등록
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState); // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    };
+  }, []);
+
   const handleCategoryChange = (newCategory: string) => {
     setSelectedCategory(newCategory);
     setIsEditingCategory(false);

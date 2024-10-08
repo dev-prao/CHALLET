@@ -1,5 +1,5 @@
 type Transaction = {
-  id: number;
+  id: string;
   transactionDate: string;
   deposit: string;
   withdrawal: string;
@@ -9,7 +9,7 @@ type Transaction = {
 
 type TransactionItemProps = {
   transaction: Transaction;
-  onClick: (transactionId: number) => void;
+  onClick: (transactionId: string) => void;
 };
 
 const TransactionItem = ({ transaction, onClick }: TransactionItemProps) => {
@@ -20,7 +20,10 @@ const TransactionItem = ({ transaction, onClick }: TransactionItemProps) => {
   return (
     <div
       className='px-4 py-4 cursor-pointer'
-      onClick={() => onClick(transaction.id)}
+      onClick={() => {
+        console.log('클릭된 transactionId:', transaction.id);
+        onClick(transaction.id);
+      }}
     >
       <div className='flex items-center'>
         <p className='text-sm font-medium text-gray-800 mr-1'>{date}</p>

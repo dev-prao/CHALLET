@@ -19,13 +19,38 @@ const PaymentPage = () => {
           throw new Error('No video input devices found.');
         }
 
-        // 후면 카메라를 우선적으로 선택, 없으면 첫 번째 장치 선택
-        const preferredDevice =
-          videoDevices.find((device) =>
-            device.label.toLowerCase().includes('back')
-          ) || videoDevices[0];
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+        let preferredDevice = null;
+
+        if (isIOS) {
+          // iOS 환경에서 후면 카메라 중 광각 카메라 필터링
+          preferredDevice =
+            videoDevices.find(
+              (device) =>
+                device.label.toLowerCase().includes('back') &&
+                !device.label.toLowerCase().includes('ultra') &&
+                !device.label.toLowerCase().includes('wide')
+            ) || videoDevices[videoDevices.length - 1];
+        } else {
+          // 일반 브라우저에서는 후면 카메라 중 광각 카메라 필터링
+          preferredDevice =
+            videoDevices.find(
+              (device) =>
+                device.label.toLowerCase().includes('back') &&
+                !device.label.toLowerCase().includes('ultra') &&
+                !device.label.toLowerCase().includes('wide')
+            ) || videoDevices[0];
+        }
 
         if (preferredDevice) {
+          // 선택한 카메라 장치 ID 저장
+          localStorage.setItem(
+            'preferredCameraDeviceId',
+            preferredDevice.deviceId
+          );
+
+          // QR 코드 스캔 시작 (해상도 설정 없이 3개의 인수만 사용)
           controlsRef.current = await codeReader.decodeFromVideoDevice(
             preferredDevice.deviceId,
             'video',
@@ -40,14 +65,19 @@ const PaymentPage = () => {
             }
           );
         }
-      } catch (error) {
-        console.error('Error starting scan:', error);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error('Error starting scan:', error);
+        } else {
+          console.error('Unknown error occurred:', error);
+        }
       }
     };
 
+    // 스캔 시작
     startScanning();
 
-    // 컴포넌트가 언마운트될 때 스캔 중지
+    // 컴포넌트 언마운트 시 스캔 중지
     return () => {
       controlsRef.current?.stop();
     };
@@ -56,6 +86,7 @@ const PaymentPage = () => {
   return (
     <div className='min-h-screen bg-white flex flex-col items-center p-2'>
       <TopBar title='QR 스캔' />
+
       <div className='flex flex-col items-center justify-center flex-grow'>
         <div
           className='relative'

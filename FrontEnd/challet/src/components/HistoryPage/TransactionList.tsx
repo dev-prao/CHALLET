@@ -2,7 +2,7 @@ import React from 'react';
 import TransactionItem from './TransactionItem';
 
 type Transaction = {
-  id: number;
+  id: string;
   transactionDate: string;
   deposit: string;
   withdrawal: string;
@@ -12,7 +12,7 @@ type Transaction = {
 
 type TransactionListProps = {
   transactionHistory: Transaction[];
-  onTransactionClick: (transactionId: number) => void;
+  onTransactionClick: (transactionId: string) => void;
 };
 
 const TransactionList = React.memo(

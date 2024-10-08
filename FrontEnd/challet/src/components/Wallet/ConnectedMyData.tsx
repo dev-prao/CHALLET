@@ -62,6 +62,7 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
           bankShortName: bankDetails[bankKey].shortName,
           accountNumber: account.accountNumber,
           transactionData: response.data,
+          accountId: account.id,
         },
       });
     } catch (error) {
