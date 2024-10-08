@@ -62,7 +62,6 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
           bankShortName: bankDetails[bankKey].shortName,
           accountNumber: account.accountNumber,
           transactionData: response.data,
-          accountId: account.id,
         },
       });
     } catch (error) {
@@ -119,14 +118,14 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
 
   return (
     <div
-      className='connected-mydata-section rounded-lg shadow-md mb-24'
+      className='connected-mydata-section shadow-md p-1 rounded-lg mb-24'
       style={{ width: '97%' }}
     >
       <h2 className='text-base font-medium mt-4 ml-4 mb-4 text-left'>
         마이데이터 연동 계좌
       </h2>
 
-      <div className='bg-white mb-6' style={{ width: '100%' }}>
+      <div className='bg-white mb-4 ' style={{ width: '100%' }}>
         {accountsToShow.map(({ account, bankKey }) => (
           <div
             key={account.id}
