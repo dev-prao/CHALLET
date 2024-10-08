@@ -68,4 +68,8 @@ public class ChalletBank {
             .accountBalance(0L)
             .build();
     }
+
+    public void updateMyDataStatus(boolean myDataStatus){
+        this.myDataStatus = myDataStatus;
+    }
 }

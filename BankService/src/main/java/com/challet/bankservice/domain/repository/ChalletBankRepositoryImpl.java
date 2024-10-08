@@ -116,18 +116,6 @@ public class ChalletBankRepositoryImpl implements ChalletBankRepositoryCustom {
             .fetchOne();
     }
 
-    @Transactional
-    @Override
-    public void setMyDataAuthorization(String phoneNumber) {
-        QChalletBank challetBank = QChalletBank.challetBank;
-
-        query
-            .update(challetBank)
-            .set(challetBank.myDataStatus, true)
-            .where(challetBank.phoneNumber.eq(phoneNumber))
-            .execute();
-    }
-
     @Override
     public boolean isMyDataConnectedByPhoneNumber(String phoneNumber) {
         QChalletBank challetBank = QChalletBank.challetBank;
@@ -219,6 +207,16 @@ public class ChalletBankRepositoryImpl implements ChalletBankRepositoryCustom {
                 .fetchFirst();
         }
         return categoryName != null ? categoryName : "ETC";
+    }
+
+    @Override
+    public ChalletBank getAccountByPhoneNumber(String phoneNumber) {
+        QChalletBank challetBank = QChalletBank.challetBank;
+
+        return query
+            .selectFrom(challetBank)
+            .where(challetBank.phoneNumber.eq(phoneNumber))
+            .fetchOne();
     }
 
     private List<String> subList(int start, List<String> phoneNumbers) {

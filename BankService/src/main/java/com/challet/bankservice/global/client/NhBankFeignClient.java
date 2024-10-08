@@ -21,6 +21,9 @@ public interface NhBankFeignClient {
     AccountInfoResponseListDTO connectMyDataKbBank(
         @RequestHeader(value = "Authorization") String tokenHeader);
 
+    @PostMapping("/api/nh-bank/mydata-disconnect")
+    void disconnectMyDataKbBank(@RequestHeader(value = "Authorization") String tokenHeader);
+
     @GetMapping("/api/nh-bank")
     AccountInfoResponseListDTO getMyDataKbBank(
         @RequestHeader(value = "Authorization", required = false) String tokenHeader);

@@ -23,8 +23,6 @@ public interface ChalletBankRepositoryCustom {
 
     ChalletBank findByIdWithLock(Long accountId);
 
-    void setMyDataAuthorization(String phoneNumber);
-
     boolean isMyDataConnectedByPhoneNumber(String phoneNumber);
 
     ChalletBank getAccountByAccountNumber(String accountNumber);
@@ -37,6 +35,8 @@ public interface ChalletBankRepositoryCustom {
         MonthlyTransactionRequestDTO requestDTO);
 
     String getCategoryName(Long accountId, String deposit);
+
+    ChalletBank getAccountByPhoneNumber(String phoneNumber);
 
     Map<Category, Long> getMyTransactionByCategory(String phoneNumber,
         MonthlyTransactionRequestDTO requestDTO);

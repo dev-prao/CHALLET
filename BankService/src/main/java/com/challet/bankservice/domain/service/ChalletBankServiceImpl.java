@@ -307,12 +307,12 @@ public class ChalletBankServiceImpl implements ChalletBankService {
         return challetBankRepository.findByIdWithLock(accountId);
     }
 
+    @Transactional
     @Override
     public MyDataBankAccountInfoResponseDTO connectMyDataBanks(String tokenHeader,
         BankSelectionRequestDTO bankSelectionRequestDTO) {
 
-        setMyDataAuth(tokenHeader);
-
+        ChalletBank challetBank = getMyAccountInfo(tokenHeader);
         AccountInfoResponseListDTO kbBanks = null;
         AccountInfoResponseListDTO nhBanks = null;
         AccountInfoResponseListDTO shBanks = null;
@@ -323,35 +323,48 @@ public class ChalletBankServiceImpl implements ChalletBankService {
             shBanks = getShBankAccounts(tokenHeader, bank, shBanks);
         }
 
+        challetBank.updateMyDataStatus(!(kbBanks == null && nhBanks == null && shBanks == null));
         return getMyDataAccounts(kbBanks, nhBanks, shBanks);
     }
 
-    private void setMyDataAuth(String tokenHeder) {
-        String phoneNumber = jwtUtil.getLoginUserPhoneNumber(tokenHeder);
-        challetBankRepository.setMyDataAuthorization(phoneNumber);
+    private ChalletBank getMyAccountInfo(String tokenHeader) {
+        String phoneNumber = jwtUtil.getLoginUserPhoneNumber(tokenHeader);
+        return challetBankRepository.getAccountByPhoneNumber(
+            phoneNumber);
     }
 
     private AccountInfoResponseListDTO getKbBankAccounts(String tokenHeader,
         BankSelectionDTO bank, AccountInfoResponseListDTO kbBanks) {
-        if (bank.bankCode().equals("8083") && bank.isSelected()) {
-            kbBanks = kbBankFeignClient.connectMyDataKbBank(
-                tokenHeader);
+        if (bank.bankCode().equals("8083")) {
+            if(bank.isSelected()){
+                return kbBankFeignClient.connectMyDataKbBank(tokenHeader);
+            }else{
+                kbBankFeignClient.disconnectMyDataKbBank(tokenHeader);
+            }
         }
         return kbBanks;
     }
 
-    private AccountInfoResponseListDTO getNhBankAccounts(String tokenHeder,
+    private AccountInfoResponseListDTO getNhBankAccounts(String tokenHeader,
         BankSelectionDTO bank, AccountInfoResponseListDTO nhBanks) {
-        if (bank.bankCode().equals("8084") && bank.isSelected()) {
-            nhBanks = nhBankFeignClient.connectMyDataKbBank(tokenHeder);
+        if (bank.bankCode().equals("8084")) {
+            if(bank.isSelected()){
+                return nhBankFeignClient.connectMyDataKbBank(tokenHeader);
+            }else{
+                nhBankFeignClient.disconnectMyDataKbBank(tokenHeader);
+            }
         }
         return nhBanks;
     }
 
     private AccountInfoResponseListDTO getShBankAccounts(String tokenHeder,
         BankSelectionDTO bank, AccountInfoResponseListDTO shBanks) {
-        if (bank.bankCode().equals("8085") && bank.isSelected()) {
-            shBanks = shBankFeignClient.connectMyDataKbBank(tokenHeder);
+        if (bank.bankCode().equals("8085")) {
+            if(bank.isSelected()){
+                shBanks = shBankFeignClient.connectMyDataKbBank(tokenHeder);
+            }else{
+                shBankFeignClient.disconnectMyDataKbBank(tokenHeder);
+            }
         }
         return shBanks;
     }

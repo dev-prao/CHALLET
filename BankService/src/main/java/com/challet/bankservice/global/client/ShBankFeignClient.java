@@ -21,6 +21,9 @@ public interface ShBankFeignClient {
     AccountInfoResponseListDTO connectMyDataKbBank(
         @RequestHeader(value = "Authorization") String tokenHeader);
 
+    @PostMapping("/api/sh-bank/mydata-disconnect")
+    void disconnectMyDataKbBank(@RequestHeader(value = "Authorization") String tokenHeader);
+
     @GetMapping("/api/sh-bank")
     AccountInfoResponseListDTO getMyDataKbBank(
         @RequestHeader(value = "Authorization", required = false) String tokenHeader);
