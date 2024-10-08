@@ -5,7 +5,7 @@ import './Keypad.css';
 interface KeypadProps {
   onPinChange: (pin: string) => void;
   maxLength?: number;
-  onComplete?: () => void;
+  onComplete?: (pin: string) => void; // 인자를 받는 함수로 정의
   showMessage?: boolean;
 }
 
@@ -37,7 +37,7 @@ const Keypad = ({
         onPinChange(newPin);
 
         if (newPin.length === maxLength && onComplete) {
-          onComplete();
+          onComplete(newPin);
         }
       }
     },
