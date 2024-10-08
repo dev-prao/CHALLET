@@ -2,7 +2,6 @@ package com.challet.bankservice.global.client;
 
 import com.challet.bankservice.domain.dto.request.BankToAnalysisMessageRequestDTO;
 import com.challet.bankservice.domain.dto.request.BankTransferRequestDTO;
-import com.challet.bankservice.domain.dto.request.MonthlyTransactionRequestDTO;
 import com.challet.bankservice.domain.dto.response.AccountInfoResponseListDTO;
 import com.challet.bankservice.domain.dto.response.BankTransferResponseDTO;
 import com.challet.bankservice.domain.dto.response.MonthlyTransactionHistoryListDTO;
@@ -10,7 +9,6 @@ import com.challet.bankservice.domain.entity.Category;
 import java.util.Map;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -43,4 +41,7 @@ public interface KbBankFeignClient {
     Map<Category, Long> getMyTransactionCategory(
         @RequestHeader(value = "Authorization", required = false) String tokenHeader,
         @RequestParam int year, @RequestParam int month);
+
+    @PostMapping("/api/kb-bank/account-name")
+    String getAccountInfo(@RequestBody String accountNumber);
 }

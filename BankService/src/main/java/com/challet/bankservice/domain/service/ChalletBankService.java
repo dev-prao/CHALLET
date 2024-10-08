@@ -36,6 +36,8 @@ public interface ChalletBankService {
 
 	MyDataBankAccountInfoResponseDTO getMyDataAccounts(String tokenHeader);
 
+	String getAccountName(AccountTransferRequestDTO accountTransferRequestDTO);
+
 	AccountTransferResponseDTO accountTransfer(Long accountId,
 		AccountTransferRequestDTO accountTransferRequestDTO);
 

@@ -2,7 +2,6 @@ package com.challet.bankservice.global.client;
 
 import com.challet.bankservice.domain.dto.request.BankToAnalysisMessageRequestDTO;
 import com.challet.bankservice.domain.dto.request.BankTransferRequestDTO;
-import com.challet.bankservice.domain.dto.request.MonthlyTransactionRequestDTO;
 import com.challet.bankservice.domain.dto.response.AccountInfoResponseListDTO;
 import com.challet.bankservice.domain.dto.response.BankTransferResponseDTO;
 import com.challet.bankservice.domain.dto.response.MonthlyTransactionHistoryListDTO;
@@ -42,4 +41,7 @@ public interface NhBankFeignClient {
     Map<Category, Long> getMyTransactionCategory(
         @RequestHeader(value = "Authorization", required = false) String tokenHeader,
         @RequestParam int year, @RequestParam int month);
+
+    @PostMapping("/api/nh-bank/account-name")
+    String getAccountInfo(@RequestBody String accountNumber);
 }

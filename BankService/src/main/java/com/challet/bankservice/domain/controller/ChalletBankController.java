@@ -171,6 +171,17 @@ public class ChalletBankController {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentResponseDTO);
     }
 
+    @PostMapping("/account-username")
+    @Operation(summary = "계좌번호의 유저 이름 메시지", description = "계좌 번호를 이용한 유저의 이름 메시지")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "조회 성공"),
+        @ApiResponse(responseCode = "400", description = "조회 실패", content = @Content(schema = @Schema(implementation = Exception.class))),
+    })
+    public ResponseEntity<String> accountUserName(
+        @RequestBody AccountTransferRequestDTO accountTransferRequestDTO) {
+        String accountName = challetBankService.getAccountName(accountTransferRequestDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(accountName);
+    }
 
     @PostMapping("/account-transfers")
     @Operation(summary = "계좌 이체 서비스", description = "이체 계좌, 이체 금액  데이터를 이용한 결제")
