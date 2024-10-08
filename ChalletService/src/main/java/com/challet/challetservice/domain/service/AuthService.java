@@ -24,4 +24,6 @@ public interface AuthService {
     void sendSms(SmsRequestDTO request);
 
     Boolean certificate(CertificateRequestDTO request);
+
+    boolean checkPassword(String token, String password);
 }

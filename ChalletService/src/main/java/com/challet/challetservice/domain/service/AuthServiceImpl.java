@@ -135,6 +135,14 @@ public class AuthServiceImpl implements AuthService {
         return new TokenRefreshResponseDTO(jwtUtil.generateAccessToken(user.getPhoneNumber()));
     }
 
+    @Override
+    public boolean checkPassword(String token, String password) {
+        String loginUserPhoneNumber = jwtUtil.getLoginUserPhoneNumber(token);
+        User user = userRepository.findByPhoneNumber(loginUserPhoneNumber)
+            .orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_USER_EXCEPTION));
+        return passwordEncoder.matches(password, user.getPassword());
+    }
+
     public static Cookie createRefreshTokenCookie(String refreshToken) {
         Cookie cookie = new Cookie("refreshToken", refreshToken);
         cookie.setHttpOnly(true);
