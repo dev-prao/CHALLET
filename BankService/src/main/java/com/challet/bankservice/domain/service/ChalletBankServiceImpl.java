@@ -459,18 +459,18 @@ public class ChalletBankServiceImpl implements ChalletBankService {
         String categoryName = getCategoryName(fromBank,
             requestTransactionDTO.depositAccountNumber());
 
-        ChalletBankTransaction paymentTransaction = ChalletBankTransaction.createAccountTransferHistory(
+        ChalletBankTransaction fromTransaction = ChalletBankTransaction.createAccountTransferHistory(
             fromBank, toBank.getName(), requestTransactionDTO, transactionBalance, true,
             categoryName);
-        fromBank.addTransaction(paymentTransaction);
+        fromBank.addTransaction(fromTransaction);
 
-        ChalletBankTransaction accountTransferHistory = ChalletBankTransaction.createAccountTransferHistory(
+        ChalletBankTransaction toTransaction = ChalletBankTransaction.createAccountTransferHistory(
             fromBank, toBank.getName(), requestTransactionDTO, addMoney, false, "ETC");
-        toBank.addTransaction(accountTransferHistory);
+        toBank.addTransaction(toTransaction);
 
-        challetBankTransactionRepository.save(accountTransferHistory);
+        challetBankTransactionRepository.save(fromTransaction);
 
-        return AccountTransferResponseDTO.fromTransferInfo(accountTransferHistory.getId(), fromBank,
+        return AccountTransferResponseDTO.fromTransferInfo(fromTransaction.getId(), fromBank,
             toBank, requestTransactionDTO.transactionAmount(), categoryName);
     }
 
