@@ -103,6 +103,8 @@ public class KbBankServiceImpl implements KbBankService {
             requestDTO, accountTransactionBalance, "ETC");
 
         kbBank.addTransaction(transaction);
+        KbBankTransaction savedToTransaction = kbBankTransactionRepository.save(transaction);
+        searchedTransactionRepository.save(SearchedTransaction.fromAccountTransferByTo(savedToTransaction));
         try{
             BankTransferResponseDTO bankTransferResponseDTO = BankTransferResponseDTO.fromBankTransferResponseDTO(
                 kbBank);
@@ -141,10 +143,10 @@ public class KbBankServiceImpl implements KbBankService {
 
     private Page<SearchedTransaction> getResult(
         SearchTransactionRequestDTO searchTransactionRequestDTO, Pageable pageable) {
-        if (searchTransactionRequestDTO.deposit() != null) {
-            return searchedTransactionRepository.findByAccountIdAndDepositContaining(
+        if (searchTransactionRequestDTO.keyword() != null) {
+            return searchedTransactionRepository.findByAccountIdAndKeyword(
                 searchTransactionRequestDTO.accountId(),
-                searchTransactionRequestDTO.deposit(), pageable);
+                searchTransactionRequestDTO.keyword(), pageable);
         }
         return searchedTransactionRepository.findByAccountId(
             searchTransactionRequestDTO.accountId(), pageable);
