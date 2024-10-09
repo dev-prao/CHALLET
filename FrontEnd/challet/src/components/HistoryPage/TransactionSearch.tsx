@@ -56,7 +56,7 @@ const TransactionSearch = ({ onSearch }: TransactionSearchProps) => {
   };
 
   return (
-    <div className='px-4 py-2'>
+    <div className='px-4 py-2 w-full max-w-[640px] mx-auto'>
       <div className='flex items-center bg-gray-100 rounded-md px-3 py-1'>
         <svg
           className='w-6 h-6 text-gray-400 mr-2'
@@ -82,7 +82,7 @@ const TransactionSearch = ({ onSearch }: TransactionSearchProps) => {
         />
         <button
           onClick={handleSearch}
-          className='ml-2 bg-[#00CCCC] text-white px-3 py-2 rounded-md whitespace-nowrap'
+          className=' bg-[#00CCCC] text-white px-3 py-2 rounded-md'
         >
           검색
         </button>
