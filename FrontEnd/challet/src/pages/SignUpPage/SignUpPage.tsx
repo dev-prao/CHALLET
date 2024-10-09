@@ -135,13 +135,26 @@ const SignUpPage = () => {
     setIsComposing(true);
   };
 
-  // 한글 조합 완료
+  // // 한글 조합 완료
+  // const handleCompositionEnd = (
+  //   e: React.CompositionEvent<HTMLInputElement>
+  // ) => {
+  //   setIsComposing(false);
+  //   const value = e.currentTarget.value;
+  //   setName(value.replace(/[^가-힣a-zA-Z\s]/g, '')); // 유효성 검사 후 최종값 반영
+  // };
+
+  // 한글 조합 완료 (유효성 검사 추가)
   const handleCompositionEnd = (
     e: React.CompositionEvent<HTMLInputElement>
   ) => {
     setIsComposing(false);
-    const value = e.currentTarget.value;
-    setName(value.replace(/[^가-힣a-zA-Z\s]/g, '')); // 유효성 검사 후 최종값 반영
+
+    // 약간의 지연 후 유효성 검사 실행 (iOS Safari에서 조합이 끝난 후 이벤트 처리 문제 방지)
+    setTimeout(() => {
+      const value = e.currentTarget.value;
+      setName(value.replace(/[^가-힣\s]/g, '')); // 한글과 공백만 허용
+    }, 0); // 0ms 지연을 두어 Safari의 이벤트 처리 순서 문제 해결
   };
 
   return (

@@ -16,6 +16,7 @@ import LoginPage from './pages/LoginPage/LoginPage';
 import Navbar from './components/navigation/Navbar';
 import WalletPage from './pages/WalletPage/WalletPage';
 import HistoryPage from './pages/HistoryPage/HistoryPage';
+// import HistoryPage2 from './pages/HistoryPage/HistoryPage2';
 import HistoryDetailPage from './pages/HistoryDetailPage/HistoryDetailPage';
 import MyDataHistoryPage from './pages/MyDataHistoryPage/MyDataHistoryPage';
 import MyDataDetailPage from './pages/MyDataDetailPage/MyDataDetailPage';
@@ -121,6 +122,7 @@ function App() {
           />
 
           <Route path='/history' element={<HistoryPage />} />
+          {/* <Route path='/history2' element={<HistoryPage2 />} /> */}
           <Route path='/transfer' element={<TransferPage />} />
           <Route path='/transfer-result' element={<TransferResultPage />} />
           <Route path='/challenge' element={<ChallengePage />} />

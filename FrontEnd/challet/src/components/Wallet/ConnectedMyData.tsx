@@ -39,12 +39,6 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
   const setAccountInfo = useAccountStore((state) => state.setAccountInfo);
   const [showAllAccounts, setShowAllAccounts] = useState(false);
 
-  const apiEndpoints: Record<BankKey, string> = {
-    nh: '/api/nh-bank/account',
-    kb: '/api/kb-bank/account',
-    sh: '/api/sh-bank/account',
-  };
-
   const handleAccountClick = async (bankKey: BankKey, account: Account) => {
     setAccountInfo({
       id: Number(account.id),
@@ -53,10 +47,20 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
     });
 
     try {
-      const apiUrl = apiEndpoints[bankKey];
+      // 은행별로 API 요청을 보내기 위한 URL 설정
+      const apiUrl = `/api/${bankKey}-bank/search`;
+
+      // axiosInstance로 API 요청을 보냄 (params로 accountId, page, size를 전달)
       const response = await axiosInstance.get(apiUrl, {
-        headers: { AccountId: account.id.toString() },
+        params: {
+          accountId: account.id,
+          page: 0,
+          size: 10,
+        },
       });
+
+      // 응답 데이터를 로그로 출력
+      console.log('응답 데이터:', response.data);
 
       navigate('/mydata-history', {
         state: {

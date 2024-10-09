@@ -7,8 +7,8 @@ import nhLogo from '../../assets/mydata/nh-logo.svg';
 import shLogo from '../../assets/mydata/sh-logo.svg';
 
 interface Transaction {
-  id: number;
-  transactionId?: string;
+  transactionId: string;
+  accountId: number;
   transactionDate: string;
   deposit: string;
   withdrawal: string;
@@ -17,9 +17,9 @@ interface Transaction {
 }
 
 interface TransactionResponse {
-  transactionCount: number;
-  accountBalance: number;
-  transactionResponseDTO: Transaction[];
+  count: number;
+  accountBalance: number | null; // 여기서 null을 허용하도록 변경
+  searchedTransactions: Transaction[];
 }
 
 function MyDataHistoryPage() {
@@ -68,19 +68,19 @@ function MyDataHistoryPage() {
 
       console.log('검색 응답 받음:', response.data); // 검색 API 응답 확인
 
-      // 'transactionId'를 'id'로 변환
+      // 'transactionId'를 기존 id로 사용
       const formattedTransactions = response.data.searchedTransactions.map(
         (transaction: Transaction) => ({
           ...transaction,
-          id: transaction.transactionId,
+          id: transaction.transactionId, // 새로운 응답에 맞춰 id 설정
         })
       );
 
       // 변환된 데이터로 상태 업데이트 (잔액은 유지)
       setTransactionData({
-        ...response.data,
+        count: response.data.count,
         accountBalance: initialBalance,
-        transactionResponseDTO: formattedTransactions,
+        searchedTransactions: formattedTransactions,
       });
     } catch (error) {
       console.error('검색 중 오류 발생:', error);
@@ -92,12 +92,12 @@ function MyDataHistoryPage() {
     setSearchTerm(event.target.value);
   };
 
-  const handleTransactionClick = async (transactionId: number) => {
+  const handleTransactionClick = async (transactionId: string) => {
     const apiUrl = `/api/ch-bank/details`;
     try {
       const response = await axiosInstance.get(apiUrl, {
         headers: {
-          TransactionId: transactionId.toString(),
+          TransactionId: transactionId,
         },
       });
 
@@ -184,17 +184,19 @@ function MyDataHistoryPage() {
 
       {/* 거래 내역 리스트 */}
       <div className='divide-y divide-gray-200 mb-20'>
-        {transactionData.transactionResponseDTO.length > 0 ? (
-          transactionData.transactionResponseDTO.map((transaction) => {
+        {transactionData.searchedTransactions.length > 0 ? (
+          transactionData.searchedTransactions.map((transaction) => {
             const dateObject = new Date(transaction.transactionDate);
             const date = `${dateObject.getMonth() + 1}.${dateObject.getDate()}`;
             const time = dateObject.toTimeString().slice(0, 5);
 
             return (
               <div
-                key={transaction.id}
+                key={transaction.transactionId}
                 className='px-4 py-4 cursor-pointer'
-                onClick={() => handleTransactionClick(transaction.id)}
+                onClick={() =>
+                  handleTransactionClick(transaction.transactionId)
+                }
               >
                 <div className='flex items-center'>
                   <p className='text-sm font-medium text-gray-800 mr-1'>
