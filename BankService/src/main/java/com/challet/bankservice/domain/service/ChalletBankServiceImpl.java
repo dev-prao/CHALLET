@@ -397,10 +397,16 @@ public class ChalletBankServiceImpl implements ChalletBankService {
 	}
 
 	@Override
-	public String getAccountName(AccountTransferRequestDTO accountTransferRequestDTO) {
+	public String getAccountName(String tokenHeader, AccountTransferRequestDTO accountTransferRequestDTO) {
 		String accountName = "";
 		try {
 			if (accountTransferRequestDTO.bankCode().equals("8082")) {
+				String phoneNumber = jwtUtil.getLoginUserPhoneNumber(tokenHeader);
+				if (challetBankRepository.getCheckSameAccount(phoneNumber)
+					.equals(accountTransferRequestDTO.depositAccountNumber())) {
+					throw new ExceptionResponse(
+						CustomException.ACCOUNT_NOT_SAME_TRANSACTION_EXCEPTION);
+				}
 				accountName = challetBankRepository.getAccountByAccountNumber(
 					accountTransferRequestDTO.depositAccountNumber()).getName();
 			} else if (accountTransferRequestDTO.bankCode().equals("8083")) {
@@ -414,6 +420,8 @@ public class ChalletBankServiceImpl implements ChalletBankService {
 					accountTransferRequestDTO.depositAccountNumber());
 			}
 			return accountName;
+		}catch (ExceptionResponse e) {
+			throw e;
 		} catch (Exception e) {
 			throw new ExceptionResponse(CustomException.ACCOUNT_NOT_FOUND_EXCEPTION);
 		}

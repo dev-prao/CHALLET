@@ -177,8 +177,9 @@ public class ChalletBankController {
         @ApiResponse(responseCode = "400", description = "조회 실패", content = @Content(schema = @Schema(implementation = Exception.class))),
     })
     public ResponseEntity<String> accountUserName(
+        @RequestHeader("Authorization") String tokenHeader,
         @RequestBody AccountTransferRequestDTO accountTransferRequestDTO) {
-        String accountName = challetBankService.getAccountName(accountTransferRequestDTO);
+        String accountName = challetBankService.getAccountName(tokenHeader, accountTransferRequestDTO);
         return ResponseEntity.status(HttpStatus.OK).body(accountName);
     }
 

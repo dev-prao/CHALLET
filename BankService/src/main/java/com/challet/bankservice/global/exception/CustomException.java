@@ -15,6 +15,7 @@ public enum CustomException {
 
     NOT_CONNECTED_MYDATA_EXCEPTION(401, "NotConnectedMyDataException", "해당 유저는 마이데이터가 연결되지 않았습니다"),
 
+    ACCOUNT_NOT_SAME_TRANSACTION_EXCEPTION(401, "AccountNotSameTransactionException", "입력한 계좌가 자신의 계좌입니다"),
     ACCOUNT_NOT_FOUND_EXCEPTION(404, "AccountNotFoundException", "입력한 계좌가 존재하지 않습니다"),
     INVALID_BANK_CODE_EXCEPTION(404, "InvalidBankCodeException", "입력한 은행코드가 존재하지 않습니다");
 

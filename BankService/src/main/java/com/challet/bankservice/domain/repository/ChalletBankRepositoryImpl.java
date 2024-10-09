@@ -274,6 +274,16 @@ public class ChalletBankRepositoryImpl implements ChalletBankRepositoryCustom {
         return categorySums;
     }
 
+    @Override
+    public String getCheckSameAccount(String phoneNumber) {
+        QChalletBank chBank = QChalletBank.challetBank;
+
+        return query
+            .select(chBank.accountNumber)
+            .from(chBank)
+            .where(chBank.phoneNumber.eq(phoneNumber))
+            .fetchOne();
+    }
     private List<CategoryAmountMonthResponseDTO> getCategoryMyList(MonthlyTransactionRequestDTO requestDTO,
         QChalletBankTransaction chBankTransaction, QChalletBank challetBank, String phoneNumber) {
         return query

@@ -40,4 +40,6 @@ public interface ChalletBankRepositoryCustom {
 
     Map<Category, Long> getMyTransactionByCategory(String phoneNumber,
         MonthlyTransactionRequestDTO requestDTO);
+
+    String getCheckSameAccount(String phoneNumber);
 }
