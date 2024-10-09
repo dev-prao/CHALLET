@@ -204,7 +204,7 @@ const ChallengeCreatePage = () => {
               dateFormat='yyyy년 MM월 dd일'
               placeholderText='시작 날짜 ~ 종료 날짜'
               className='w-[85vw] px-2 py-3 rounded-lg text-gray-500 bg-[#F1F4F6] focus:outline-none focus:ring-2 focus:ring-[#00CCCC]'
-              readOnly // 텍스트 입력을 비활성화하여 키보드가 올라오지 않게 함
+              onFocus={(e) => e.target.blur()} // 텍스트 입력을 비활성화하고 키보드가 올라오지 않게 설정
             />
           </div>
 
