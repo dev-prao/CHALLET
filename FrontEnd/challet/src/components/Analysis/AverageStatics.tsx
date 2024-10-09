@@ -58,7 +58,7 @@ const AverageStatistics = () => {
   });
 
   return (
-    <div className='flex flex-col items-center'>
+    <div className='max-w-[640px] mx-auto flex flex-col items-center'>
       {/* 설명 텍스트 */}
       <div className='mb-6 text-center p-4 '>
         <div className='text-xl'>

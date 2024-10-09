@@ -1,4 +1,3 @@
-// Statistics.tsx
 import { useEffect } from 'react';
 import { useStatisticsApi } from '../../hooks/statisticsApi';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
@@ -13,7 +12,7 @@ const MyStatistics = () => {
   }, []);
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <p>소비 내역 불러오는 중...</p>;
   }
 
   // 데이터가 없는 경우 처리
@@ -36,7 +35,7 @@ const MyStatistics = () => {
   };
 
   return (
-    <div className='flex flex-col items-center'>
+    <div className='max-w-[640px] mx-auto flex flex-col items-center'>
       {/* 사용자 설명 텍스트 */}
       <div className='mb-6 text-center p-4 '>
         <div className='text-xl'>
