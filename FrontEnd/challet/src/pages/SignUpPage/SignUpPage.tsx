@@ -145,12 +145,12 @@ const SignUpPage = () => {
   // };
 
   ////// 아이폰 수정 버전 /////////
+  // 입력 핸들러
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-
-    // 조합 중이 아니면 유효성 검사를 진행
+    // 조합 중이 아닐 때만 값 업데이트
     if (!isComposing) {
-      setName(value.replace(/[^가-힣\s]/g, '')); // 완성형 한글과 공백만 허용
+      const value = e.target.value;
+      setName(value.replace(/[^가-힣\s]/g, '')); // 유효성 검사를 통한 값 업데이트
     }
   };
 
@@ -159,13 +159,21 @@ const SignUpPage = () => {
     setIsComposing(true);
   };
 
+  // 한글 조합 중 업데이트 (이벤트 추가)
+  const handleCompositionUpdate = (
+    e: React.CompositionEvent<HTMLInputElement>
+  ) => {
+    // 조합 중에는 입력된 값 그대로 유지
+    setName(e.currentTarget.value);
+  };
+
   // 한글 조합 완료
   const handleCompositionEnd = (
     e: React.CompositionEvent<HTMLInputElement>
   ) => {
     setIsComposing(false);
 
-    // 조합이 끝났을 때 최종 값 업데이트
+    // 조합이 끝난 후에만 유효성 검사를 통한 값 업데이트
     const value = e.currentTarget.value;
     setName(value.replace(/[^가-힣\s]/g, '')); // 유효성 검사 후 최종값 반영
   };
@@ -176,10 +184,11 @@ const SignUpPage = () => {
   <div className='mb-6 mt-20'>
     <input
       type='text'
-      value={name}
+      value={name} // name 상태 사용
       onChange={handleInputChange}
-      onCompositionStart={handleCompositionStart} // 한글 조합 시작
-      onCompositionEnd={handleCompositionEnd} // 한글 조합 완료
+      onCompositionStart={handleCompositionStart}
+      onCompositionUpdate={handleCompositionUpdate} // 조합 중 업데이트 처리
+      onCompositionEnd={handleCompositionEnd}
       placeholder='이름'
       required
       lang='ko'
