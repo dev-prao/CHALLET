@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { TopBar } from '../../components/topbar/topbar';
 import AxiosInstance from '../../api/axiosInstance';
+import { AxiosError } from 'axios'; // AxiosError 타입을 import
 
 import chLogo from '../../assets/mydata/ch-logo.svg';
 import kbLogo from '../../assets/mydata/kb-logo.svg';
@@ -37,6 +38,7 @@ function TransferPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [accountNumberError, setAccountNumberError] = useState('');
   const [accountUsername, setAccountUsername] = useState('');
+  const [selfTransferError, setSelfTransferError] = useState(false); // 동일 계좌 에러 상태
 
   const formatNumberWithCommas = (value: string) => {
     const cleanedValue = value.replace(/[^0-9]/g, '');
@@ -61,7 +63,6 @@ function TransferPage() {
         [name]: cleanedValue.slice(0, 16),
       }));
     } else {
-      // 첫 번째 자리에 0이 입력되지 않도록 막음
       if (name === 'amount') {
         const cleanedValue = value.replace(/[^0-9]/g, '');
 
@@ -95,27 +96,45 @@ function TransferPage() {
   };
 
   const handleConfirmTransfer = async () => {
-    setLoading(true);
+    setLoading(true); // 로딩 상태 시작
     try {
       const bankCode = bankCodes[form.bank]?.code;
 
+      // 송금 계좌 사용자 이름 조회
       const response = await AxiosInstance.post(
         '/api/ch-bank/account-username',
         {
           bankCode,
           depositAccountNumber: form.accountNumber,
-          transactionAmount: form.amount.replace(/[^0-9]/g, ''),
+          transactionAmount: form.amount.replace(/[^0-9]/g, ''), // 금액
         },
         { headers: { AccountId: accountId as string } }
       );
 
-      setAccountUsername(response.data);
-      setIsModalOpen(true);
-    } catch (error) {
-      console.error('계좌 사용자명 요청 실패:', error);
-      alert('계좌 정보가 없습니다. 다시 확인해주세요.');
+      // 성공적으로 사용자 이름 조회되면 송금 확인 모달을 띄움
+      setAccountUsername(response.data); // 사용자 이름 설정
+      setIsModalOpen(true); // 송금 확인 모달 띄우기
+    } catch (error: unknown) {
+      // 에러가 AxiosError 타입인지를 확인하고 처리
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) {
+          // 401 에러: 출금 계좌와 동일한 계좌를 입력한 경우
+          setSelfTransferError(true); // 동일 계좌 모달 상태 설정
+        } else if (error.response?.status === 404) {
+          // 404 에러: 계좌가 존재하지 않는 경우
+          setAccountNumberError('입력한 계좌가 존재하지 않습니다.');
+        } else {
+          alert(
+            '계좌 정보를 확인하는 중 오류가 발생했습니다. 다시 시도해주세요.'
+          );
+        }
+      } else {
+        // AxiosError가 아닌 다른 오류일 경우 일반적인 오류 처리
+        console.error('Unexpected error:', error);
+        alert('알 수 없는 오류가 발생했습니다.');
+      }
     } finally {
-      setLoading(false);
+      setLoading(false); // 로딩 상태 종료
     }
   };
 
@@ -175,7 +194,41 @@ function TransferPage() {
     <div className='min-h-screen bg-white flex flex-col items-center justify-between p-4 relative'>
       <TopBar title='송금' />
 
-      {!isModalOpen && (
+      {/* 동일 계좌 경고 모달 */}
+      {selfTransferError && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+          <div className='bg-white rounded-xl p-6'>
+            <p className='text-xl font-bold text-center text-[#373A3F] mb-4'>
+              출금 계좌와 동일한 계좌를 입력했어요.
+            </p>
+            <button
+              className='w-full py-3 bg-[#00CCCC] text-white text-lg font-medium rounded-lg'
+              onClick={() => setSelfTransferError(false)} // 모달 닫기
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 계좌 존재하지 않음 모달 */}
+      {accountNumberError && (
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50'>
+          <div className='bg-white rounded-xl p-6'>
+            <p className='text-xl font-bold text-center text-[#373A3F] mb-4'>
+              {accountNumberError}
+            </p>
+            <button
+              className='w-full py-3 bg-[#00CCCC] text-white text-lg font-medium rounded-lg'
+              onClick={() => setAccountNumberError('')} // 모달 닫기
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!isModalOpen && !selfTransferError && !accountNumberError && (
         <div className='flex flex-col items-center justify-center w-full mt-40'>
           <div className='w-full max-w-sm mb-4'>
             <div className='relative'>
