@@ -5,12 +5,14 @@ spring:
   profiles:
     active: prod #로컬(dev) / git(prod)
 
+
 ---
 # 로컬(dev) 환경 설정
 spring:
   config:
     activate:
       on-profile: dev
+    import: application-key.yml
 
 eureka:
   client:
@@ -25,6 +27,7 @@ spring:
   config:
     activate:
       on-profile: prod
+    import: "classpath:/application-key.yml"
 
 eureka:
   client:
@@ -66,6 +69,8 @@ spring:
           uri: lb://SH-BANK
           predicates:
             - Path=/api/sh-bank/**
+      default-filters:
+        - name: JwtAuthenticationFilter
 
 
 springdoc:
@@ -99,3 +104,8 @@ management:
     metrics:
       export:
         enabled: true
+
+jwt:
+  secret: ${jwt_secret_key}
+  access-exp: ${jwt_access_exp}
+  refresh-exp: ${jwt_refresh_exp}
