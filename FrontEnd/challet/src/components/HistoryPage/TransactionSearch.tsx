@@ -3,8 +3,8 @@ import axiosInstance from '../../api/axiosInstance';
 import useAccountStore from '../../store/useAccountStore';
 
 interface Transaction {
-  transactionId: string; // transactionId 추가
-  id: string; // 변환된 id를 위한 선택적 필드
+  transactionId: string;
+  id: string;
   transactionDate: string;
   deposit: string;
   withdrawal: string;
@@ -13,12 +13,12 @@ interface Transaction {
 }
 
 interface TransactionSearchProps {
-  onSearch: (transactions: Transaction[]) => void; // 검색 결과를 전달하는 함수
+  onSearch: (transactions: Transaction[]) => void;
 }
 
 const TransactionSearch = ({ onSearch }: TransactionSearchProps) => {
   const [searchTerm, setSearchTerm] = useState(''); // 검색어 상태
-  const { accountInfo } = useAccountStore(); // accountInfo에서 accountId 가져오기
+  const { accountInfo } = useAccountStore();
 
   const handleSearch = async () => {
     if (!accountInfo) {
@@ -31,8 +31,8 @@ const TransactionSearch = ({ onSearch }: TransactionSearchProps) => {
         searchedTransactions: Transaction[];
       }>('/api/ch-bank/search', {
         params: {
-          accountId: accountInfo.id, // accountId를 가져옴
-          deposit: searchTerm, // 검색어 전달
+          accountId: accountInfo.id,
+          deposit: searchTerm,
         },
       });
 
@@ -40,12 +40,12 @@ const TransactionSearch = ({ onSearch }: TransactionSearchProps) => {
       const formattedTransactions = response.data.searchedTransactions.map(
         (transaction) => ({
           ...transaction,
-          id: transaction.transactionId, // 'transactionId'를 'id'로 변환
+          id: transaction.transactionId,
         })
       );
 
       console.log('검색 결과:', formattedTransactions);
-      onSearch(formattedTransactions); // 상위 컴포넌트로 검색 결과 전달
+      onSearch(formattedTransactions);
     } catch (error) {
       console.error('검색 중 오류 발생:', error);
     }
@@ -57,9 +57,9 @@ const TransactionSearch = ({ onSearch }: TransactionSearchProps) => {
 
   return (
     <div className='px-4 py-2'>
-      <div className='flex items-center bg-gray-100 rounded-md px-3 py-2'>
+      <div className='flex items-center bg-gray-100 rounded-md px-3 py-1'>
         <svg
-          className='w-5 h-5 text-gray-400 mr-2'
+          className='w-6 h-6 text-gray-400 mr-2'
           fill='none'
           stroke='currentColor'
           viewBox='0 0 24 24'
@@ -82,7 +82,7 @@ const TransactionSearch = ({ onSearch }: TransactionSearchProps) => {
         />
         <button
           onClick={handleSearch}
-          className='ml-2 bg-[#00CCCC] text-white px-3 py-2 rounded-md'
+          className=' bg-[#00CCCC] text-white px-3 py-2 rounded-md'
         >
           검색
         </button>

@@ -36,7 +36,7 @@ function TransferPage() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [accountNumberError, setAccountNumberError] = useState('');
-  const [accountUsername, setAccountUsername] = useState(''); // 응답 받은 계좌 사용자명 저장
+  const [accountUsername, setAccountUsername] = useState('');
 
   const formatNumberWithCommas = (value: string) => {
     const cleanedValue = value.replace(/[^0-9]/g, '');
@@ -94,7 +94,6 @@ function TransferPage() {
     }
   };
 
-  // 확인 버튼 클릭 시 /api/ch-bank/account-username로 요청을 보내고 응답으로 사용자명 받기
   const handleConfirmTransfer = async () => {
     setLoading(true);
     try {
@@ -110,17 +109,16 @@ function TransferPage() {
         { headers: { AccountId: accountId as string } }
       );
 
-      setAccountUsername(response.data); // 사용자명 응답 저장
-      setIsModalOpen(true); // 모달 열기
+      setAccountUsername(response.data);
+      setIsModalOpen(true);
     } catch (error) {
       console.error('계좌 사용자명 요청 실패:', error);
-      alert('계좌 사용자명을 가져오지 못했습니다. 다시 확인해주세요.');
+      alert('계좌 정보가 없습니다. 다시 확인해주세요.');
     } finally {
       setLoading(false);
     }
   };
 
-  // 송금하기 버튼 클릭 시 /api/ch-bank/account-transfers로 요청
   const handleSubmit = async () => {
     setLoading(true);
     try {
