@@ -83,10 +83,9 @@ const TransactionSearch = ({ onSearch }: TransactionSearchProps) => {
           />
         </div>
 
-        {/* 검색 버튼을 회색 박스 옆에 배치 */}
         <button
           onClick={handleSearch}
-          className='ml-3 bg-[#00CCCC] text-white px-4 py-2 rounded-md w-auto whitespace-nowrap'
+          className='ml-2 bg-[#00CCCC] text-white px-4 py-2 rounded-md w-auto whitespace-nowrap'
         >
           검색
         </button>
