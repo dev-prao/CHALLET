@@ -8,6 +8,7 @@ interface KeypadProps {
   onComplete?: (pin: string) => void; // 인자를 받는 함수로 정의
   showMessage?: boolean;
   clearPin?: boolean; // 비밀번호 초기화 여부를 받는 prop
+  errorMessage?: string | null; // 에러 메시지 prop 추가
 }
 
 const Keypad = ({
@@ -16,6 +17,7 @@ const Keypad = ({
   onComplete,
   showMessage,
   clearPin, // 비밀번호 초기화 여부 받기
+  errorMessage, // 에러 메시지 받기
 }: KeypadProps) => {
   const [pin, setPin] = useState<string>('');
   const [shuffledKeys, setShuffledKeys] = useState<string[]>([]);
@@ -82,11 +84,22 @@ const Keypad = ({
             zIndex: 50,
             textAlign: 'center',
             display: 'flex',
+            flexDirection: 'column', // 수직 정렬을 위한 추가
             justifyContent: 'center',
             alignItems: 'center',
           }}
         >
-          <p className='text-xl font-bold text-gray-800'>결제 비밀번호</p>
+          <div className='text-center'>
+            {/* 간편비밀번호 안내 문구 */}
+            <p className='text-xl font-bold text-gray-800 mb-8'>
+              간편비밀번호를 입력해주세요
+            </p>
+
+            {/* 에러 메시지 영역 (항상 공간 차지) */}
+            <p className='text-red-500 text-lg min-h-[1.5rem]'>
+              {errorMessage ? errorMessage : ' '}
+            </p>
+          </div>
         </div>
       )}
 

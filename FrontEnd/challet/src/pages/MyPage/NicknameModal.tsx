@@ -14,7 +14,7 @@ const NicknameModal = ({ onNicknameChange, onClose }: NicknameModalProps) => {
 
   // 닉네임 유효성 검사 함수
   const isValidNickname = (nickname: string): boolean => {
-    const nicknamePattern = /^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,16}$/;
+    const nicknamePattern = /^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,12}$/;
     return nicknamePattern.test(nickname);
   };
 
@@ -27,7 +27,7 @@ const NicknameModal = ({ onNicknameChange, onClose }: NicknameModalProps) => {
       const filteredValue = inputValue.replace(/[^a-zA-Z0-9가-힣]/g, '');
 
       // 16자 이하로만 제한
-      if (filteredValue.length <= 16) {
+      if (filteredValue.length <= 12) {
         setNewNickname(filteredValue);
       }
     } else {
@@ -83,9 +83,9 @@ const NicknameModal = ({ onNicknameChange, onClose }: NicknameModalProps) => {
           onChange={handleInputChange}
           onCompositionStart={handleCompositionStart}
           onCompositionEnd={handleCompositionEnd}
-          placeholder='2~16자의 한글, 영어, 숫자 입력 가능'
+          placeholder='2~12자의 한글, 영어, 숫자 입력 가능'
           className='border border-gray-300 p-2 rounded-md w-full'
-          maxLength={16} // 최대 16자 입력 제한
+          maxLength={12} // 최대 16자 입력 제한
         />
 
         <div className='flex justify-center mt-4 space-x-4'>

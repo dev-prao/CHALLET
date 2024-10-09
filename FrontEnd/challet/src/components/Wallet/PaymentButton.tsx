@@ -7,9 +7,12 @@ import axiosInstance from '../../api/axiosInstance';
 
 const PaymentButton = () => {
   const [isKeypadVisible, setKeypadVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // 에러 메시지 상태 추가
+  const [clearPin, setClearPin] = useState(false); // 비밀번호 초기화 상태
   const navigate = useNavigate();
   const keypadRef = useRef<HTMLDivElement>(null);
 
+  // 키패드 외부를 클릭하면 키패드를 닫고 에러 메시지 초기화
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -17,6 +20,8 @@ const PaymentButton = () => {
         !keypadRef.current.contains(event.target as Node)
       ) {
         setKeypadVisible(false);
+        setErrorMessage(null); // 에러 메시지 초기화
+        setClearPin(false); // 비밀번호 초기화
       }
     };
 
@@ -31,6 +36,7 @@ const PaymentButton = () => {
 
   const handleCompletePin = async (pin: string) => {
     try {
+      setErrorMessage(null); // 에러 메시지 초기화
       const response = await axiosInstance.post(
         '/api/ch-bank/simple-password',
         { password: pin }
@@ -40,11 +46,19 @@ const PaymentButton = () => {
       }
     } catch (error) {
       if (error instanceof AxiosError && error.response?.status === 403) {
-        console.error('Incorrect password. Please try again.');
+        setErrorMessage('잘못된 비밀번호입니다.');
+        setClearPin(true); // 비밀번호 초기화 상태 설정
+
+        // 비밀번호 초기화 후 다시 false로 설정
+        setTimeout(() => setClearPin(false), 100); // 짧은 지연 후 다시 false로 설정
       } else {
-        console.error(
-          'An error occurred during password authentication. Please try again.'
+        setErrorMessage(
+          '비밀번호 인증 중 오류가 발생했습니다. 다시 시도해주세요.'
         );
+        setClearPin(true); // 비밀번호 초기화 상태 설정
+
+        // 비밀번호 초기화 후 다시 false로 설정
+        setTimeout(() => setClearPin(false), 100); // 짧은 지연 후 다시 false로 설정
       }
     }
   };
@@ -55,7 +69,10 @@ const PaymentButton = () => {
         src={PaymentButtonImage}
         alt='Payment Button'
         className='w-full h-auto cursor-pointer'
-        onClick={() => setKeypadVisible(true)}
+        onClick={() => {
+          setKeypadVisible(true);
+          setErrorMessage(''); // 에러 메시지 초기화
+        }}
         role='button'
         aria-label='결제하기'
       />
@@ -66,6 +83,8 @@ const PaymentButton = () => {
             maxLength={6}
             onComplete={handleCompletePin}
             showMessage={true}
+            clearPin={clearPin} // 비밀번호 초기화 여부 전달
+            errorMessage={errorMessage} // 에러 메시지 전달
           />
         </div>
       )}
