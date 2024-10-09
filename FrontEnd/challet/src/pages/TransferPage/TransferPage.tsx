@@ -270,7 +270,7 @@ function TransferPage() {
             onClick={handleConfirmTransfer}
             className={`w-full py-5 ${
               allChecked ? 'bg-[#00CCCC]' : 'bg-[#C8C8C8] cursor-not-allowed'
-            } text-white text-lg font-medium fixed bottom-0 left-0 right-0`}
+            } text-white text-lg font-medium fixed bottom-0 left-0 right-0 max-w-[640px] mx-auto`}
             disabled={!allChecked}
           >
             확인

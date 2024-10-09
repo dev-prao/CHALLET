@@ -118,40 +118,44 @@ const HistoryPage = () => {
   }, [loading, isLastPage]);
 
   return (
-    <div
-      ref={scrollContainerRef}
-      className='min-h-screen bg-white overflow-y-auto'
-    >
-      <TopBar title='거래 내역' />
-      <BalanceDisplay accountInfo={accountInfo} />
-      <TransactionSearch onSearch={handleSearchResults} />
+    <div className='flex justify-center'>
+      {' '}
+      {/* 전체 페이지를 중앙 정렬 */}
+      <div
+        ref={scrollContainerRef}
+        className='min-h-screen bg-white overflow-y-auto w-full max-w-[640px] mx-auto'
+      >
+        <TopBar title='거래 내역' />
+        <BalanceDisplay accountInfo={accountInfo} />
+        <TransactionSearch onSearch={handleSearchResults} />
 
-      {error && (
-        <div className='flex justify-center items-center py-4'>
-          <p className='text-red-500'>
-            거래 내역을 불러오는 데 문제가 발생했습니다.
-          </p>
-        </div>
-      )}
+        {error && (
+          <div className='flex justify-center items-center py-4'>
+            <p className='text-red-500'>
+              거래 내역을 불러오는 데 문제가 발생했습니다.
+            </p>
+          </div>
+        )}
 
-      {!error &&
-        (searchResults ? (
-          <TransactionList
-            transactionHistory={searchResults}
-            onTransactionClick={handleTransactionClick}
-          />
-        ) : (
-          <TransactionList
-            transactionHistory={transactionHistory}
-            onTransactionClick={handleTransactionClick}
-          />
-        ))}
+        {!error &&
+          (searchResults ? (
+            <TransactionList
+              transactionHistory={searchResults}
+              onTransactionClick={handleTransactionClick}
+            />
+          ) : (
+            <TransactionList
+              transactionHistory={transactionHistory}
+              onTransactionClick={handleTransactionClick}
+            />
+          ))}
 
-      {loading && page > 0 && (
-        <div className='flex justify-center items-center py-4'>
-          <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00CCCC]'></div>
-        </div>
-      )}
+        {loading && page > 0 && (
+          <div className='flex justify-center items-center py-4'>
+            <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00CCCC]'></div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
