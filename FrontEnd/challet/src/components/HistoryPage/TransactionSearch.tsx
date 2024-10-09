@@ -32,7 +32,7 @@ const TransactionSearch = ({ onSearch }: TransactionSearchProps) => {
       }>('/api/ch-bank/search', {
         params: {
           accountId: accountInfo.id,
-          deposit: searchTerm,
+          keyword: searchTerm,
         },
       });
 

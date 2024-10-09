@@ -21,7 +21,6 @@ const TransactionItem = ({ transaction, onClick }: TransactionItemProps) => {
     <div
       className='px-4 py-4 cursor-pointer'
       onClick={() => {
-        console.log('클릭된 transactionId:', transaction.id);
         onClick(transaction.id);
       }}
     >

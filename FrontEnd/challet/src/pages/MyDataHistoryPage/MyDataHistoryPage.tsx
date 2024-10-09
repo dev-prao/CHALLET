@@ -31,9 +31,8 @@ function MyDataHistoryPage() {
   const [initialBalance, setInitialBalance] = useState<number | null>(null); // 초기 계좌 잔액 상태
   const { bankShortName, accountNumber, accountId } = location.state || {}; // accountId 추가
 
-  // 페이지 로드 시 스크롤을 맨 위로 이동
   useEffect(() => {
-    window.scrollTo(0, 0); // 페이지 로드 시 스크롤을 맨 위로 이동
+    window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
