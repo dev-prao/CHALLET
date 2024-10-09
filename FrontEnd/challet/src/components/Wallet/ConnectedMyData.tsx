@@ -62,6 +62,7 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
         state: {
           bankShortName: bankDetails[bankKey].shortName,
           accountNumber: account.accountNumber,
+          accountId: account.id,
           transactionData: response.data,
         },
       });

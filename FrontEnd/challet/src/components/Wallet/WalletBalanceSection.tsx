@@ -97,7 +97,6 @@ const WalletBalanceSection = () => {
   }
 
   if (error || !accountInfo) {
-    // 에러가 발생했거나 계좌 정보가 없을 때
     return (
       <div className='w-full bg-white p-4 rounded-lg shadow-md mb-8'>
         <p className='text-xs font-bold mt-2 mb-4'>

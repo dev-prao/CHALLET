@@ -8,6 +8,7 @@ import shLogo from '../../assets/mydata/sh-logo.svg';
 
 interface Transaction {
   id: number;
+  transactionId?: string;
   transactionDate: string;
   deposit: string;
   withdrawal: string;
@@ -26,47 +27,74 @@ function MyDataHistoryPage() {
   const navigate = useNavigate();
   const [transactionData, setTransactionData] =
     useState<TransactionResponse | null>(null);
+  const [searchTerm, setSearchTerm] = useState(''); // 검색어 상태
+  const [initialBalance, setInitialBalance] = useState<number | null>(null); // 초기 계좌 잔액 상태
+  const { bankShortName, accountNumber, accountId } = location.state || {}; // accountId 추가
 
-  const { bankShortName, accountNumber } = location.state || {};
-
-  // 페이지 로드 시 최상단으로 스크롤 이동
+  // 페이지 로드 시 스크롤을 맨 위로 이동
   useEffect(() => {
-    window.scrollTo(0, 0); // 페이지가 렌더링되면 최상단으로 스크롤 이동
-  }, []); // 빈 배열을 사용하여 컴포넌트가 처음 렌더링될 때만 실행
+    window.scrollTo(0, 0); // 페이지 로드 시 스크롤을 맨 위로 이동
+  }, []);
 
   useEffect(() => {
     if (location.state?.transactionData) {
       setTransactionData(location.state.transactionData);
+      setInitialBalance(location.state.transactionData.accountBalance); // 초기 계좌 잔액 설정
     }
   }, [location.state]);
 
-  if (!transactionData) {
-    return (
-      <div className='flex justify-center items-center h-screen'>
-        <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00CCCC]'></div>
-      </div>
-    );
-  }
-
-  const bankEndpoints: Record<string, string> = {
-    국민: '/api/kb-bank/details',
-    농협: '/api/nh-bank/details',
-    신한: '/api/sh-bank/details',
+  const getSearchApiUrl = (bankShortName: string): string => {
+    switch (bankShortName) {
+      case '국민':
+        return '/api/kb-bank/search';
+      case '농협':
+        return '/api/nh-bank/search';
+      case '신한':
+        return '/api/sh-bank/search';
+      default:
+        throw new Error('지원하지 않는 은행입니다.');
+    }
   };
 
-  const bankLogos: Record<string, string> = {
-    국민: kbLogo,
-    농협: nhLogo,
-    신한: shLogo,
+  const handleSearch = async () => {
+    try {
+      const apiUrl = getSearchApiUrl(bankShortName);
+
+      const response = await axiosInstance.get(apiUrl, {
+        params: {
+          accountId,
+          keyword: searchTerm, // 검색어 전달
+        },
+      });
+
+      console.log('검색 응답 받음:', response.data); // 검색 API 응답 확인
+
+      // 'transactionId'를 'id'로 변환
+      const formattedTransactions = response.data.searchedTransactions.map(
+        (transaction: Transaction) => ({
+          ...transaction,
+          id: transaction.transactionId,
+        })
+      );
+
+      // 변환된 데이터로 상태 업데이트 (잔액은 유지)
+      setTransactionData({
+        ...response.data,
+        accountBalance: initialBalance,
+        transactionResponseDTO: formattedTransactions,
+      });
+    } catch (error) {
+      console.error('검색 중 오류 발생:', error);
+    }
+  };
+
+  // 검색 필드 변경 시 검색어 상태 업데이트
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
   };
 
   const handleTransactionClick = async (transactionId: number) => {
-    const apiUrl = bankEndpoints[bankShortName];
-    if (!apiUrl) {
-      console.error('유효하지 않은 은행 정보입니다.');
-      return;
-    }
-
+    const apiUrl = `/api/ch-bank/details`;
     try {
       const response = await axiosInstance.get(apiUrl, {
         headers: {
@@ -82,6 +110,20 @@ function MyDataHistoryPage() {
     } catch (error) {
       console.error('거래 내역을 가져오는 중 오류가 발생했습니다:', error);
     }
+  };
+
+  if (!transactionData) {
+    return (
+      <div className='flex justify-center items-center h-screen'>
+        <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00CCCC]'></div>
+      </div>
+    );
+  }
+
+  const bankLogos: Record<string, string> = {
+    국민: kbLogo,
+    농협: nhLogo,
+    신한: shLogo,
   };
 
   return (
@@ -109,9 +151,9 @@ function MyDataHistoryPage() {
 
       {/* 거래 내역 검색 필드 */}
       <div className='px-4 py-2'>
-        <div className='flex items-center bg-gray-100 rounded-md px-3 py-2'>
+        <div className='flex items-center bg-gray-100 rounded-md px-3 py-1'>
           <svg
-            className='w-5 h-5 text-gray-400 mr-2'
+            className='w-6 h-6 text-gray-400 mr-2'
             fill='none'
             stroke='currentColor'
             viewBox='0 0 24 24'
@@ -127,10 +169,15 @@ function MyDataHistoryPage() {
           <input
             type='text'
             placeholder='거래 내역 검색'
+            value={searchTerm}
+            onChange={handleInputChange}
             className='bg-transparent flex-1 focus:outline-none text-gray-500'
             maxLength={15}
           />
-          <button className='ml-2 bg-[#00CCCC] text-white px-3 py-2 rounded-md'>
+          <button
+            onClick={handleSearch}
+            className=' bg-[#00CCCC] text-white px-3 py-2 rounded-md'
+          >
             검색
           </button>
         </div>
