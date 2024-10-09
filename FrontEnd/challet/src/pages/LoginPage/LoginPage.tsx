@@ -213,7 +213,7 @@ const LoginPage = () => {
               {/* 비밀번호 오류 메시지 고정된 공간 */}
               <div className='min-h-[1.5rem] relative'>
                 <p
-                  className={`text-red-500 text-sm mt-2 absolute left-1/2 transform -translate-x-1/2 bottom-[30px] whitespace-nowrap ${
+                  className={`text-red-500 text-sm mt-2 absolute left-1/2 transform -translate-x-1/2 bottom-[10vh] whitespace-nowrap ${
                     passwordErrorMessage && password.length === 6
                       ? 'visible'
                       : 'invisible'
