@@ -1,0 +1,39 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: shbank-service
+  datasource:
+    url: jdbc:mysql://localhost:3311/shbank-api?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ssafy
+    password: ssafy
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+
+springdoc:
+  api-docs:
+    version: openapi_3_1
+    enabled: true
+    path: sh-bank-service/v3/api-docs
+    # 게이트웨이 라우팅에서 prefix를 제거하지 않았다면 해당 설정을 추가
+    # json으로 swagger를 변환시켜 주고 받기
+  enable-spring-security: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
