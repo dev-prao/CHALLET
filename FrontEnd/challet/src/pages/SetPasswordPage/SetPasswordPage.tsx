@@ -37,9 +37,6 @@ const SetPasswordPage = () => {
         name,
       };
 
-      // 회원가입 데이터와 비밀번호 콘솔 출력
-      console.log('회원가입 정보:', signUpData);
-
       try {
         // POST 요청을 통해 회원가입 및 비밀번호 설정
         const response: AxiosResponse = await axiosInstance.post(
@@ -57,9 +54,6 @@ const SetPasswordPage = () => {
             userId,
           });
 
-          console.log('Access Token:', accessToken, 'userId', userId);
-
-          // 로그인 후 메인 페이지로 이동
           // 회원가입 성공 모달 표시
           setShowModal(true);
         } else {
@@ -77,12 +71,13 @@ const SetPasswordPage = () => {
       }
     }
   }, [phoneNumber, password, nickname, age, gender, name, setAuthData]);
+
   // 비밀번호 상태가 업데이트될 때 6자리인지 확인하여 handleSubmit 호출
   useEffect(() => {
     if (password.length === 6) {
       handleSubmit(); // 6자리가 입력되면 자동으로 handleSubmit 호출
     }
-  }, [password, handleSubmit]); // 'handleSubmit'을 의존성 배열에 포함
+  }, [password, handleSubmit]);
 
   // 모달의 "확인" 버튼 클릭 시 메인 페이지로 이동
   const handleModalConfirm = () => {
@@ -110,4 +105,5 @@ const SetPasswordPage = () => {
     </div>
   );
 };
+
 export default SetPasswordPage;

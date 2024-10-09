@@ -27,41 +27,46 @@ const ChallengePage = () => {
   };
 
   return (
-    <div className=' flex flex-col items-center p-2'>
-      {/* 탭 버튼 */}
-      <div className='flex justify-center w-full mb-2 mt-4 h-'>
-        {['챌린지 찾기', '나의 챌린지'].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => handleTabClick(tab)}
-            className={`flex-grow w-full px-4 py-2 text-center bg-white ${
-              activeTab === tab
-                ? 'border-b-2 border-[#00CCCC]'
-                : 'border-b-2 border-inherit'
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+    <div className='flex flex-col items-center p-2'>
+      {/* max-width 640px 적용 */}
+      <div className='w-full max-w-xl'>
+        {' '}
+        {/* 이 줄을 추가 */}
+        {/* 탭 버튼 */}
+        <div className='flex justify-center w-full mb-2 mt-4'>
+          {['챌린지 찾기', '나의 챌린지'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => handleTabClick(tab)}
+              className={`flex-grow w-full px-4 py-2 text-center bg-white ${
+                activeTab === tab
+                  ? 'border-b-2 border-[#00CCCC]'
+                  : 'border-b-2 border-inherit'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+        {/* 카테고리 리스트는 항상 표시 */}
+        <div className='w-full'>
+          {activeTab === '챌린지 찾기' && (
+            <CategoryList
+              activeCategory={category}
+              onCategoryChange={handleCategoryChange}
+              onSearch={handleSearch}
+            />
+          )}
 
-      {/* 카테고리 리스트는 항상 표시 */}
-      <div className='w-full'>
-        {activeTab === '챌린지 찾기' && (
-          <CategoryList
-            activeCategory={category}
-            onCategoryChange={handleCategoryChange}
-            onSearch={handleSearch}
+          {/* 챌린지 폼은 로딩 상태에 따라 로딩 애니메이션을 표시 */}
+          <ChallengeForm
+            keyword={keyword}
+            category={category}
+            activeTab={activeTab}
           />
-        )}
-
-        {/* 챌린지 폼은 로딩 상태에 따라 로딩 애니메이션을 표시 */}
-        <ChallengeForm
-          keyword={keyword}
-          category={category}
-          activeTab={activeTab}
-        />
-      </div>
+        </div>
+      </div>{' '}
+      {/* max-width 적용 마무리 */}
     </div>
   );
 };

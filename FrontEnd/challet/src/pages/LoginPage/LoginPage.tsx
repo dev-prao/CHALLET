@@ -19,6 +19,9 @@ const LoginPage = () => {
   const [passwordErrorMessage, setPasswordErrorMessage] = useState(''); // 비밀번호 에러 메시지
   const [isCheckingPhoneNumber, setIsCheckingPhoneNumber] = useState(false);
 
+  // 비밀번호를 초기화하는 상태 추가
+  const [clearPin, setClearPin] = useState(false); // 비밀번호를 지우는 플래그
+
   const formatPhoneNumber = (value: string) => {
     const onlyNumbers = value.replace(/\D/g, '');
     if (onlyNumbers.length <= 3) return onlyNumbers;
@@ -84,6 +87,7 @@ const LoginPage = () => {
         // 서버의 응답 상태 코드가 401일 경우 비밀번호 오류 메시지 표시
         if (error.response && error.response.status === 401) {
           setPasswordErrorMessage('비밀번호가 일치하지 않습니다.');
+          setClearPin(true); // 비밀번호가 틀리면 비밀번호 입력란 지우기 플래그 설정
         } else if (
           error.response &&
           error.response.data &&
@@ -115,6 +119,7 @@ const LoginPage = () => {
   // 비밀번호 입력 시 에러 메시지 초기화
   const handlePinChange = (pin: string) => {
     setPassword(pin);
+    setClearPin(false); // 비밀번호가 다시 입력되면 플래그 해제
     if (passwordErrorMessage) {
       setPasswordErrorMessage(''); // 비밀번호를 다시 입력하면 에러 메시지 초기화
     }
@@ -230,7 +235,11 @@ const LoginPage = () => {
 
               {/* 키패드를 화면 하단에 고정 */}
               <div className='fixed bottom-0 w-full z-10'>
-                <Keypad onPinChange={handlePinChange} maxLength={6} />
+                <Keypad
+                  onPinChange={handlePinChange}
+                  maxLength={6}
+                  clearPin={clearPin}
+                />
               </div>
             </div>
           )}

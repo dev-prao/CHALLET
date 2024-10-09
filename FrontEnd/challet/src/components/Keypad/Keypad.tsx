@@ -7,6 +7,7 @@ interface KeypadProps {
   maxLength?: number;
   onComplete?: (pin: string) => void; // 인자를 받는 함수로 정의
   showMessage?: boolean;
+  clearPin?: boolean; // 비밀번호 초기화 여부를 받는 prop
 }
 
 const Keypad = ({
@@ -14,6 +15,7 @@ const Keypad = ({
   maxLength = 6,
   onComplete,
   showMessage,
+  clearPin, // 비밀번호 초기화 여부 받기
 }: KeypadProps) => {
   const [pin, setPin] = useState<string>('');
   const [shuffledKeys, setShuffledKeys] = useState<string[]>([]);
@@ -55,6 +57,13 @@ const Keypad = ({
     onPinChange('');
   }, [onPinChange]);
 
+  // clearPin이 true일 때 비밀번호 초기화
+  useEffect(() => {
+    if (clearPin) {
+      setPin(''); // 비밀번호 지우기
+    }
+  }, [clearPin]);
+
   return (
     <div className='keypad-wrapper'>
       {/* 안내 메시지 고정된 위치에 표시 */}
@@ -63,18 +72,18 @@ const Keypad = ({
           className='fixed-message'
           style={{
             position: 'fixed',
-            top: '20%', // 화면 상단에서 20% 위치
-            left: '50%', // 화면의 가운데 위치
-            transform: 'translateX(-50%)', // 수평 중앙 정렬
-            width: '100%', // 너비를 100%로 설정
-            height: '20%', // 높이를 20%로 설정 (필요에 맞게 조정 가능)
-            backgroundColor: 'white', // 배경색 설정 (필요에 따라)
-            padding: '10px', // 메시지 패딩
-            zIndex: 50, // 다른 요소보다 위에 위치하도록 설정
-            textAlign: 'center', // 텍스트를 중앙 정렬
-            display: 'flex', // 플렉스 박스를 사용하여 가운데 정렬
-            justifyContent: 'center', // 수평 가운데 정렬
-            alignItems: 'center', // 수직 가운데 정렬
+            top: '20%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '100%',
+            height: '20%',
+            backgroundColor: 'white',
+            padding: '10px',
+            zIndex: 50,
+            textAlign: 'center',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
           <p className='text-xl font-bold text-gray-800'>결제 비밀번호</p>
@@ -83,7 +92,6 @@ const Keypad = ({
 
       {/* 전체를 감싸는 div */}
       <div className='keypad-container'>
-        {/* 키패드 컨테이너를 담는 div */}
         {/* 비밀번호 표시 영역 */}
         <div className='pin-display-container'>
           {[...Array(maxLength)].map((_, i) => (

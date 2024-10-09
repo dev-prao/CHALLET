@@ -168,7 +168,7 @@ const SignUpPage = () => {
           <div className='flex items-center justify-between w-full'>
             {/* 주민번호 앞자리 입력 */}
             <input
-              type='text'
+              type='tel'
               value={idNumberFront}
               onInput={(e) => {
                 const input = e.currentTarget.value
@@ -193,7 +193,7 @@ const SignUpPage = () => {
             {/* 주민등록번호 뒷자리 첫 숫자 입력 */}
             <div className='relative w-1/2 flex items-center'>
               <input
-                type='text'
+                type='tel'
                 value={idNumberBackFirst}
                 onInput={
                   (e) =>
