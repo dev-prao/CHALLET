@@ -85,14 +85,14 @@ const WalletPage = () => {
         <PaymentButton />
       </div>
 
-      <div className='w-full max-w-[640px] mx-auto'>
+      <div className='w-full max-w-[640px] mx-auto flex justify-center'>
         {' '}
         {/* Balance 섹션에도 max-width 적용 */}
         <WalletBalanceSection />
       </div>
 
       {/* MyData 섹션 렌더링 */}
-      <div className='w-full max-w-[640px] mx-auto'>
+      <div className='w-full max-w-[640px] mx-auto flex justify-center'>
         {' '}
         {/* MyData 섹션에도 max-width 적용 */}
         {renderMyDataSection()}
