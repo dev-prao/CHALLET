@@ -54,7 +54,7 @@ const ChallengeCreatePage = () => {
 
   // 사용자가 입력한 값을 숫자로 변환하고 세 자리마다 콤마와 "원"을 붙여 표시
   const handleSpendingLimitChange = (e: ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/[^0-9]/g, ''); // 숫자가 아닌 것은 제거
+    const value = e.target.value.replace(/[^0-9]/g, ''); // 숫자가 아닌 것은 제거
     if (value !== '') {
       const numericValue = Number(value);
       if (numericValue >= 0 && numericValue <= 100000000) {
@@ -181,6 +181,7 @@ const ChallengeCreatePage = () => {
               onChange={handleSpendingLimitChange}
               className='w-[85vw] px-2 py-3 rounded-lg text-gray-500 bg-[#F1F4F6] focus:outline-none focus:ring-2 focus:ring-[#00CCCC] mb-2'
               placeholder='지출 한도 0 ~ 100,000,000원'
+              inputMode='numeric' // 숫자 키패드를 띄우도록 설정
             />
           </div>
 
@@ -203,6 +204,7 @@ const ChallengeCreatePage = () => {
               dateFormat='yyyy년 MM월 dd일'
               placeholderText='시작 날짜 ~ 종료 날짜'
               className='w-[85vw] px-2 py-3 rounded-lg text-gray-500 bg-[#F1F4F6] focus:outline-none focus:ring-2 focus:ring-[#00CCCC]'
+              readOnly // 텍스트 입력을 비활성화하여 키보드가 올라오지 않게 함
             />
           </div>
 
