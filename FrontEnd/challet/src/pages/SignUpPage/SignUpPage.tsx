@@ -145,12 +145,23 @@ const SignUpPage = () => {
   // };
 
   ////// 아이폰 수정 버전 /////////
+  // iOS 기기 감지 함수
+  const isIOS = () => {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  };
+
   // 입력 핸들러
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 조합 중이 아닐 때만 값 업데이트
+    const value = e.target.value;
+
     if (!isComposing) {
-      const value = e.target.value;
-      setName(value.replace(/[^가-힣\s]/g, '')); // 유효성 검사를 통한 값 업데이트
+      if (!isIOS()) {
+        // iOS가 아닌 경우 유효성 검사 적용
+        setName(value.replace(/[^가-힣\s]/g, ''));
+      } else {
+        // iOS에서는 유효성 검사 없이 값 반영
+        setName(value);
+      }
     }
   };
 
@@ -159,11 +170,10 @@ const SignUpPage = () => {
     setIsComposing(true);
   };
 
-  // 한글 조합 중 업데이트 (이벤트 추가)
+  // 한글 조합 중 업데이트
   const handleCompositionUpdate = (
     e: React.CompositionEvent<HTMLInputElement>
   ) => {
-    // 조합 중에는 입력된 값 그대로 유지
     setName(e.currentTarget.value);
   };
 
@@ -173,9 +183,15 @@ const SignUpPage = () => {
   ) => {
     setIsComposing(false);
 
-    // 조합이 끝난 후에만 유효성 검사를 통한 값 업데이트
     const value = e.currentTarget.value;
-    setName(value.replace(/[^가-힣\s]/g, '')); // 유효성 검사 후 최종값 반영
+
+    if (!isIOS()) {
+      // iOS가 아닌 경우 유효성 검사 적용
+      setName(value.replace(/[^가-힣\s]/g, ''));
+    } else {
+      // iOS에서는 그대로 값 반영
+      setName(value);
+    }
   };
 
   {
