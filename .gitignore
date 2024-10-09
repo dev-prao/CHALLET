@@ -2,7 +2,7 @@ HELP.md
 **/.gradle
 **/build/
 !gradle/wrapper/gradle-wrapper.jar
-**/application*
+application-key.yml
 .gitlab/
 
 ### STS ###
@@ -46,7 +46,6 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-.env
 dev-dist
 node_modules
 dist
