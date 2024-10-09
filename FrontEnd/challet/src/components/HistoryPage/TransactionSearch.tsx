@@ -77,12 +77,12 @@ const TransactionSearch = ({ onSearch }: TransactionSearchProps) => {
           placeholder='거래 내역 검색'
           value={searchTerm}
           onChange={handleInputChange}
-          className='bg-transparent flex-1 focus:outline-none text-gray-500'
+          className='bg-transparent flex-grow focus:outline-none text-gray-500'
           maxLength={15}
         />
         <button
           onClick={handleSearch}
-          className='bg-[#00CCCC] text-white px-3 py-2 rounded-md w-auto whitespace-nowrap'
+          className='bg-[#00CCCC] text-white px-3 py-2 rounded-md w-auto whitespace-nowrap flex-shrink-0'
         >
           검색
         </button>
