@@ -118,22 +118,22 @@ const SignUpPage = () => {
     navigate('/set-password');
   };
 
-  // 이름 입력 핸들러
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 한글 조합이 끝나면 유효성 검사를 진행
-    if (!isComposing) {
-      const value = e.target.value;
-      setName(value.replace(/[^가-힣\s]/g, '')); // 완성형 한글과 공백만 허용
-    } else {
-      // 조합 중일 때도 입력된 값 반영
-      setName(e.target.value);
-    }
-  };
+  // // 이름 입력 핸들러
+  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   // 한글 조합이 끝나면 유효성 검사를 진행
+  //   if (!isComposing) {
+  //     const value = e.target.value;
+  //     setName(value.replace(/[^가-힣\s]/g, '')); // 완성형 한글과 공백만 허용
+  //   } else {
+  //     // 조합 중일 때도 입력된 값 반영
+  //     setName(e.target.value);
+  //   }
+  // };
 
-  // 한글 조합 시작
-  const handleCompositionStart = () => {
-    setIsComposing(true);
-  };
+  // // 한글 조합 시작
+  // const handleCompositionStart = () => {
+  //   setIsComposing(true);
+  // };
 
   // // 한글 조합 완료
   // const handleCompositionEnd = (
@@ -144,18 +144,48 @@ const SignUpPage = () => {
   //   setName(value.replace(/[^가-힣a-zA-Z\s]/g, '')); // 유효성 검사 후 최종값 반영
   // };
 
-  // 한글 조합 완료 (유효성 검사 추가)
+  ////// 아이폰 수정 버전 /////////
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    // 조합 중이 아니면 유효성 검사를 진행
+    if (!isComposing) {
+      setName(value.replace(/[^가-힣\s]/g, '')); // 완성형 한글과 공백만 허용
+    }
+  };
+
+  // 한글 조합 시작
+  const handleCompositionStart = () => {
+    setIsComposing(true);
+  };
+
+  // 한글 조합 완료
   const handleCompositionEnd = (
     e: React.CompositionEvent<HTMLInputElement>
   ) => {
     setIsComposing(false);
 
-    // 약간의 지연 후 유효성 검사 실행 (iOS Safari에서 조합이 끝난 후 이벤트 처리 문제 방지)
-    setTimeout(() => {
-      const value = e.currentTarget.value;
-      setName(value.replace(/[^가-힣\s]/g, '')); // 한글과 공백만 허용
-    }, 0); // 0ms 지연을 두어 Safari의 이벤트 처리 순서 문제 해결
+    // 조합이 끝났을 때 최종 값 업데이트
+    const value = e.currentTarget.value;
+    setName(value.replace(/[^가-힣\s]/g, '')); // 유효성 검사 후 최종값 반영
   };
+
+  {
+    /* 이름 입력 필드 */
+  }
+  <div className='mb-6 mt-20'>
+    <input
+      type='text'
+      value={name}
+      onChange={handleInputChange}
+      onCompositionStart={handleCompositionStart} // 한글 조합 시작
+      onCompositionEnd={handleCompositionEnd} // 한글 조합 완료
+      placeholder='이름'
+      required
+      lang='ko'
+      className='border border-gray-300 rounded-md py-2 px-3 w-full focus:outline-none focus:ring-2 focus:ring-[#00cccc]'
+    />
+  </div>;
 
   return (
     <div className='min-h-screen flex flex-col justify-between px-6'>

@@ -68,6 +68,7 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
           accountNumber: account.accountNumber,
           accountId: account.id,
           transactionData: response.data,
+          accountBalance: account.accountBalance,
         },
       });
     } catch (error) {
