@@ -2,6 +2,8 @@ import Delivery from '../../assets/Challenge/Motorcycle_Delivery.png';
 import Coffee from '../../assets/Challenge/Coffee.png';
 import Shopping from '../../assets/Challenge/Shopping.png';
 import Transport from '../../assets/Challenge/Car.png';
+import CheckIcon4 from '../../../src/assets/mypage/Check4.png'; // 성공 아이콘
+import CrossIcon from '../../../src/assets/mypage/Cross.png'; // 실패 아이콘
 
 interface RewardItemProps {
   reward: {
@@ -38,12 +40,13 @@ const RewardItem = ({ reward, onClick }: RewardItemProps) => {
 
   return (
     <div
-      className='flex flex-col items-center'
+      className='relative flex flex-col items-center overflow-visible'
       onClick={() => onClick(reward.rewardId)}
     >
       <div
-        className={`w-24 h-24 rounded-full overflow-hidden mb-2 ${randomBackgroundColor} flex items-center justify-center`}
+        className={`relative w-24 h-24 rounded-full overflow-visible mb-2 ${randomBackgroundColor} flex items-center justify-center`}
       >
+        {/* 리워드 카테고리 이미지 */}
         {thumbnail && (
           <img
             src={thumbnail}
@@ -51,7 +54,18 @@ const RewardItem = ({ reward, onClick }: RewardItemProps) => {
             className='w-16 h-16 object-contain'
           />
         )}
+
+        {/* 성공 여부 아이콘 */}
+        <div className='absolute top-[-10px] right-[-10px] z-20'>
+          {reward.type ? (
+            <img src={CheckIcon4} alt='Success' className='w-12 h-12' />
+          ) : (
+            <img src={CrossIcon} alt='Failure' className='w-12 h-12' />
+          )}
+        </div>
       </div>
+
+      {/* 리워드 제목 */}
       <p className='text-center text-xs font-medium text-gray-800 w-full px-1 truncate'>
         {reward.title}
       </p>
