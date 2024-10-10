@@ -147,8 +147,8 @@ const TransactionListItem = ({
                     }}
                   >
                     {transaction.deposit}
-                    <span className='ml-2'>
-                      {transaction.transactionAmount.toLocaleString()}원
+                    <span className='ml-1'>
+                      | {transaction.transactionAmount.toLocaleString()}원
                     </span>
                   </div>
                   <FontAwesomeIcon

@@ -226,61 +226,69 @@ const CalendarSpendingPage: React.FC = () => {
   const renderTransactions = useMemo(() => {
     if (!selectedDate) return null;
 
-    return transactions
-      .filter((transaction) =>
-        isSameDay(new Date(transaction.transactionDate), selectedDate)
-      )
-      .map((transaction, index, filteredTransactions) => {
-        const isIncome = transaction.transactionAmount > 0;
-        const transactionAmount = Math.abs(
-          transaction.transactionAmount
-        ).toLocaleString();
-        const amountPrefix = isIncome ? '+' : '-';
-        const isLastItem = index === filteredTransactions.length - 1;
+    const filteredTransactions = transactions.filter((transaction) =>
+      isSameDay(new Date(transaction.transactionDate), selectedDate)
+    );
 
-        return (
-          <div
-            key={
-              transaction.id
-                ? `transaction-${transaction.id}`
-                : `transaction-${index}`
-            }
-            className={`flex items-center justify-between py-2 ${isLastItem ? '' : 'border-b'}`}
-            onClick={() => handleTransactionClick(transaction)}
-          >
-            <div className='flex items-center space-x-2'>
-              <div
-                className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center mr-3 ${getCategoryColor(transaction.category)}`}
-              >
-                <img
-                  src={getCategoryIcon(transaction.category)}
-                  alt={transaction.category}
-                  className='w-6 h-6'
-                />
-              </div>
-              <div className='flex flex-col w-full max-w-xs'>
-                <div className='text-lg font-bold text-left'>
-                  {amountPrefix}
-                  {transactionAmount}원
-                </div>
-                <div className='text-sm text-gray-500 break-words text-left'>
-                  {isIncome ? transaction.withdrawal : transaction.deposit}
-                </div>
-              </div>
+    if (filteredTransactions.length === 0) {
+      return (
+        <div
+          className='text-center py-4'
+          style={{ color: '#9095A1', fontSize: '18px' }}
+        >
+          지출 내역이 없습니다
+        </div>
+      );
+    }
+
+    return filteredTransactions.map((transaction, index) => {
+      const isIncome = transaction.transactionAmount > 0;
+      const transactionAmount = Math.abs(
+        transaction.transactionAmount
+      ).toLocaleString();
+      const amountPrefix = isIncome ? '+' : '-';
+      const isLastItem = index === filteredTransactions.length - 1;
+
+      return (
+        <div
+          key={
+            transaction.id
+              ? `transaction-${transaction.id}`
+              : `transaction-${index}`
+          }
+          className={`flex items-center justify-between py-2 ${isLastItem ? '' : 'border-b'}`}
+          onClick={() => handleTransactionClick(transaction)}
+        >
+          <div className='flex items-center space-x-2'>
+            <div
+              className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center mr-3 ${getCategoryColor(transaction.category)}`}
+            >
+              <img
+                src={getCategoryIcon(transaction.category)}
+                alt={transaction.category}
+                className='w-6 h-6'
+              />
             </div>
-            <div className='text-sm text-gray-500 w-16 text-right whitespace-nowrap'>
-              {new Date(transaction.transactionDate).toLocaleTimeString(
-                'ko-KR',
-                {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true,
-                }
-              )}
+            <div className='flex flex-col w-full max-w-xs'>
+              <div className='text-lg font-bold text-left'>
+                {amountPrefix}
+                {transactionAmount}원
+              </div>
+              <div className='text-sm text-gray-500 break-words text-left'>
+                {isIncome ? transaction.withdrawal : transaction.deposit}
+              </div>
             </div>
           </div>
-        );
-      });
+          <div className='text-sm text-gray-500 w-16 text-right whitespace-nowrap'>
+            {new Date(transaction.transactionDate).toLocaleTimeString('ko-KR', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true,
+            })}
+          </div>
+        </div>
+      );
+    });
   }, [
     getCategoryColor,
     getCategoryIcon,

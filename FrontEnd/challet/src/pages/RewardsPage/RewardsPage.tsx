@@ -26,8 +26,8 @@ const RewardPage = () => {
       <div className='reward-list grid grid-cols-3 gap-4 mt-20 w-full max-w-[640px] mx-auto'>
         {/* 리워드가 없을 때 메시지 출력 */}
         {rewards.length === 0 ? (
-          <p className='col-span-3 text-center text-[#00cccc]'>
-            받은 리워드가 없습니다!
+          <p className='col-span-3 text-center text-[#9095A1]'>
+            받은 리워드가 없습니다
           </p>
         ) : (
           rewards.map((reward) => (
