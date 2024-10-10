@@ -123,7 +123,7 @@ const SignUpPage = () => {
     // 한글 조합이 끝나면 유효성 검사를 진행
     if (!isComposing) {
       const value = e.target.value;
-      setName(value.replace(/[^가-힣\s]/g, '')); // 완성형 한글과 공백만 허용
+      setName(value.replace(/[^가-힣a-zA-Z\s]/g, '')); // 완성형 한글과 공백만 허용
     } else {
       // 조합 중일 때도 입력된 값 반영
       setName(e.target.value);
