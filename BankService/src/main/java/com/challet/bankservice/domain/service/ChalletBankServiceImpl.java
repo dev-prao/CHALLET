@@ -1,9 +1,16 @@
 package com.challet.bankservice.domain.service;
 
+import com.challet.bankservice.domain.dto.redis.MonthlyTransactionRedisListDTO;
+import com.challet.bankservice.domain.dto.response.MonthlyTransactionHistoryDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,6 +82,9 @@ public class ChalletBankServiceImpl implements ChalletBankService {
 	private final NhBankFeignClient nhBankFeignClient;
 	private final ShBankFeignClient shBankFeignClient;
 	private final ChalletFeignClient challetFeignClient;
+	private final RedisTemplate<String, MonthlyTransactionRedisListDTO> redisTemplate;
+	private final ObjectMapper objectMapper; 
+
 
 	@Override
 	public void createAccount(String name, String phoneNumber) {
@@ -265,23 +276,17 @@ public class ChalletBankServiceImpl implements ChalletBankService {
 
 	@Transactional
 	@Override
-	public PaymentResponseDTO confirmPaymentInfo(Long accountId,
-		ConfirmPaymentRequestDTO paymentRequestDTO) {
+	public PaymentResponseDTO confirmPaymentInfo(Long accountId, ConfirmPaymentRequestDTO paymentRequestDTO) {
 
-		ChalletBankTransaction transaction = challetBankTransactionRepository.findById(
-				paymentRequestDTO.id())
-			.orElseThrow(() -> new ExceptionResponse(
-				CustomException.NOT_FOUND_TRANSACTION_DETAIL_EXCEPTION));
+		ChalletBankTransaction transaction = challetBankTransactionRepository.findById(paymentRequestDTO.id())
+			.orElseThrow(() -> new ExceptionResponse(CustomException.NOT_FOUND_TRANSACTION_DETAIL_EXCEPTION));
 
 		if (!transaction.getCategory().equals(paymentRequestDTO.category())) {
-			CategoryT categoryInfo = categoryRepository.getCategoryInfo(accountId,
-				paymentRequestDTO.category());
-			long notFindSameCategory = categoryMappingRepository.updateCategory(accountId,
-				categoryInfo.getId(), paymentRequestDTO);
+			CategoryT categoryInfo = categoryRepository.getCategoryInfo(accountId, paymentRequestDTO.category());
+			long notFindSameCategory = categoryMappingRepository.updateCategory(accountId, categoryInfo.getId(), paymentRequestDTO);
 
 			if (notFindSameCategory == 0) {
-				CategoryMapping newPayment = CategoryMapping
-					.builder()
+				CategoryMapping newPayment = CategoryMapping.builder()
 					.depositName(paymentRequestDTO.deposit())
 					.categoryT(categoryInfo)
 					.challetBank(transaction.getChalletBank())
@@ -290,7 +295,54 @@ public class ChalletBankServiceImpl implements ChalletBankService {
 			}
 			transaction.updateCategory(paymentRequestDTO.category());
 		}
+
+		// 3. Redis 키 생성
+		String redisKey = createRedisKey(transaction.getTransactionDatetime().getYear(),
+			transaction.getTransactionDatetime().getMonth().getValue(), transaction.getChalletBank().getPhoneNumber());
+
+		// 4. Redis에서 데이터를 조회
+		Object cachedData = redisTemplate.opsForValue().get(redisKey);
+		MonthlyTransactionRedisListDTO transactionData = null;
+
+		// 5. Redis 데이터가 있으면 업데이트, 없으면 DB에만 저장
+		if (cachedData != null && cachedData instanceof LinkedHashMap) {
+			transactionData = objectMapper.convertValue(cachedData, MonthlyTransactionRedisListDTO.class);
+		} else if (cachedData instanceof MonthlyTransactionRedisListDTO) {
+			transactionData = (MonthlyTransactionRedisListDTO) cachedData;
+		}
+
+		// 새 트랜잭션 데이터 생성
+		MonthlyTransactionHistoryDTO newTransaction = MonthlyTransactionHistoryDTO.builder()
+			.bankName(transaction.getChalletBank().getName())
+			.accountNumber(transaction.getChalletBank().getAccountNumber())
+			.balance(transaction.getChalletBank().getAccountBalance())
+			.transactionDate(transaction.getTransactionDatetime())
+			.deposit(transaction.getDeposit())
+			.withdrawal(transaction.getWithdrawal())
+			.transactionBalance(transaction.getTransactionBalance())
+			.transactionAmount(transaction.getTransactionAmount())
+			.category(transaction.getCategory())
+			.build();
+
+		if (transactionData != null) {
+			// Redis에 데이터가 있으면 업데이트
+			List<MonthlyTransactionHistoryDTO> transactions = transactionData.getMonthlyTransactions();
+			transactions.add(0, newTransaction);
+			redisTemplate.opsForValue().set(redisKey, transactionData);
+			System.out.println("================================");
+			System.out.println("Redis에 업데이트 완료");
+			System.out.println("===============================");
+		}
+
+		// 6. 데이터베이스에 저장
+		challetBankTransactionRepository.save(transaction); // 트랜잭션 저장
+
 		return PaymentResponseDTO.fromPaymentResponseDTO(transaction);
+	}
+
+
+	private String createRedisKey(int year, int month, String phoneNumber) {
+		return year + "-" + month + "-" + phoneNumber;
 	}
 
 	@Transactional
