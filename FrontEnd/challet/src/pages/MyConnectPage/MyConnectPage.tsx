@@ -124,116 +124,118 @@ const MyDataSelectPage = () => {
   }
 
   return (
-    <div className='min-h-screen bg-white'>
-      <TopBar title='' />
-      <div className='mt-20 p-4 text-left'>
-        <h2 className='text-xl text-[#373A3F]'>
-          {renderTitle()}
-          <br />
-          <span className='font-bold'>{renderSubtitle()}</span>
-        </h2>
-        <p className='text-sm text-[#373A3F] mt-2 mb-24'>
-          {renderDescription()}
-        </p>
+    <div className='min-h-screen bg-white flex flex-col items-center'>
+      <div className='w-full max-w-[640px]'>
+        <TopBar title='' />
+        <div className='mt-20 p-4 text-left'>
+          <h2 className='text-xl text-[#373A3F]'>
+            {renderTitle()}
+            <br />
+            <span className='font-bold'>{renderSubtitle()}</span>
+          </h2>
+          <p className='text-sm text-[#373A3F] mt-2 mb-24'>
+            {renderDescription()}
+          </p>
 
-        {connectionComplete && bankResponse ? (
-          <div className='space-y-4 mb-40'>
-            {bankDetails
-              .filter(
-                ({ key }) =>
-                  bankResponse[`${key}Banks` as keyof BankResponse] !== null
-              )
-              .map(({ key, name, noAccountLogo, logo }) => {
-                const bankInfo =
-                  bankResponse[`${key}Banks` as keyof BankResponse];
+          {connectionComplete && bankResponse ? (
+            <div className='space-y-4 mb-40'>
+              {bankDetails
+                .filter(
+                  ({ key }) =>
+                    bankResponse[`${key}Banks` as keyof BankResponse] !== null
+                )
+                .map(({ key, name, noAccountLogo, logo }) => {
+                  const bankInfo =
+                    bankResponse[`${key}Banks` as keyof BankResponse];
 
-                return (
-                  <div
-                    key={key}
-                    className='flex items-center p-4 shadow-md bg-white rounded-lg'
-                  >
-                    <div className='flex items-center'>
-                      <img
-                        src={
-                          bankInfo && bankInfo.accountCount > 0
-                            ? logo
-                            : noAccountLogo
-                        }
-                        alt={`${name} 로고`}
-                        className='w-9 h-9 mr-4'
-                      />
+                  return (
+                    <div
+                      key={key}
+                      className='flex items-center p-4 shadow-md bg-white rounded-lg'
+                    >
+                      <div className='flex items-center'>
+                        <img
+                          src={
+                            bankInfo && bankInfo.accountCount > 0
+                              ? logo
+                              : noAccountLogo
+                          }
+                          alt={`${name} 로고`}
+                          className='w-9 h-9 mr-4'
+                        />
+                      </div>
+                      <div>
+                        {bankInfo && bankInfo.accountCount > 0 ? (
+                          <>
+                            {bankInfo.accounts.map((account) => (
+                              <div key={account.id}>
+                                <p className='text-sm text-[#6C6C6C]'>
+                                  {name.slice(0, 2)} {account.accountNumber}
+                                </p>
+                                <p className='text-lg font-semibold text-[#373A3F]'>
+                                  {account.accountBalance.toLocaleString()}원
+                                </p>
+                              </div>
+                            ))}
+                          </>
+                        ) : (
+                          <p className='text-medium font-semibold text-[#373A3F]'>
+                            {name} 연결할 계좌가 없습니다.
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      {bankInfo && bankInfo.accountCount > 0 ? (
-                        <>
-                          {bankInfo.accounts.map((account) => (
-                            <div key={account.id}>
-                              <p className='text-sm text-[#6C6C6C]'>
-                                {name.slice(0, 2)} {account.accountNumber}
-                              </p>
-                              <p className='text-lg font-semibold text-[#373A3F]'>
-                                {account.accountBalance.toLocaleString()}원
-                              </p>
-                            </div>
-                          ))}
-                        </>
-                      ) : (
-                        <p className='text-medium font-semibold text-[#373A3F]'>
-                          {name} 연결할 계좌가 없습니다.
-                        </p>
-                      )}
-                    </div>
+                  );
+                })}
+            </div>
+          ) : (
+            <div className='mt-8 space-y-4'>
+              {bankDetails.map(({ key, name, logo }) => (
+                <div
+                  key={key}
+                  className='p-6 flex justify-between items-center bg-gray-100 rounded-lg cursor-pointer'
+                  onClick={() => handleBankSelect(key)}
+                >
+                  <div className='flex items-center'>
+                    <img src={logo} alt={name} className='w-10 h-10 mr-3' />
+                    <span className='text-[#585962] font-medium text-base'>
+                      {name}
+                    </span>
                   </div>
-                );
-              })}
-          </div>
-        ) : (
-          <div className='mt-8 space-y-4'>
-            {bankDetails.map(({ key, name, logo }) => (
-              <div
-                key={key}
-                className='p-6 flex justify-between items-center bg-gray-100 rounded-lg cursor-pointer'
-                onClick={() => handleBankSelect(key)}
-              >
-                <div className='flex items-center'>
-                  <img src={logo} alt={name} className='w-10 h-10 mr-3' />
-                  <span className='text-[#585962] font-medium text-base'>
-                    {name}
+                  <span
+                    className={`w-7 h-7 flex justify-center items-center ${
+                      selectedBanks[key] ? 'bg-[#00CCCC]' : 'bg-[#C8C8C8]'
+                    } text-white rounded-full`}
+                  >
+                    ✔
                   </span>
                 </div>
-                <span
-                  className={`w-7 h-7 flex justify-center items-center ${
-                    selectedBanks[key] ? 'bg-[#00CCCC]' : 'bg-[#C8C8C8]'
-                  } text-white rounded-full`}
-                >
-                  ✔
-                </span>
-              </div>
-            ))}
-            <p className='text-sm font-semibold text-[#373A3F] ml-2 mt-4'>
-              체크 해제시 마이데이터 연결이 끊어집니다.
-            </p>
-          </div>
-        )}
-      </div>
+              ))}
+              <p className='text-sm font-semibold text-[#373A3F] ml-2 mt-4'>
+                체크 해제시 마이데이터 연결이 끊어집니다.
+              </p>
+            </div>
+          )}
+        </div>
 
-      <button
-        onClick={() => {
-          if (connectionComplete) {
-            navigate('/wallet');
-          } else {
-            handleConfirmClick();
-          }
-        }}
-        className={`fixed bottom-0 left-0 right-0 w-full py-5 ${
-          isSelectionChanged || connectionComplete
-            ? 'bg-[#00CCCC]'
-            : 'bg-[#C8C8C8] cursor-not-allowed'
-        } text-white font-medium text-lg`}
-        disabled={!isSelectionChanged && !connectionComplete}
-      >
-        {connectionComplete ? '확인' : '연결하기'}
-      </button>
+        <button
+          onClick={() => {
+            if (connectionComplete) {
+              navigate('/wallet');
+            } else {
+              handleConfirmClick();
+            }
+          }}
+          className={`fixed bottom-0 left-0 right-0 w-full max-w-[640px] mx-auto py-5 ${
+            isSelectionChanged || connectionComplete
+              ? 'bg-[#00CCCC]'
+              : 'bg-[#C8C8C8] cursor-not-allowed'
+          } text-white font-medium text-lg`}
+          disabled={!isSelectionChanged && !connectionComplete}
+        >
+          {connectionComplete ? '확인' : '연결하기'}
+        </button>
+      </div>
     </div>
   );
 };

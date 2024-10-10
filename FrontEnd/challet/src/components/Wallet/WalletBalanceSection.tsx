@@ -4,6 +4,8 @@ import useAuthStore from '../../store/useAuthStore';
 import useAccountStore from '../../store/useAccountStore';
 import AxiosInstance from '../../api/axiosInstance';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCopy } from '@fortawesome/free-solid-svg-icons'; // 아이콘 추가
 
 interface Account {
   id: number;
@@ -122,20 +124,28 @@ const WalletBalanceSection = () => {
       style={{ width: '97%' }}
     >
       <div className='text-left'>
-        <h2
-          className='text-sm font-medium text-[#6C6C6C] mb-4 cursor-pointer'
-          onClick={(e) => {
-            e.stopPropagation();
-            handleAccountNumberCopy(accountInfo.accountNumber);
-          }}
-        >
-          챌렛계좌 {` ${accountInfo.accountNumber}`}{' '}
-          {/* 계좌번호 클릭 시 복사 */}
+        <h2 className='text-sm font-medium text-[#6C6C6C] mb-4 flex items-center'>
+          {/* 계좌번호 부분 */}
+          <span
+            className='cursor-pointer underline'
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAccountNumberCopy(accountInfo.accountNumber);
+            }}
+          >
+            챌렛계좌 {` ${accountInfo.accountNumber}`}
+          </span>
+          {/* 복사 아이콘 */}
+          <FontAwesomeIcon
+            icon={faCopy}
+            className='ml-2 text-gray-500 text-xs' // 아이콘 크기 줄이기
+          />
         </h2>
         <p className='text-2xl font-bold mt-2 mb-4'>
           {accountInfo.accountBalance.toLocaleString()}원
         </p>
       </div>
+
       <div className='flex justify-end gap-2'>
         <button
           className='border border-gray-300 rounded-lg px-3 py-1 text-sm text-[#6C6C6C] bg-white'

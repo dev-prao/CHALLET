@@ -136,7 +136,7 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
         {accountsToShow.map(({ account, bankKey }) => (
           <div
             key={account.id}
-            className='p-4 bg-white w-full flex items-center cursor-pointer mb-4'
+            className='p-4 bg-white w-full flex items-center mb-4'
             onClick={() => handleAccountClick(bankKey, account)}
           >
             <div className='flex-shrink-0'>
@@ -148,7 +148,7 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
             </div>
             <div className='flex flex-col text-left'>
               <p
-                className='text-sm text-[#6C6C6C] cursor-pointer'
+                className='text-sm text-[#6C6C6C] cursor-pointer underline flex items-center'
                 onClick={(e) => {
                   e.stopPropagation(); // 클릭 이벤트 전파 방지
                   handleAccountNumberCopy(account.accountNumber);

@@ -174,7 +174,6 @@ function MyDataHistoryPage() {
           <p className='text-sm font-medium mb-1 text-[#6C6C6C]'>
             {bankShortName} {accountNumber}
           </p>
-          {/* 여기에서 location.state에서 받은 accountBalance를 사용합니다 */}
           <h2 className='text-3xl font-bold'>
             {accountBalance?.toLocaleString()}원
             {accountBalance?.toLocaleString()}원
