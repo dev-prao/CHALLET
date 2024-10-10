@@ -111,7 +111,7 @@ const WalletBalanceSection = () => {
   // 계좌 정보가 있을 때
   return (
     <div
-      className='bg-white p-4 rounded-lg shadow-md mb-8 cursor-pointer'
+      className='bg-white p-4 rounded-lg shadow-md mb-8'
       onClick={() =>
         navigate('/history2', {
           state: {
