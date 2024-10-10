@@ -154,14 +154,9 @@ const SignUpPage = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
+    // 조합 중이 아닐 때만 유효성 검사
     if (!isComposing) {
-      if (!isIOS()) {
-        // iOS가 아닌 경우 유효성 검사 적용
-        setName(value.replace(/[^가-힣\s]/g, ''));
-      } else {
-        // iOS에서는 유효성 검사 없이 값 반영
-        setName(value);
-      }
+      setName(value.replace(/[^가-힣\s]/g, '')); // 한글과 공백만 허용
     }
   };
 
@@ -170,11 +165,13 @@ const SignUpPage = () => {
     setIsComposing(true);
   };
 
-  // 한글 조합 중 업데이트
+  // 한글 조합 중 업데이트 (iOS에서만 사용)
   const handleCompositionUpdate = (
     e: React.CompositionEvent<HTMLInputElement>
   ) => {
-    setName(e.currentTarget.value);
+    if (isIOS()) {
+      setName(e.currentTarget.value); // iOS에서는 조합 중 업데이트 필요
+    }
   };
 
   // 한글 조합 완료
@@ -185,13 +182,12 @@ const SignUpPage = () => {
 
     const value = e.currentTarget.value;
 
-    if (!isIOS()) {
-      // iOS가 아닌 경우 유효성 검사 적용
-      setName(value.replace(/[^가-힣\s]/g, ''));
-    } else {
-      // iOS에서는 그대로 값 반영
-      setName(value);
-    }
+    // iOS가 아닌 경우 조합이 끝난 후 유효성 검사 적용
+    setTimeout(() => {
+      if (!isIOS()) {
+        setName(value.replace(/[^가-힣\s]/g, '')); // 한글과 공백만 허용
+      }
+    }, 0); // Safari의 이벤트 처리 순서 문제 해결을 위해 타임아웃 추가
   };
 
   {
