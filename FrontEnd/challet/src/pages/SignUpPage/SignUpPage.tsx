@@ -118,45 +118,15 @@ const SignUpPage = () => {
     navigate('/set-password');
   };
 
-  // // 이름 입력 핸들러
-  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   // 한글 조합이 끝나면 유효성 검사를 진행
-  //   if (!isComposing) {
-  //     const value = e.target.value;
-  //     setName(value.replace(/[^가-힣\s]/g, '')); // 완성형 한글과 공백만 허용
-  //   } else {
-  //     // 조합 중일 때도 입력된 값 반영
-  //     setName(e.target.value);
-  //   }
-  // };
-
-  // // 한글 조합 시작
-  // const handleCompositionStart = () => {
-  //   setIsComposing(true);
-  // };
-
-  // // 한글 조합 완료
-  // const handleCompositionEnd = (
-  //   e: React.CompositionEvent<HTMLInputElement>
-  // ) => {
-  //   setIsComposing(false);
-  //   const value = e.currentTarget.value;
-  //   setName(value.replace(/[^가-힣a-zA-Z\s]/g, '')); // 유효성 검사 후 최종값 반영
-  // };
-
-  ////// 아이폰 수정 버전 /////////
-  // iOS 기기 감지 함수
-  const isIOS = () => {
-    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  };
-
-  // 입력 핸들러 (iOS가 아닌 경우 유효성 검사 수행)
+  // 이름 입력 핸들러
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-
-    // iOS가 아닌 경우에만 유효성 검사 적용
-    if (!isComposing && !isIOS()) {
-      setName(value.replace(/[^가-힣\s]/g, '')); // 한글과 공백만 허용
+    // 한글 조합이 끝나면 유효성 검사를 진행
+    if (!isComposing) {
+      const value = e.target.value;
+      setName(value.replace(/[^가-힣\s]/g, '')); // 완성형 한글과 공백만 허용
+    } else {
+      // 조합 중일 때도 입력된 값 반영
+      setName(e.target.value);
     }
   };
 
@@ -165,30 +135,13 @@ const SignUpPage = () => {
     setIsComposing(true);
   };
 
-  // 한글 조합 중 업데이트 (iOS에서만 사용)
-  const handleCompositionUpdate = (
-    e: React.CompositionEvent<HTMLInputElement>
-  ) => {
-    if (isIOS()) {
-      setName(e.currentTarget.value); // iOS에서는 조합 중 업데이트 필요
-    }
-  };
-
   // 한글 조합 완료
   const handleCompositionEnd = (
     e: React.CompositionEvent<HTMLInputElement>
   ) => {
     setIsComposing(false);
-
     const value = e.currentTarget.value;
-
-    // iOS에서는 조합된 값을 그대로 반영
-    if (isIOS()) {
-      setName(value);
-    } else {
-      // iOS가 아닌 경우 (Android, 데스크탑 등) 유효성 검사 적용
-      setName(value.replace(/[^가-힣\s]/g, '')); // 한글과 공백만 허용
-    }
+    setName(value.replace(/[^가-힣a-zA-Z\s]/g, '')); // 유효성 검사 후 최종값 반영
   };
 
   {
@@ -200,7 +153,6 @@ const SignUpPage = () => {
       value={name} // name 상태 사용
       onChange={handleInputChange}
       onCompositionStart={handleCompositionStart}
-      onCompositionUpdate={isIOS() ? handleCompositionUpdate : undefined} // iOS에서만 조합 중 업데이트 처리
       onCompositionEnd={handleCompositionEnd}
       placeholder='이름'
       required
