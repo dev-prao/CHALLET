@@ -150,17 +150,12 @@ const SignUpPage = () => {
     return /iPhone|iPad|iPod/i.test(navigator.userAgent);
   };
 
-  // Android 기기 감지 함수
-  const isAndroid = () => {
-    return /Android/i.test(navigator.userAgent);
-  };
-
-  // 입력 핸들러 (Android에서 유효성 검사 수행)
+  // 입력 핸들러 (iOS가 아닌 경우 유효성 검사 수행)
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
-    // iOS가 아닌 경우 (즉, Android인 경우) 유효성 검사 적용
-    if (!isComposing && isAndroid()) {
+    // iOS가 아닌 경우에만 유효성 검사 적용
+    if (!isComposing && !isIOS()) {
       setName(value.replace(/[^가-힣\s]/g, '')); // 한글과 공백만 허용
     }
   };
@@ -187,12 +182,12 @@ const SignUpPage = () => {
 
     const value = e.currentTarget.value;
 
-    // iOS가 아닌 경우 (Android에서 유효성 검사 진행)
-    if (isAndroid()) {
-      setName(value.replace(/[^가-힣\s]/g, '')); // 한글과 공백만 허용
-    } else {
-      // iOS에서는 조합된 값을 그대로 반영
+    // iOS에서는 조합된 값을 그대로 반영
+    if (isIOS()) {
       setName(value);
+    } else {
+      // iOS가 아닌 경우 (Android, 데스크탑 등) 유효성 검사 적용
+      setName(value.replace(/[^가-힣\s]/g, '')); // 한글과 공백만 허용
     }
   };
 
@@ -205,7 +200,7 @@ const SignUpPage = () => {
       value={name} // name 상태 사용
       onChange={handleInputChange}
       onCompositionStart={handleCompositionStart}
-      onCompositionUpdate={handleCompositionUpdate} // iOS에서만 조합 중 업데이트 처리
+      onCompositionUpdate={isIOS() ? handleCompositionUpdate : undefined} // iOS에서만 조합 중 업데이트 처리
       onCompositionEnd={handleCompositionEnd}
       placeholder='이름'
       required
