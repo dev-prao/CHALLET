@@ -39,11 +39,11 @@ const WalletBalancePay = () => {
       if (account) {
         setAccountInfo(account);
         setStoreAccountInfo(account);
-        console.log('계좌 정보가 성공적으로 불러와졌습니다:', account);
+        // console.log('계좌 정보가 성공적으로 불러와졌습니다:', account);
       } else {
         setError(true);
         setErrorMessage('계좌 정보가 없습니다.');
-        console.log('계좌 정보가 존재하지 않습니다.');
+        // console.log('계좌 정보가 존재하지 않습니다.');
       }
     } catch (error) {
       handleError(error);
@@ -62,10 +62,10 @@ const WalletBalancePay = () => {
           ? '계좌가 존재하지 않습니다.'
           : `오류: ${message}`
       );
-      console.log('Axios 오류 발생:', message);
+      // console.log('Axios 오류 발생:', message);
     } else {
       setErrorMessage('요청을 보내는 중 오류가 발생했습니다.');
-      console.log('알 수 없는 오류가 발생했습니다.', error);
+      // console.log('알 수 없는 오류가 발생했습니다.', error);
     }
     setError(true);
   };

@@ -28,7 +28,7 @@ export const useStatisticsApi = () => {
         month: lastMonth,
       });
 
-      console.log('통계 데이터 조회 성공:', response.data);
+      // console.log('통계 데이터 조회 성공:', response.data);
 
       // 응답에서 categoryList 추출
       setMyStatistics(response.data.myCategoryList || []); // categoryList 설정

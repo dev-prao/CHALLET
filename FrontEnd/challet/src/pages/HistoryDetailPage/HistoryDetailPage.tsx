@@ -51,7 +51,7 @@ const HistoryDetailPage = () => {
     const fetchTransactionDetail = async () => {
       if (!transactionId) return;
 
-      console.log('transactionId:', transactionId);
+      // console.log('transactionId:', transactionId);
 
       try {
         const response = await AxiosInstance.get<TransactionDetail>(
@@ -87,9 +87,8 @@ const HistoryDetailPage = () => {
 
   const categoryIcon = getCategoryIcon(transactionDetail.category);
 
-  // 뒤로가기 클릭 시 단순히 이전 페이지로 이동
   const handleBackClick = () => {
-    navigate(-1); // 상태 전달 없이 뒤로 가기
+    navigate(-1);
   };
 
   return (

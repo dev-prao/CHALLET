@@ -90,7 +90,7 @@ const PhoneAuthPage = () => {
       });
 
       if (response.status === 200) {
-        console.log(`인증 요청 전화번호: ${phoneNumber}`);
+        // console.log(`인증 요청 전화번호: ${phoneNumber}`);
         setIsTimerRunning(true); // 타이머 시작
         setTimeRemaining(180); // 3분(180초)으로 초기화
         setIsCodeSent(true); // 인증번호 입력창을 표시하도록 설정

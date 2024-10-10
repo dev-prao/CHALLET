@@ -24,13 +24,21 @@ const bankEndpoint = '/api/ch-bank/search'; // 챌렛뱅크의 거래 내역 API
 function HisPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [transactionData, setTransactionData] = useState<Transaction[]>([]);
-  const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(''); // 검색어 상태 추가
-  const [isLastPage, setIsLastPage] = useState(false);
 
-  // WalletBalanceSection에서 전달한 state를 가져옴
+  // location.state에서 전달된 상태를 복원
+  const initialTransactionData = location.state?.transactionData || [];
+  const initialSearchTerm = location.state?.searchTerm || '';
+  const initialPage = location.state?.page || 0;
+  const initialIsLastPage = location.state?.isLastPage || false;
+
+  const [transactionData, setTransactionData] = useState<Transaction[]>(
+    initialTransactionData
+  );
+  const [page, setPage] = useState(initialPage);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm); // 검색어 상태 초기화
+  const [isLastPage, setIsLastPage] = useState(initialIsLastPage);
+
   const { accountNumber, accountId, accountBalance } = location.state || {};
 
   const fetchTransactions = useCallback(
@@ -63,15 +71,16 @@ function HisPage() {
     [accountId, searchTerm]
   );
 
-  // 초기 로딩 시 첫 페이지의 거래 내역을 가져옴
   useEffect(() => {
-    fetchTransactions(0);
-  }, []); // 빈 배열로 설정하여 컴포넌트가 처음 렌더링될 때만 실행
+    if (!initialTransactionData.length) {
+      fetchTransactions(0);
+    }
+  }, []); // 초기 로딩 시 실행
 
   const handleSearchInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setSearchTerm(event.target.value); // 검색어 상태 업데이트만
+    setSearchTerm(event.target.value);
   };
 
   const handleSearch = () => {
@@ -87,13 +96,13 @@ function HisPage() {
     const clientHeight = document.documentElement.clientHeight;
 
     if (scrollHeight - scrollTop <= clientHeight + 10) {
-      setPage((prevPage) => prevPage + 1);
+      setPage((prevPage: number) => prevPage + 1); // prevPage의 타입을 명시적으로 number로 지정
     }
   }, [loading, isLastPage]);
 
   useEffect(() => {
     if (page > 0) {
-      fetchTransactions(page, true); // 페이지가 변경될 때만 추가 데이터 요청
+      fetchTransactions(page, true); // 페이지가 변경될 때 추가 데이터 요청
     }
   }, [page, fetchTransactions]);
 
@@ -115,7 +124,13 @@ function HisPage() {
       });
 
       navigate(`/mydata-detail/${transactionId}`, {
-        state: { transactionDetails: response.data },
+        state: {
+          transactionDetails: response.data,
+          transactionData, // 상태 전달
+          searchTerm,
+          page,
+          isLastPage,
+        }, // 상태 전달
       });
     } catch (error) {
       console.error('거래 내역을 가져오는 중 오류가 발생했습니다:', error);

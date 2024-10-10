@@ -32,11 +32,11 @@ const useMyDataStore = create<MyDataState>()(
         nh: false,
       },
       setAgreements: (agreements) => {
-        console.log('Agreements updated:', agreements); // 상태 변경 시 콘솔 출력
+        // console.log('Agreements updated:', agreements); // 상태 변경 시 콘솔 출력
         set({ agreements });
       },
       setSelectedBanks: (selectedBanks) => {
-        console.log('Selected banks updated:', selectedBanks); // 상태 변경 시 콘솔 출력
+        // console.log('Selected banks updated:', selectedBanks); // 상태 변경 시 콘솔 출력
         set({ selectedBanks });
       },
     }),

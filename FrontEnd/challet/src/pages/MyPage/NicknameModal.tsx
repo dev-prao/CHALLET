@@ -57,7 +57,7 @@ const NicknameModal = ({ onNicknameChange, onClose }: NicknameModalProps) => {
           nickname: newNickname,
         }
       );
-      console.log('닉네임 수정 성공:', response.data);
+      console.log(response.data);
       onNicknameChange(newNickname); // 부모 컴포넌트에 닉네임 수정된 정보 전달
     } catch (error) {
       if (error instanceof AxiosError) {

@@ -56,7 +56,7 @@ const ChallengeModal = ({
   // 외부 클릭 리스너 추가
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
-    console.log(challengeDetail);
+    // console.log(challengeDetail);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };

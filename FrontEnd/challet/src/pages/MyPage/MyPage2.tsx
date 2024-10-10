@@ -92,7 +92,7 @@ const MyPage = () => {
         }
       );
 
-      console.log('프로필 이미지 수정 성공:', response.data);
+      console.log(response.data);
       setProfileImageUrl(urlImage); // 압축된 이미지 URL로 설정
     } catch (error) {
       console.error('프로필 이미지 수정 실패:', error);

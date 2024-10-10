@@ -30,7 +30,7 @@ const AverageStatistics = () => {
 
   // 데이터가 없는 경우 처리
   if (AverageStatistics.length === 0) {
-    return <p>소비 비교 내역이 없습니다.</p>;
+    return <p>전달 소비 비교 내역이 없습니다.</p>;
   }
 
   // 카테고리 한글 변환

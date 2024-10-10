@@ -38,7 +38,6 @@ import SharedTransactionCreate from './components/Challenge/SharedTransactionCre
 import SharedTransactionDetail from './components/Challenge/SharedTransactionDetail';
 import SharedTransactionEdit from './components/Challenge/SharedTransactionEdit';
 import ImageUpload from './pages/TestPage/ImageUpload';
-import WebSocketTest from './pages/TestPage/WebSocketTest';
 import CalendarSpendingPage2 from './pages/AnalysisPage/CalendarSpending';
 import CalendarDetailPage from './pages/AnalysisPage/CalendarDetailPage';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -71,6 +70,8 @@ function App() {
   const Signup = useMatch('/signup');
   const Setpassword = useMatch('/set-password');
   const calendarDetail = useMatch('/calendar-detail');
+  const myDataHistoryPage = useMatch('/mydata-history');
+  const myDataDEtailPage = useMatch('/mydata-detail/:transactionId');
 
   // 두 경로 중 하나와 매칭되는지 확인
   const shouldHideNavbar =
@@ -95,7 +96,9 @@ function App() {
     Main ||
     Setpassword ||
     Signup ||
-    calendarDetail;
+    calendarDetail ||
+    myDataHistoryPage ||
+    myDataDEtailPage;
 
   return (
     <div className='min-h-screen flex flex-col justify-between'>
@@ -151,7 +154,6 @@ function App() {
             element={<SharedTransactionEdit />}
           />
           <Route path='/test' element={<ImageUpload />} />
-          <Route path='/websocket-test' element={<WebSocketTest />}></Route>
           <Route
             path='/calendarSpendingPage2'
             element={<CalendarSpendingPage2 />}

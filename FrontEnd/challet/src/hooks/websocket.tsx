@@ -15,7 +15,7 @@ class WebSocketService {
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (this.stompClient && this.stompClient.connected) {
-        console.log('WebSocket 이미 연결되어 있습니다.');
+        // console.log('WebSocket 이미 연결되어 있습니다.');
         resolve(); // 이미 연결된 상태면 바로 resolve
         return;
       }
@@ -31,7 +31,7 @@ class WebSocketService {
       });
 
       this.stompClient.onConnect = (frame) => {
-        console.log('WebSocket 연결 성공:', frame);
+        console.log(frame);
         resolve(); // 연결 성공 시 resolve 호출
       };
 
@@ -41,10 +41,10 @@ class WebSocketService {
       };
 
       this.stompClient.onDisconnect = (frame) => {
-        console.log('WebSocket 연결 종료:', frame);
+        console.log(frame);
       };
 
-      console.log('WebSocket 연결 시도:', this.stompClient);
+      // console.log('WebSocket 연결 시도:', this.stompClient);
       this.stompClient.activate(); // 연결 시작
     });
   }
@@ -61,7 +61,7 @@ class WebSocketService {
       const subscription = this.stompClient.subscribe(destination, callback);
       this.subscriptions[destination] = () => subscription.unsubscribe();
     } else {
-      console.warn('WebSocket 연결이 되지 않았습니다.');
+      // console.warn('WebSocket 연결이 되지 않았습니다.');
     }
   }
 
@@ -72,7 +72,7 @@ class WebSocketService {
       const subscription = this.stompClient.subscribe(destination, callback);
       this.subscriptions[destination] = () => subscription.unsubscribe();
     } else {
-      console.warn('WebSocket 연결이 되지 않았습니다.');
+      // console.warn('WebSocket 연결이 되지 않았습니다.');
     }
   }
 

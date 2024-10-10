@@ -5,7 +5,7 @@ import useAccountStore from '../../store/useAccountStore';
 import shLogo from '../../assets/mydata/sh-logo.svg';
 import kbLogo from '../../assets/mydata/kb-logo.svg';
 import nhLogo from '../../assets/mydata/nh-logo.svg';
-import plusIcon from '../../assets/mydata/plus-icon.svg'; // 플러스 아이콘 경로 추가
+import plusIcon from '../../assets/mydata/plus-icon.svg';
 
 type Account = {
   id: number | string;
@@ -58,9 +58,6 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
           size: 10,
         },
       });
-
-      // 응답 데이터를 로그로 출력
-      console.log('응답 데이터:', response.data);
 
       navigate('/mydata-history', {
         state: {
@@ -118,7 +115,6 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
     return combinedAccounts;
   }, [data]);
 
-  // 전체 계좌를 볼지 여부에 따라 계좌 목록을 계산
   const accountsToShow = showAllAccounts
     ? allAccounts
     : allAccounts.slice(0, 3);
@@ -135,7 +131,7 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
       <div className='bg-white mb-4' style={{ width: '100%' }}>
         {accountsToShow.map(({ account, bankKey }) => (
           <div
-            key={account.id}
+            key={`${bankKey}-${account.id}`} // 고유한 key 값 설정
             className='p-4 bg-white w-full flex items-center mb-4'
             onClick={() => handleAccountClick(bankKey, account)}
           >
@@ -154,8 +150,7 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
                   handleAccountNumberCopy(account.accountNumber);
                 }}
               >
-                {bankDetails[bankKey].shortName} {account.accountNumber}{' '}
-                {/* 계좌번호 클릭 시 복사 */}
+                {bankDetails[bankKey].shortName} {account.accountNumber}
               </p>
               <p className='text-lg font-semibold text-[#373A3F]'>
                 {account.accountBalance.toLocaleString()}원
@@ -174,7 +169,6 @@ function ConnectedMyData({ data }: ConnectedMyDataProps) {
         )}
       </div>
 
-      {/* 자산 연결 추가하기 버튼 추가 */}
       <div
         className='p-4 bg-white w-full flex items-center cursor-pointer'
         onClick={() => navigate('/myconnect')}

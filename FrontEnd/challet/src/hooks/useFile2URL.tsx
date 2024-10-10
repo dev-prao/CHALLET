@@ -29,8 +29,8 @@ const useFile2URL = () => {
       const command = new PutObjectCommand(params);
       const data = await s3.send(command);
       const fileURL = `https://${bucket}.s3.${region}.amazonaws.com/${uniqueFileName}`;
-      console.log('Success uploading file:', data);
-      console.log('File URL:', fileURL);
+      console.log(data);
+      // console.log('File URL:', fileURL);
       return fileURL;
     } catch (error) {
       console.error('Error uploading file:', error);

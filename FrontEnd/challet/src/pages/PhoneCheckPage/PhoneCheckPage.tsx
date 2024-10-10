@@ -86,7 +86,7 @@ const PhoneCheckPage = () => {
     if (isValid && !isDuplicate) {
       // 전화번호를 Zustand에 저장
       setSignUpData({ phoneNumber: phoneNumber.replace(/\D/g, '') });
-      console.log('전화번호가 저장되었습니다:', phoneNumber.replace(/\D/g, ''));
+      // console.log('전화번호가 저장되었습니다:', phoneNumber.replace(/\D/g, ''));
 
       // 다음 페이지로 이동
       navigate('/signup');

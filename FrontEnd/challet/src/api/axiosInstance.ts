@@ -24,7 +24,7 @@ axiosInstance.interceptors.request.use(
 
 // 액세스 토큰 재발급 함수
 export const refreshAccessToken = async (): Promise<string> => {
-  console.log('토큰 재발급 시도 중...');
+  // console.log('토큰 재발급 시도 중...');
   try {
     // axiosInstance 사용
     const response = await axiosInstance.post(
@@ -40,7 +40,7 @@ export const refreshAccessToken = async (): Promise<string> => {
       userId: useAuthStore.getState().userId || '',
     });
 
-    console.log('토큰 재발급 성공:', newAccessToken);
+    // console.log('토큰 재발급 성공:', newAccessToken);
     return newAccessToken;
   } catch (error) {
     console.error('토큰 재발급 실패:', error);
@@ -71,14 +71,14 @@ axiosInstance.interceptors.request.use(
       // 토큰이 만료된 경우 재발급 시도
       if (isTokenExpired(accessToken)) {
         try {
-          console.log('토큰이 만료되어 재발급 시도 중...');
+          // console.log('토큰이 만료되어 재발급 시도 중...');
           const newAccessToken = await refreshAccessToken();
 
           // 재발급 받은 토큰을 Authorization 헤더에 추가
           config.headers.Authorization = `Bearer ${newAccessToken}`; // 수정된 부분: 문자열에 템플릿 리터럴 사용
 
           // 재발급 성공 메시지와 토큰 출력
-          console.log('토큰 재발급 완료:', newAccessToken);
+          // console.log('토큰 재발급 완료:', newAccessToken);
         } catch (error) {
           console.error('토큰 재발급 실패:', error);
 

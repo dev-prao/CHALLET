@@ -63,7 +63,7 @@ function MyDataHistoryPage() {
           },
         });
 
-        console.log(`응답 받은 데이터 (페이지 ${pageNumber}):`, response.data);
+        // console.log(`응답 받은 데이터 (페이지 ${pageNumber}):`, response.data);
 
         const { searchedTransactions, isLastPage } = response.data;
 
@@ -122,7 +122,7 @@ function MyDataHistoryPage() {
   }, [handleScroll]);
 
   const handleTransactionClick = async (transactionId: string) => {
-    console.log(`클릭된 거래 ID: ${transactionId}`); // 클릭된 거래 ID 출력
+    // console.log(`클릭된 거래 ID: ${transactionId}`); // 클릭된 거래 ID 출력
 
     const bankKey =
       bankShortName === '국민'
@@ -147,7 +147,7 @@ function MyDataHistoryPage() {
         },
       });
 
-      console.log('거래 상세 내역 응답:', response.data); // 응답 데이터 출력
+      // console.log('거래 상세 내역 응답:', response.data); // 응답 데이터 출력
 
       navigate(`/mydata-detail/${transactionId}`, {
         state: { transactionDetails: response.data },

@@ -76,7 +76,7 @@ function PayResult() {
         setTransactionResponse(response.data);
         setSelectedCategory(response.data.category);
         setPaymentSuccess(true);
-        console.log('결제 성공:', response.data);
+        // console.log('결제 성공:', response.data);
       } catch (error: unknown) {
         if (error instanceof AxiosError && error.response?.status === 400) {
           setErrorMessage('잔액이 부족합니다.');
@@ -127,7 +127,7 @@ function PayResult() {
         headers: { AccountId: accountInfo?.id.toString() },
       });
 
-      console.log('카테고리 확인 및 전송 완료:', data);
+      // console.log('카테고리 확인 및 전송 완료:', data);
     } catch (error) {
       console.error('카테고리 확인 실패:', error);
       alert('카테고리 확인에 실패했습니다. 다시 시도해주세요.');

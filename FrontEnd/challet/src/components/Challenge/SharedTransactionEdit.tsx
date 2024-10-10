@@ -87,8 +87,8 @@ const SharedTransactionEdit = () => {
         content, // 결제 내용
       };
 
-      console.log('수정할 데이터:', webSocketMessage);
-      console.log('수정할 거래 ID:', transaction.sharedTransactionId);
+      // console.log('수정할 데이터:', webSocketMessage);
+      // console.log('수정할 거래 ID:', transaction.sharedTransactionId);
 
       webSocketService.sendMessage(
         `/app/challenges/${challengeId}/shared-transactions/${transaction.sharedTransactionId}`, // 수정할 항목의 웹소켓 경로

@@ -6,7 +6,7 @@ const ChallengeCreateButton = () => {
 
   const handleCreateChallenge = () => {
     // 챌린지 생성하기 버튼 클릭 시 처리할 로직
-    console.log('챌린지 생성하기 클릭됨');
+    // console.log('챌린지 생성하기 클릭됨');
     navigate('/challenge/create'); // 챌린지 생성 페이지로 이동
   };
 

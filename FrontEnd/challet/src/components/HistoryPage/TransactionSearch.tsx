@@ -44,7 +44,7 @@ const TransactionSearch = ({ onSearch }: TransactionSearchProps) => {
         })
       );
 
-      console.log('검색 결과:', formattedTransactions);
+      // console.log('검색 결과:', formattedTransactions);
       onSearch(formattedTransactions);
     } catch (error) {
       console.error('검색 중 오류 발생:', error);

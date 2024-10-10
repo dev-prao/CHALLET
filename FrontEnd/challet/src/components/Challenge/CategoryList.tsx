@@ -17,7 +17,7 @@ const CategoryList = ({
   onCategoryChange,
   onSearch,
 }: CategoryListProps) => {
-  console.log('activeCategory:', activeCategory);
+  // console.log('activeCategory:', activeCategory);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const categories = [

@@ -96,13 +96,13 @@ const ChallengeCreatePage = () => {
       isPublic,
     };
 
-    console.log('RequestBody:', requestBody);
+    // console.log('RequestBody:', requestBody);
 
     // 챌린지 생성 API 호출
     try {
       await createChallenge(requestBody); // createChallenge API 함수 호출
       // 성공적인 데이터 제출 후 모달을 표시
-      console.log('requestBody:', requestBody);
+      // console.log('requestBody:', requestBody);
       setModalMessage('챌린지 생성이 완료되었습니다!');
       setShowModal(true);
       setIsSuccess(true); // 성공 상태로 설정
