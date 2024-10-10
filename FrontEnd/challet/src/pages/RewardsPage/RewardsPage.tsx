@@ -27,7 +27,7 @@ const RewardPage = () => {
         {/* 리워드가 없을 때 메시지 출력 */}
         {rewards.length === 0 ? (
           <p className='col-span-3 text-center text-[#9095A1]'>
-            받은 리워드가 없습니다
+            받은 리워드가 없습니다.
           </p>
         ) : (
           rewards.map((reward) => (

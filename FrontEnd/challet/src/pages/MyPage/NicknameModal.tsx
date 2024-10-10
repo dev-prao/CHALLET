@@ -14,7 +14,7 @@ const NicknameModal = ({ onNicknameChange, onClose }: NicknameModalProps) => {
 
   // 닉네임 유효성 검사 함수
   const isValidNickname = (nickname: string): boolean => {
-    const nicknamePattern = /^(?=.*[a-z0-9가-힣])[a-z0-9가-힣]{2,12}$/;
+    const nicknamePattern = /^(?=.*[a-zA-Z0-9가-힣])[a-zA-Z0-9가-힣]{2,12}$/;
     return nicknamePattern.test(nickname);
   };
 

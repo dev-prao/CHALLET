@@ -17,7 +17,11 @@ const MyStatistics = () => {
 
   // 데이터가 없는 경우 처리
   if (myStatistics.length === 0) {
-    return <p>전달 소비 내역이 없습니다.</p>;
+    return (
+      <p className='col-span-3 text-center text-[#9095A1]'>
+        전달 소비 비교 내역이 없습니다.
+      </p>
+    );
   }
 
   const data = myStatistics; // 이미 categoryList를 추출했으므로 그대로 사용
