@@ -30,9 +30,9 @@ const HistoryPage = () => {
   const [transactionHistory, setTransactionHistory] = useState<Transaction[]>(
     []
   );
-  const [searchResults, setSearchResults] = useState<Transaction[] | null>(() =>
-    JSON.parse(sessionStorage.getItem('searchResults') || 'null')
-  ); // sessionStorage에서 검색 결과 가져오기
+  const [searchResults, setSearchResults] = useState<Transaction[] | null>(
+    location.state?.searchResults || null
+  ); // 검색 결과 상태
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [page, setPage] = useState(0);
@@ -77,27 +77,25 @@ const HistoryPage = () => {
   // 검색된 거래 내역을 업데이트하는 함수
   const handleSearchResults = (transactions: Transaction[]) => {
     setSearchResults(transactions);
-    sessionStorage.setItem('searchResults', JSON.stringify(transactions)); // sessionStorage에 저장
     setIsLastPage(true);
   };
 
+  // 거래 항목 클릭 시, searchResults와 함께 history-detail로 이동
   const handleTransactionClick = (transactionId: string) => {
     navigate(`/history-detail/${transactionId}`, {
       state: { searchResults }, // 검색 결과를 함께 전달
+      replace: true, // 뒤로가기 시 location.state 유지
     });
   };
 
   useEffect(() => {
+    // 뒤로가기 시 검색 결과가 있으면 그대로 유지, 없으면 새로운 데이터를 가져옴
     if (location.state?.searchResults) {
       setSearchResults(location.state.searchResults);
-      sessionStorage.setItem(
-        'searchResults',
-        JSON.stringify(location.state.searchResults)
-      ); // 검색 결과를 저장
-    } else if (!searchResults) {
-      fetchTransactionHistory(page);
+    } else {
+      fetchTransactionHistory(page); // 검색 결과가 없을 때만 원래 거래 내역 로드
     }
-  }, [location.state, page, fetchTransactionHistory, searchResults]);
+  }, [location.state, page, fetchTransactionHistory]);
 
   useEffect(() => {
     const handleScroll = () => {

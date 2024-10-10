@@ -109,8 +109,16 @@ const WalletBalanceSection = () => {
   // 계좌 정보가 있을 때
   return (
     <div
-      className=' bg-white p-4 rounded-lg shadow-md mb-8 cursor-pointer'
-      onClick={() => navigate('/history')}
+      className='bg-white p-4 rounded-lg shadow-md mb-8 cursor-pointer'
+      onClick={() =>
+        navigate('/history2', {
+          state: {
+            accountBalance: accountInfo.accountBalance,
+            accountNumber: accountInfo.accountNumber,
+            accountId: accountInfo.id,
+          },
+        })
+      }
       style={{ width: '97%' }}
     >
       <div className='text-left'>
@@ -147,7 +155,13 @@ const WalletBalanceSection = () => {
           className='border border-gray-300 rounded-lg px-3 py-1 text-sm text-[#6C6C6C] bg-white'
           onClick={(e) => {
             e.stopPropagation();
-            navigate('/history');
+            navigate('/history2', {
+              state: {
+                accountBalance: accountInfo.accountBalance,
+                accountNumber: accountInfo.accountNumber,
+                accountId: accountInfo.id,
+              },
+            });
           }}
         >
           내역

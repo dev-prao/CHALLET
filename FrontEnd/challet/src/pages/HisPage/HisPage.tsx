@@ -2,9 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import { TopBar } from '../../components/topbar/topbar';
-import kbLogo from '../../assets/mydata/kb-logo.svg';
-import nhLogo from '../../assets/mydata/nh-logo.svg';
-import shLogo from '../../assets/mydata/sh-logo.svg';
+import chLogo from '../../assets/mydata/ch-logo.svg'; // 챌렛뱅크 로고
 
 interface Transaction {
   transactionId: string;
@@ -21,52 +19,37 @@ interface TransactionResponse {
   searchedTransactions: Transaction[];
 }
 
-const bankEndpoints: Record<string, string> = {
-  국민: '/api/kb-bank/search',
-  농협: '/api/nh-bank/search',
-  신한: '/api/sh-bank/search',
-};
+const bankEndpoint = '/api/ch-bank/search'; // 챌렛뱅크의 거래 내역 API 경로
 
-const bankLogos: Record<string, string> = {
-  국민: kbLogo,
-  농협: nhLogo,
-  신한: shLogo,
-};
-
-function MyDataHistoryPage() {
+function HisPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [transactionData, setTransactionData] = useState<Transaction[]>([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(''); // 검색어 상태
+  const [searchTerm, setSearchTerm] = useState(''); // 검색어 상태 추가
   const [isLastPage, setIsLastPage] = useState(false);
-  const { bankShortName, accountNumber, accountId, accountBalance } =
-    location.state || {};
+
+  // WalletBalanceSection에서 전달한 state를 가져옴
+  const { accountNumber, accountId, accountBalance } = location.state || {};
 
   const fetchTransactions = useCallback(
     async (pageNumber: number, append = false) => {
-      const apiUrl = bankEndpoints[bankShortName];
-      if (!apiUrl) {
-        console.error('유효하지 않은 은행 정보입니다.');
-        return;
-      }
-
       setLoading(true);
       try {
-        const response = await axiosInstance.get<TransactionResponse>(apiUrl, {
-          params: {
-            accountId: accountId,
-            keyword: searchTerm, // 검색어
-            page: pageNumber,
-            size: 10,
-          },
-        });
-
-        console.log(`응답 받은 데이터 (페이지 ${pageNumber}):`, response.data);
+        const response = await axiosInstance.get<TransactionResponse>(
+          bankEndpoint,
+          {
+            params: {
+              accountId: accountId,
+              keyword: searchTerm, // 검색어 반영
+              page: pageNumber,
+              size: 10,
+            },
+          }
+        );
 
         const { searchedTransactions, isLastPage } = response.data;
-
         setTransactionData((prevData) =>
           append ? [...prevData, ...searchedTransactions] : searchedTransactions
         );
@@ -77,13 +60,13 @@ function MyDataHistoryPage() {
         setLoading(false);
       }
     },
-    [bankShortName, accountId, searchTerm]
+    [accountId, searchTerm]
   );
 
-  // 검색어가 변경되어도 검색 요청이 자동으로 발생하지 않도록 useEffect에서 제거
+  // 초기 로딩 시 첫 페이지의 거래 내역을 가져옴
   useEffect(() => {
-    fetchTransactions(0); // 첫 페이지 로드 시 검색 결과를 가져옴
-  }, []); // 빈 배열을 넣어 페이지 로드 시에만 한 번 실행되도록 설정
+    fetchTransactions(0);
+  }, []); // 빈 배열로 설정하여 컴포넌트가 처음 렌더링될 때만 실행
 
   const handleSearchInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -92,8 +75,8 @@ function MyDataHistoryPage() {
   };
 
   const handleSearch = () => {
-    setPage(0);
-    fetchTransactions(0); // 검색 버튼을 눌렀을 때 검색 실행
+    setPage(0); // 페이지 번호를 초기화하고
+    fetchTransactions(0); // 검색 버튼 클릭 시 첫 페이지 요청
   };
 
   const handleScroll = useCallback(() => {
@@ -104,13 +87,13 @@ function MyDataHistoryPage() {
     const clientHeight = document.documentElement.clientHeight;
 
     if (scrollHeight - scrollTop <= clientHeight + 10) {
-      setPage((prevPage: number) => prevPage + 1);
+      setPage((prevPage) => prevPage + 1);
     }
   }, [loading, isLastPage]);
 
   useEffect(() => {
     if (page > 0) {
-      fetchTransactions(page, true);
+      fetchTransactions(page, true); // 페이지가 변경될 때만 추가 데이터 요청
     }
   }, [page, fetchTransactions]);
 
@@ -122,23 +105,7 @@ function MyDataHistoryPage() {
   }, [handleScroll]);
 
   const handleTransactionClick = async (transactionId: string) => {
-    console.log(`클릭된 거래 ID: ${transactionId}`); // 클릭된 거래 ID 출력
-
-    const bankKey =
-      bankShortName === '국민'
-        ? 'kb'
-        : bankShortName === '농협'
-          ? 'nh'
-          : bankShortName === '신한'
-            ? 'sh'
-            : '';
-
-    if (!bankKey) {
-      console.error('유효하지 않은 은행 정보입니다.');
-      return;
-    }
-
-    const apiUrl = `/api/${bankKey}-bank/details`;
+    const apiUrl = `/api/ch-bank/details`;
 
     try {
       const response = await axiosInstance.get(apiUrl, {
@@ -146,8 +113,6 @@ function MyDataHistoryPage() {
           TransactionId: transactionId,
         },
       });
-
-      console.log('거래 상세 내역 응답:', response.data); // 응답 데이터 출력
 
       navigate(`/mydata-detail/${transactionId}`, {
         state: { transactionDetails: response.data },
@@ -162,38 +127,34 @@ function MyDataHistoryPage() {
       <TopBar title='거래 내역' />
 
       <div className='p-4 mt-16 ml-2 text-left flex items-center'>
-        {bankShortName && (
-          <img
-            src={bankLogos[bankShortName]}
-            alt={`${bankShortName} 로고`}
-            className='w-14 h-14 mr-4'
-          />
-        )}
-
+        <img
+          src={chLogo} // 챌렛뱅크 로고 표시
+          alt='챌렛뱅크 로고'
+          className='w-14 h-14 mr-4'
+        />
         <div>
           <p className='text-sm font-medium mb-1 text-[#6C6C6C]'>
-            {bankShortName} {accountNumber}
+            챌렛뱅크 {accountNumber}
           </p>
-          {/* 여기에서 location.state에서 받은 accountBalance를 사용합니다 */}
           <h2 className='text-3xl font-bold'>
-            {accountBalance?.toLocaleString()}원
             {accountBalance?.toLocaleString()}원
           </h2>
         </div>
       </div>
 
+      {/* 검색 입력 필드 및 버튼 */}
       <div className='px-4 py-2'>
         <div className='flex items-center bg-gray-100 rounded-md px-3 py-2'>
           <input
             type='text'
             placeholder='거래 내역 검색'
             value={searchTerm}
-            onChange={handleSearchInputChange} // 검색어 입력값 상태 업데이트만
+            onChange={handleSearchInputChange} // 검색어 입력 처리
             className='bg-transparent flex-1 focus:outline-none text-gray-500'
             maxLength={15}
           />
           <button
-            onClick={handleSearch} // 검색 버튼 클릭 시 검색 실행
+            onClick={handleSearch} // 검색 버튼 클릭 시 처리
             className='ml-2 bg-[#00CCCC] text-white rounded px-3 py-1'
           >
             검색
@@ -201,6 +162,7 @@ function MyDataHistoryPage() {
         </div>
       </div>
 
+      {/* 거래 내역 리스트 렌더링 */}
       <div className='divide-y divide-gray-200 mb-20'>
         {transactionData.length > 0 ? (
           transactionData.map((transaction) => {
@@ -250,7 +212,7 @@ function MyDataHistoryPage() {
             );
           })
         ) : (
-          <p className='mt- text-center text-gray-500 py-4'>
+          <p className='mt-4 text-center text-gray-500 py-4'>
             거래 내역이 없습니다.
           </p>
         )}
@@ -265,4 +227,4 @@ function MyDataHistoryPage() {
   );
 }
 
-export default MyDataHistoryPage;
+export default HisPage;

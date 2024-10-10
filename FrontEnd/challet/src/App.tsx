@@ -15,8 +15,8 @@ import SignUpPage from './pages/SignUpPage/SignUpPage';
 import LoginPage from './pages/LoginPage/LoginPage';
 import Navbar from './components/navigation/Navbar';
 import WalletPage from './pages/WalletPage/WalletPage';
-import HistoryPage from './pages/HistoryPage/HistoryPage';
-// import HistoryPage2 from './pages/HistoryPage/HistoryPage2';
+// import HistoryPage from './pages/HistoryPage/HistoryPage';
+import HisPage from './pages/HisPage/HisPage';
 import HistoryDetailPage from './pages/HistoryDetailPage/HistoryDetailPage';
 import MyDataHistoryPage from './pages/MyDataHistoryPage/MyDataHistoryPage';
 import MyDataDetailPage from './pages/MyDataDetailPage/MyDataDetailPage';
@@ -58,7 +58,8 @@ function App() {
   const matchpayment = useMatch('/payment');
   const matchpayreview = useMatch('/payreview');
   const matchpayresult = useMatch('/payresult');
-  const matchHistory = useMatch('/history');
+  const matchHistory = useMatch('/history2');
+
   const matchHistorydetail = useMatch('//history-detail/:transactionId');
   const matchTransfer = useMatch('/transfer');
   const matchTransferPage = useMatch('/transfer-result');
@@ -120,9 +121,9 @@ function App() {
             path='/mydata-detail/:transactionId'
             element={<MyDataDetailPage />}
           />
+          <Route path='/history2' element={<HisPage />} />
 
-          <Route path='/history' element={<HistoryPage />} />
-          {/* <Route path='/history2' element={<HistoryPage2 />} /> */}
+          {/* <Route path='/history' element={<HistoryPage />} /> */}
           <Route path='/transfer' element={<TransferPage />} />
           <Route path='/transfer-result' element={<TransferResultPage />} />
           <Route path='/challenge' element={<ChallengePage />} />
