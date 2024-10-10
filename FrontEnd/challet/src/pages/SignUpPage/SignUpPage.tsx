@@ -150,12 +150,17 @@ const SignUpPage = () => {
     return /iPhone|iPad|iPod/i.test(navigator.userAgent);
   };
 
-  // 입력 핸들러
+  // Android 기기 감지 함수
+  const isAndroid = () => {
+    return /Android/i.test(navigator.userAgent);
+  };
+
+  // 입력 핸들러 (Android에서 유효성 검사 수행)
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
-    // 조합 중이 아닐 때만 유효성 검사
-    if (!isComposing) {
+    // iOS가 아닌 경우 (즉, Android인 경우) 유효성 검사 적용
+    if (!isComposing && isAndroid()) {
       setName(value.replace(/[^가-힣\s]/g, '')); // 한글과 공백만 허용
     }
   };
@@ -182,12 +187,13 @@ const SignUpPage = () => {
 
     const value = e.currentTarget.value;
 
-    // iOS가 아닌 경우 조합이 끝난 후 유효성 검사 적용
-    setTimeout(() => {
-      if (!isIOS()) {
-        setName(value.replace(/[^가-힣\s]/g, '')); // 한글과 공백만 허용
-      }
-    }, 0); // Safari의 이벤트 처리 순서 문제 해결을 위해 타임아웃 추가
+    // iOS가 아닌 경우 (Android에서 유효성 검사 진행)
+    if (isAndroid()) {
+      setName(value.replace(/[^가-힣\s]/g, '')); // 한글과 공백만 허용
+    } else {
+      // iOS에서는 조합된 값을 그대로 반영
+      setName(value);
+    }
   };
 
   {
@@ -199,7 +205,7 @@ const SignUpPage = () => {
       value={name} // name 상태 사용
       onChange={handleInputChange}
       onCompositionStart={handleCompositionStart}
-      onCompositionUpdate={handleCompositionUpdate} // 조합 중 업데이트 처리
+      onCompositionUpdate={handleCompositionUpdate} // iOS에서만 조합 중 업데이트 처리
       onCompositionEnd={handleCompositionEnd}
       placeholder='이름'
       required
