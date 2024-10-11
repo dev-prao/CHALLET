@@ -17,6 +17,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.json.JsonData;
 import lombok.RequiredArgsConstructor;
 
 @Repository
@@ -34,14 +35,23 @@ public class CustomSearchedTransactionRepositoryImpl implements CustomSearchedTr
 			if (keyword != null && !keyword.isEmpty()) {
 				boolQueryBuilder.must(mq -> mq
 					.bool(bq -> bq
-						.should(sq -> sq.wildcard(wq -> wq.field("deposit").value("*" + keyword + "*")))
-						.should(sq -> sq.wildcard(wq -> wq.field("withdrawal").value("*" + keyword + "*")))
+						.should(sq -> sq.bool(subBq -> subBq
+							.must(m -> m.range(r -> r.field("transactionAmount").lt(
+								JsonData.fromJson("0"))))
+							.must(m -> m.wildcard(wq -> wq.field("deposit").value("*" + keyword + "*")))
+						))
+						.should(sq -> sq.bool(subBq -> subBq
+							.must(m -> m.range(r -> r.field("transactionAmount").gt(
+								JsonData.fromJson("0"))))
+							.must(m -> m.wildcard(wq -> wq.field("withdrawal").value("*" + keyword + "*")))
+						))
 					)
 				);
 			}
 
 			Query query = boolQueryBuilder.build()._toQuery();
 
+			// 거래 날짜를 기준으로 정렬
 			SortOptions sortOptions = SortOptions.of(so -> so
 				.field(f -> f.field("transactionDate").order(SortOrder.Desc))
 			);

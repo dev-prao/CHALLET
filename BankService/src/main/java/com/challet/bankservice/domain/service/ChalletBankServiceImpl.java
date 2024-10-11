@@ -104,11 +104,11 @@ public class ChalletBankServiceImpl implements ChalletBankService {
 	// 계좌별 기본 카테고리 및 매핑 생성
 	public void createDefaultCategoriesAndMappingsForAccount(ChalletBank challetBank) {
 		Map<String, List<String>> categoryMappingData = new HashMap<>();
-		categoryMappingData.put("DELIVERY", Arrays.asList("쿠팡이츠", "배달", "요기요"));
-		categoryMappingData.put("TRANSPORT", Arrays.asList("택시", "킥보드", "우버", "SRT", "코레일", "버스"));
+		categoryMappingData.put("DELIVERY", Arrays.asList("배달의민족" , "요기요", "쿠팡이츠", "교촌치킨", "도미노피자", "족발보쌈", "BBQ"));
+		categoryMappingData.put("TRANSPORT", Arrays.asList("택시", "버스", "티머니", "카카오택시", "카카오바이크", "씽씽이", "S-OIL", "현대오일뱅크"));
 		categoryMappingData.put("COFFEE",
-			Arrays.asList("스타벅스", "할리스", "파스쿠치", "투썸", "이디야", "커피", "카페"));
-		categoryMappingData.put("SHOPPING", Arrays.asList("무신사", "네이버쇼핑"));
+			Arrays.asList("스타벅스", "할리스", "파스쿠치", "투썸플레이스", "이디야", "커피", "카페", "메가커피", "투썸플레이스", "봄봄", "컴포즈커피"));
+		categoryMappingData.put("SHOPPING", Arrays.asList("무신사", "지그재그", "올리브영", "KREAM", "네이버쇼핑", "쿠팡"));
 		categoryMappingData.put("ETC", Collections.emptyList());
 
 		for (Map.Entry<String, List<String>> entry : categoryMappingData.entrySet()) {
