@@ -16,13 +16,18 @@ import com.challet.bankservice.global.client.KbBankFeignClient;
 import com.challet.bankservice.global.client.NhBankFeignClient;
 import com.challet.bankservice.global.client.ShBankFeignClient;
 import com.challet.bankservice.global.util.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,51 +41,63 @@ public class TransactionAnalysisServiceImpl implements TransactionAnalysisServic
     private final ShBankFeignClient shBankFeignClient;
     private final ChalletFeignClient challetFeignClient;
     private final MonthlyTransactionHistoryListRepository redisRepository;
+    private final RedisTemplate<String, MonthlyTransactionRedisListDTO> redisTemplate;
 
 
     @Override
-    public MonthlyTransactionHistoryListDTO getMonthlyTransactionHistory(String tokenHeader,
-        MonthlyTransactionRequestDTO requestDTO) {
+    public MonthlyTransactionHistoryListDTO getMonthlyTransactionHistory(String tokenHeader, MonthlyTransactionRequestDTO requestDTO) {
+
+        // 사용자 전화번호를 JWT에서 추출
         String phoneNumber = jwtUtil.getLoginUserPhoneNumber(tokenHeader);
 
-        String redisId = requestDTO.year() + ":" + requestDTO.month() + ":" + phoneNumber;
-        //redis 조회
-        MonthlyTransactionRedisListDTO redisHistoryDTO = redisRepository.findById(redisId).orElse(null);
+        // Redis 키 생성 (연도-월-전화번호 조합)
+        String redisKey = requestDTO.year() + "-" + requestDTO.month() + "-" + phoneNumber;
 
+        // Redis에서 데이터를 조회
+        Object cachedData = redisTemplate.opsForValue().get(redisKey);
+        MonthlyTransactionRedisListDTO redisHistoryDTO = null;
+
+        // 데이터를 LinkedHashMap에서 MonthlyTransactionRedisListDTO로 변환
+        if (cachedData instanceof LinkedHashMap) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());  // JavaTimeModule 등록
+            redisHistoryDTO = objectMapper.convertValue(cachedData, MonthlyTransactionRedisListDTO.class);
+        } else if (cachedData instanceof MonthlyTransactionRedisListDTO) {
+            redisHistoryDTO = (MonthlyTransactionRedisListDTO) cachedData;
+        }
+
+        // Redis에 데이터가 있으면 해당 데이터를 반환
         if (redisHistoryDTO != null) {
             return MonthlyTransactionHistoryListDTO.from(redisHistoryDTO.getMonthlyTransactions());
         }
 
-        MonthlyTransactionHistoryListDTO chMonthlyTransaction = challetBankRepository.getTransactionByPhoneNumberAndYearMonth(
-            phoneNumber, requestDTO);
+        // 데이터가 없으면 각 은행에서 데이터를 조회
+        MonthlyTransactionHistoryListDTO chMonthlyTransaction = challetBankRepository.getTransactionByPhoneNumberAndYearMonth(phoneNumber, requestDTO);
+        MonthlyTransactionHistoryListDTO kbMonthlyTransaction = kbBankFeignClient.getMonthlyTransactionHistory(tokenHeader, requestDTO.year(), requestDTO.month());
+        MonthlyTransactionHistoryListDTO nhMonthlyTransaction = nhBankFeignClient.getMonthlyTransactionHistory(tokenHeader, requestDTO.year(), requestDTO.month());
+        MonthlyTransactionHistoryListDTO shMonthlyTransaction = shBankFeignClient.getMonthlyTransactionHistory(tokenHeader, requestDTO.year(), requestDTO.month());
 
-        MonthlyTransactionHistoryListDTO kbMonthlyTransaction = kbBankFeignClient.getMonthlyTransactionHistory(
-            tokenHeader, requestDTO.year(), requestDTO.month());
-
-        MonthlyTransactionHistoryListDTO nhMonthlyTransaction = nhBankFeignClient.getMonthlyTransactionHistory(
-            tokenHeader, requestDTO.year(), requestDTO.month());
-
-        MonthlyTransactionHistoryListDTO shMonthlyTransaction = shBankFeignClient.getMonthlyTransactionHistory(
-            tokenHeader, requestDTO.year(), requestDTO.month());
-
+        // 각 은행에서 조회한 트랜잭션을 모두 합침
         List<MonthlyTransactionHistoryDTO> allTransactions = new ArrayList<>();
         allTransactions.addAll(chMonthlyTransaction.monthlyTransactions());
         allTransactions.addAll(kbMonthlyTransaction.monthlyTransactions());
         allTransactions.addAll(nhMonthlyTransaction.monthlyTransactions());
         allTransactions.addAll(shMonthlyTransaction.monthlyTransactions());
 
-        allTransactions.sort(
-            Comparator.comparing(MonthlyTransactionHistoryDTO::transactionDate).reversed());
+        // 트랜잭션을 날짜 기준으로 내림차순 정렬
+        allTransactions.sort(Comparator.comparing(MonthlyTransactionHistoryDTO::transactionDate).reversed());
 
-        MonthlyTransactionHistoryListDTO sortedTransactions = MonthlyTransactionHistoryListDTO.from(
-            allTransactions);
+        // 정렬된 트랜잭션을 DTO로 변환
+        MonthlyTransactionHistoryListDTO sortedTransactions = MonthlyTransactionHistoryListDTO.from(allTransactions);
 
-        // Redis에 정렬된 트랜잭션을 저장
-        redisRepository.save(MonthlyTransactionRedisListDTO.builder()
-            .id(redisId)
+        // Redis에 새롭게 조회한 데이터를 저장
+        redisTemplate.opsForValue().set(redisKey, MonthlyTransactionRedisListDTO.builder()
+            .id(redisKey)
             .monthlyTransactions(sortedTransactions.monthlyTransactions())
-            .build());
+            .build(),
+            10, TimeUnit.MINUTES);
 
+        // 정렬된 트랜잭션 반환
         return sortedTransactions;
     }
 
