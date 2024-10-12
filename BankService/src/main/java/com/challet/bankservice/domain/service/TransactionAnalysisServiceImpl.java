@@ -68,9 +68,6 @@ public class TransactionAnalysisServiceImpl implements TransactionAnalysisServic
 
         // Redis에 데이터가 있으면 해당 데이터를 반환
         if (redisHistoryDTO != null) {
-            System.out.println("--------------");
-            System.out.println("hoasdfj");
-            System.out.println("--------------");
             return MonthlyTransactionHistoryListDTO.from(redisHistoryDTO.getMonthlyTransactions());
         }
 
@@ -98,7 +95,7 @@ public class TransactionAnalysisServiceImpl implements TransactionAnalysisServic
             .id(redisKey)
             .monthlyTransactions(sortedTransactions.monthlyTransactions())
             .build(),
-            200, TimeUnit.SECONDS);
+            10, TimeUnit.MINUTES);
 
         // 정렬된 트랜잭션 반환
         return sortedTransactions;

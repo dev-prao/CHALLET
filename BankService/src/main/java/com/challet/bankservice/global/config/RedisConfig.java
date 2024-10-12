@@ -35,17 +35,6 @@ public class RedisConfig {
         return new LettuceConnectionFactory(host, port);
     }
 
-//    @Bean
-//    public RedisTemplate<String, MonthlyTransactionRedisListDTO> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-//        RedisTemplate<String, MonthlyTransactionRedisListDTO> template = new RedisTemplate<>();
-//        template.setConnectionFactory(redisConnectionFactory);
-//        ObjectMapper mapper = new ObjectMapper();
-//        mapper.registerModule(new JavaTimeModule());
-//        template.setKeySerializer(new StringRedisSerializer());
-//        template.setValueSerializer(new GenericJackson2JsonRedisSerializer(mapper));
-//
-//        return template;
-//    }
     @Bean
     public RedisTemplate<String, MonthlyTransactionRedisListDTO> redisTemplate(RedisConnectionFactory redisConnectionFactory, ObjectMapper objectMapper) {
         RedisTemplate<String, MonthlyTransactionRedisListDTO> template = new RedisTemplate<>();

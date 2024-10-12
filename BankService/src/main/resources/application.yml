@@ -53,7 +53,7 @@ spring:
       idle-timeout: 30000    # 30초 동안 유휴 상태일 때 연결을 닫음
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
       dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
   elasticsearch:
