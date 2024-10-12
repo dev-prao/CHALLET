@@ -6,15 +6,15 @@ import java.io.Serializable;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.redis.core.RedisHash;
 
-@Data
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@RedisHash(value = "MonthlyTransactionHistoryList", timeToLive = 60)
+@RedisHash(value = "MonthlyTransactionHistoryList")
 public class MonthlyTransactionRedisListDTO implements Serializable {
 
     @Id

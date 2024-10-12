@@ -1,5 +1,8 @@
 package com.challet.bankservice.domain.service;
 
+import com.challet.bankservice.domain.dto.redis.MonthlyTransactionRedisListDTO;
+import com.challet.bankservice.domain.dto.response.MonthlyTransactionHistoryDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,6 +78,8 @@ public class ChalletBankServiceImpl implements ChalletBankService {
 	private final NhBankFeignClient nhBankFeignClient;
 	private final ShBankFeignClient shBankFeignClient;
 	private final ChalletFeignClient challetFeignClient;
+	private final RedisTemplate<String, MonthlyTransactionRedisListDTO> redisTemplate;
+	private final ObjectMapper objectMapper;
 
 	@Override
 	public void createAccount(String name, String phoneNumber) {
@@ -280,8 +286,7 @@ public class ChalletBankServiceImpl implements ChalletBankService {
 				categoryInfo.getId(), paymentRequestDTO);
 
 			if (notFindSameCategory == 0) {
-				CategoryMapping newPayment = CategoryMapping
-					.builder()
+				CategoryMapping newPayment = CategoryMapping.builder()
 					.depositName(paymentRequestDTO.deposit())
 					.categoryT(categoryInfo)
 					.challetBank(transaction.getChalletBank())
@@ -290,7 +295,52 @@ public class ChalletBankServiceImpl implements ChalletBankService {
 			}
 			transaction.updateCategory(paymentRequestDTO.category());
 		}
+
+		MonthlyTransactionHistoryDTO newTransaction = MonthlyTransactionHistoryDTO.builder()
+			.bankName(transaction.getChalletBank().getName())
+			.accountNumber(transaction.getChalletBank().getAccountNumber())
+			.balance(transaction.getChalletBank().getAccountBalance())
+			.transactionDate(transaction.getTransactionDatetime())
+			.deposit(transaction.getDeposit())
+			.withdrawal(transaction.getWithdrawal())
+			.transactionBalance(transaction.getTransactionBalance())
+			.transactionAmount(transaction.getTransactionAmount())
+			.category(transaction.getCategory())
+			.build();
+
+		isRedisDataUpdate(transaction, newTransaction);
+		challetBankTransactionRepository.save(transaction);
+
 		return PaymentResponseDTO.fromPaymentResponseDTO(transaction);
+	}
+
+	private String createRedisKey(int year, int month, String phoneNumber) {
+		return year + "-" + month + "-" + phoneNumber;
+	}
+
+	private void isRedisDataUpdate(ChalletBankTransaction transaction,
+		MonthlyTransactionHistoryDTO newTransaction) {
+		// 1. Redis 키 생성
+		String redisKey = createRedisKey(transaction.getTransactionDatetime().getYear(),
+			transaction.getTransactionDatetime().getMonth().getValue(),
+			transaction.getChalletBank().getPhoneNumber());
+
+		// 2. Redis에서 데이터를 조회(시간타입으로 Object 필요)
+		Object cachedData = redisTemplate.opsForValue().get(redisKey);
+		MonthlyTransactionRedisListDTO transactionData = null;
+
+		// 3. Redis 데이터가 있으면 업데이트, 없으면 DB에만 저장
+		if (cachedData != null) {
+			transactionData = objectMapper.convertValue(cachedData, MonthlyTransactionRedisListDTO.class);
+		}
+
+		// 4. Redis에 데이터가 있고 시간대가 다르다면 업데이트
+		if (transactionData != null && !transactionData.getMonthlyTransactions().get(0)
+			.transactionDate().equals(newTransaction.transactionDate())) {
+			List<MonthlyTransactionHistoryDTO> transactions = transactionData.getMonthlyTransactions();
+			transactions.add(0, newTransaction);
+			redisTemplate.opsForValue().set(redisKey, transactionData);
+		}
 	}
 
 	@Transactional
