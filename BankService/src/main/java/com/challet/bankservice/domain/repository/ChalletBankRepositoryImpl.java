@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
@@ -236,8 +235,7 @@ public class ChalletBankRepositoryImpl implements ChalletBankRepositoryCustom {
             .join(challetBankTransaction.challetBank, challetBank)
             .where(
                 challetBank.phoneNumber.in(subListPhoneNumbers)
-                    .and(
-                        challetBankTransaction.transactionDatetime.year().eq(requestDTO.year()))
+                    .and(challetBankTransaction.transactionDatetime.year().eq(requestDTO.year()))
                     .and(challetBankTransaction.transactionDatetime.month()
                         .eq(requestDTO.month()))
                     .and(challetBankTransaction.category.in(Category.COFFEE, Category.DELIVERY,
@@ -294,8 +292,7 @@ public class ChalletBankRepositoryImpl implements ChalletBankRepositoryCustom {
             .join(chBankTransaction.challetBank, challetBank)
             .where(
                 challetBank.phoneNumber.eq(phoneNumber)
-                    .and(
-                        chBankTransaction.transactionDatetime.year().eq(requestDTO.year()))
+                    .and(chBankTransaction.transactionDatetime.year().eq(requestDTO.year()))
                     .and(chBankTransaction.transactionDatetime.month().eq(requestDTO.month()))
                     .and(chBankTransaction.category.in(Category.COFFEE, Category.DELIVERY,
                         Category.SHOPPING, Category.TRANSPORT, Category.ETC))
