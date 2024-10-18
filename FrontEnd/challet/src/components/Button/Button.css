@@ -1,0 +1,38 @@
+/* 기본 버튼 */
+.custom-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #00cccc;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* 비활성화 버튼 */
+.custom-button.disabled {
+  background-color: #d2d2d2;
+  color: #ffffff;
+  cursor: not-allowed;
+}
+
+/* 하단 고정 버튼 */
+.fixed-bottom-button {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 360px;
+  height: 80px;
+  padding: 13px 163px;
+  background-color: #00cccc;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
