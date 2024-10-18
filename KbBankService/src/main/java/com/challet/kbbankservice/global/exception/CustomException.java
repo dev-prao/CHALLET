@@ -1,4 +1,4 @@
-package com.challet.shbankservice.global.exception;
+package com.challet.kbbankservice.global.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

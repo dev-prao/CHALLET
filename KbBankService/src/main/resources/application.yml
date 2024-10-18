@@ -1,5 +1,5 @@
 #server:
-#  port: 8085
+#  port: 8083
 
 spring:
   profiles:
@@ -36,13 +36,14 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://challet-discovery-spring:8761/eureka
+
 ---
 # 공통 설정
 spring:
   application:
-    name: sh-bank
+    name: kb-bank
   datasource:
-    url: jdbc:mysql://challet.world:${dbport}/shbank-api?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://challet.world:${dbport}/kbbank-api?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: challet
     password: ${mysqlpassword}
@@ -58,12 +59,11 @@ spring:
   elasticsearch:
     uris: "challet.world:9200"
 
-
 springdoc:
   api-docs:
     version: openapi_3_1
     enabled: true
-    path: api/sh-bank/v3/api-docs
+    path: api/kb-bank/v3/api-docs
   enable-spring-security: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
@@ -72,6 +72,7 @@ jwt:
   secret: ${jwt_secret_key}
   access-exp: ${jwt_access_exp}
   refresh-exp: ${jwt_refresh_exp}
+
 
 management:
   endpoints:

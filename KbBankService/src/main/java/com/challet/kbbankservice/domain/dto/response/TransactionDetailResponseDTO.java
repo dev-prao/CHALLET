@@ -1,8 +1,9 @@
-package com.challet.shbankservice.domain.dto.response;
+package com.challet.kbbankservice.domain.dto.response;
 
-import com.challet.shbankservice.domain.entity.Category;
+import com.challet.kbbankservice.domain.entity.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+
 
 @Schema(description = "거래 상세 조회 응답 DTO")
 public record TransactionDetailResponseDTO(
