@@ -1,0 +1,111 @@
+#server:
+#  port: 8000
+
+spring:
+  profiles:
+    active: prod #로컬(dev) / git(prod)
+
+
+---
+# 로컬(dev) 환경 설정
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import: application-key.yml
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+---
+# 프로덕션(prod) 환경 설정
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: "classpath:/application-key.yml"
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://challet-discovery-spring:8761/eureka
+
+---
+# 공통 설정
+
+spring:
+  application:
+    name: challetapigateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: Challet
+          uri: lb://CHALLET
+          predicates:
+            - Path=/api/challet/**
+
+        - id: Ch-Bank
+          uri: lb://CH-BANK
+          predicates:
+            - Path=/api/ch-bank/**
+
+        - id: Kb-Bank
+          uri: lb://KB-BANK
+          predicates:
+            - Path=/api/kb-bank/**
+
+        - id: Nh-Bank
+          uri: lb://NH-BANK
+          predicates:
+            - Path=/api/nh-bank/**
+
+        - id: Sh-Bank
+          uri: lb://SH-BANK
+          predicates:
+            - Path=/api/sh-bank/**
+      default-filters:
+        - name: JwtAuthenticationFilter
+
+
+springdoc:
+  swagger-ui:
+    use-root-path: true
+    urls[0]:
+      name: ChalletService
+      url: api/challet/v3/api-docs
+    urls[1]:
+      name: ChBank-Service
+      url: api/ch-bank/v3/api-docs
+    urls[2]:
+      name: KbBank-Service
+      url: api/kb-bank/v3/api-docs
+    urls[3]:
+      name: NhBank-Service
+      url: api/nh-bank/v3/api-docs
+    urls[4]:
+      name: ShBank-Service
+      url: api/sh-bank/v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  endpoint:
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+jwt:
+  secret: ${jwt_secret_key}
+  access-exp: ${jwt_access_exp}
+  refresh-exp: ${jwt_refresh_exp}
